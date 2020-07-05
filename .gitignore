@@ -3,6 +3,19 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
+#CUSTOM IGNORES (Mainly SDL2 library)
+bin/
+SDL2/
+
+
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+
 # User-specific files
 *.rsuser
 *.suo
