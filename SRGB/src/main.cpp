@@ -6,22 +6,27 @@
 
 int main(int argc, char* args[])
 {
+	
+	WindowProps windProperties = WindowProps("WINDOOOOOOW");
 
-	Window *main_window = new Window();
-
-	//Initialize window
-	if (!main_window->init())
-	{
-		std::cout<<"Failed to initialize window"<<std::endl;
-		return 0;
-	}
+	Window *main_window = new Window(windProperties);
 
 	
-	SDL_Delay(5000);
+	bool running = true;
+	
+	while (running)
+	{
+		//INPUT MANAGERISH CLASS HERE AND FEED RUNNING VARAIBEL ADDRESS TO IT TO CHANGE IT WHEN CLOSE WINDOW
 
-	main_window->quit();
+		main_window->onUpdate();
+	}
+	
+
+	//main_window->quit();
 
 	delete main_window;
+	
+	return 0;
 
 }
 /*

@@ -3,12 +3,31 @@
 #include "Window.h"
 
 
-//Constructor and destructor
-Window::Window() : m_window(nullptr), m_surface(nullptr) {};
+
+//Default constructor
+Window::Window() :m_window(nullptr),m_surface(nullptr) {
+
+	WindowProps props = WindowProps();
+
+	init(props);
+
+	
+
+};
+
+//Custom props constructor
+Window::Window(WindowProps &props) :m_window(nullptr), m_surface(nullptr)
+{
+
+	init(props);
+
+};
+
+
 Window::~Window(){};
 
 
-bool Window::init()
+void Window::init(WindowProps &props)
 {
 
 	
@@ -17,11 +36,11 @@ bool Window::init()
 
 	//Create SDL window HARD CODED VALUES ATM BUT COULD BE CHANGED
 	m_window = SDL_CreateWindow(
-		"SGBR",						// window title
+		props.Name.c_str(),						// window title
 		SDL_WINDOWPOS_UNDEFINED,	// x position
 		SDL_WINDOWPOS_UNDEFINED,	// y position
-		1280,						// width pixels
-		720,						// height pixels
+		props.Width,				// width pixels
+		props.Height,				// height pixels
 		0							// flags
 	);
 
@@ -29,7 +48,7 @@ bool Window::init()
 	if (m_window == nullptr)
 	{
 		printf("Could not create window: %s\n", SDL_GetError());
-		return false;
+		
 	}
 
 	//Get surface window and check that it was gotten succesfully
@@ -37,11 +56,9 @@ bool Window::init()
 	if (m_surface == nullptr)
 	{
 		printf("Could not get surface: %s\n", SDL_GetError());
-		return false;
+		
 	}
 
-
-	return true;
 }
 
 
@@ -55,3 +72,14 @@ void Window::quit()
 	SDL_Quit();
 }
 
+
+
+void Window::onUpdate()
+{
+	SDL_Event Event;
+
+	while (SDL_PollEvent(&Event))
+	{
+		// Later, you'll be adding your code that handles keyboard / mouse input here
+	}
+}
