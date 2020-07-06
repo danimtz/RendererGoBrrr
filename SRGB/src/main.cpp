@@ -1,10 +1,30 @@
 #include <iostream>
-#include "SDL.h"
+#include "Window.h"
+
+
+
 
 int main(int argc, char* args[])
 {
 
+	Window *main_window = new Window();
 
+	//Initialize window
+	if (!main_window->init())
+	{
+		std::cout<<"Failed to initialize window"<<std::endl;
+		return 0;
+	}
+
+	
+	SDL_Delay(5000);
+
+	main_window->quit();
+
+	delete main_window;
+
+}
+/*
 	SDL_Window *window;
 	SDL_Surface *surface;
 
@@ -43,8 +63,7 @@ int main(int argc, char* args[])
 
 	// Clean up
 	SDL_Quit();
-
+	*/
 
 
 	
-}
