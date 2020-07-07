@@ -4,6 +4,7 @@
 
 
 
+
 //Default constructor
 Window::Window() :m_window(nullptr),m_surface(nullptr) {
 
@@ -32,7 +33,10 @@ void Window::init(WindowProps &props)
 
 	
 	//Start SDL
-	SDL_Init(SDL_INIT_VIDEO);
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	{
+		printf("Could not init video: %s\n", SDL_GetError());
+	}
 
 	//Create SDL window HARD CODED VALUES ATM BUT COULD BE CHANGED
 	m_window = SDL_CreateWindow(
@@ -76,10 +80,81 @@ void Window::quit()
 
 void Window::onUpdate()
 {
-	SDL_Event Event;
+	
+	
+	
 
-	while (SDL_PollEvent(&Event))
+
+
+	//TEMP STUFF. THIS SHOULD BE CALLED FROM RENDERER OR WHEREVER LIKE: 
+	//renderer.getRenderTarget ie buffer
+	//swapBuffers(renderer.getRenderTarget)
+
+
+	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(640, 480);  
+
+
+	//Pixel colour and format
+	SDL_PixelFormat *px_format = m_surface->format;//SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+	uint32_t colour = SDL_MapRGB(px_format, 150, 14, 255);
+
+
+
+	px_buff->clear();
+
+	for (int j = 50; j < 200; j++)
 	{
-		// Later, you'll be adding your code that handles keyboard / mouse input here
+		for (int i = 50; i < 200; i++)
+		{
+			(*px_buff)(i, j) = colour;
+		}
 	}
+
+	/*
+	uint8_t r, g, b;
+	SDL_GetRGB(colour, px_format, &r, &g, &b);
+	std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
+	*/
+
+	swapBuffers(px_buff);
+
+	delete px_buff;
 }
+
+void Window::swapBuffers(Buffer<uint32_t> *px_buff)
+{
+	
+
+	
+	//Lock SDL surface
+	SDL_LockSurface(m_surface);
+
+
+	//Copy buffer
+	memcpy(m_surface->pixels, px_buff->buffer, px_buff->m_buff_sz);
+	
+
+	//Unlock SDL surface
+	SDL_UnlockSurface(m_surface);
+
+	//Update window surface
+	SDL_UpdateWindowSurface(m_window);
+
+}
+
+
+
+
+
+
+
+
+
+
+/* THIS WILL GO IN SDLEVENT MANAGER CLASs/INPUTCLASS/ OR WHATEVER
+SDL_Event Event;
+
+while (SDL_PollEvent(&Event))
+{
+	// Later, you'll be adding your code that handles keyboard / mouse input here
+}*/

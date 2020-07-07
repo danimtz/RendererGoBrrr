@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL.h"
+#include "Buffer.h"
 
 //Window properties
 struct WindowProps {
@@ -35,6 +36,9 @@ class Window {
 		SDL_Window *m_window;
 		SDL_Surface *m_surface;
 		
+		void swapBuffers(Buffer<uint32_t> *px_buff);
+
+
 		// Starts and end funcions of window
 		void init(WindowProps &window_props);
 		void quit();
