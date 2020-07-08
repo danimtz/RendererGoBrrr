@@ -1,6 +1,11 @@
 # SoftwareRendererGoBrrr
 Writing a software renderer for learning purposes. And yes acronym for the project is SRGB which is a completely unrelated thing
 
+**CURRENT FEATURES**
+
+- Working SDL2 window with capability to swap between buffers
+
+- more to come...
 
 **TODO:**
 
