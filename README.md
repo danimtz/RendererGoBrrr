@@ -1,5 +1,5 @@
 # SoftwareRendererGoBrrr
-Writing a software renderer for learning purposes. And yes the capital letters of the project are SRGB which is a horrible name indeed
+Writing a software renderer for learning purposes. And yes acronym for the project is SRGB which is a completely unrelated thing
 
 
 **TODO:**
