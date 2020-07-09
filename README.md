@@ -4,14 +4,14 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 ## **CURRENT FEATURES**
 
 - Working SDL2 window with capability to swap between buffers.
-
+- Working templated vector math library
 - more to come...
 
 ### **TODO:**
 
 
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
-- [x]  Templated buffer class for z-buffer(float) and pixel buffer(uint32_t).
-- [x]  Templated vector math library.
+- [x]  Write emplated buffer class for z-buffer(float) and pixel buffer(uint32_t).
+- [x]  Write templated vector math library.
 - [ ]  Rasterizer interger bresenham line drawing function.
 - [ ]  OBJ mesh file parser.
