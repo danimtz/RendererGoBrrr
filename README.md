@@ -13,5 +13,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
 - [x]  Write emplated buffer class for z-buffer(float) and pixel buffer(uint32_t).
 - [x]  Write templated vector math library.
-- [ ]  Rasterizer interger bresenham line drawing function.
+- [x]  Rasterizer interger bresenham line drawing function.
 - [ ]  OBJ mesh file parser.

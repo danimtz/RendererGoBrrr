@@ -24,6 +24,7 @@ class Buffer {
 		m_buff_sz(height * m_pitch)
 	{
 		buffer = new T[m_px_count];
+		clear();
 	}
 
 	~Buffer(){ delete[] buffer; }

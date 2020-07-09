@@ -90,35 +90,65 @@ void Window::onUpdate()
 	//renderer.getRenderTarget ie buffer
 	//swapBuffers(renderer.getRenderTarget)
 
-
-	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(640, 480);  
-
-
-	//Pixel colour and format
-	SDL_PixelFormat *px_format = m_surface->format;//SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
-	uint32_t colour = SDL_MapRGB(px_format, 150, 14, 255);
+	//Create rasterizer THIS SHOULD BE DONE FROM RENDERER CLASS OR SOMETHING. AND NEW RASTERIZER OBJECT SHOULDNT BE CREATED AND DELETED EACH FRAME LIKE IT IS NOW
+	//SAME FOR THE PIXEL BUFFER
 
 
 
-	px_buff->clear();
+	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(m_surface->w, m_surface->h);
+	Rasterizer *rasterizer = new Rasterizer(m_surface);
+	
+	uint32_t colour ;
 
-	for (int j = 50; j < 200; j++)
+	
+	
+	//Test draw circle
+	int count = 0;
+	for (float i = 0; i<M_PI; i+=M_PI/128)
 	{
-		for (int i = 50; i < 200; i++)
-		{
-			(*px_buff)(i, j) = colour;
-		}
+		float x = cos(i);
+		float y = sin(i);
+
+		int mid_h = m_surface->h / 2;
+		int mid_w = m_surface->w / 2;
+
+
+
+		colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
+
+
+		rasterizer->drawLine(mid_w + (int)(50 * x), mid_h + (int)(50* y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+		, px_buff, colour);
+
+		//count++;
+	}
+	for (float i = M_PI; i < 2*M_PI; i += M_PI / 128)
+	{
+		float x = cos(i);
+		float y = sin(i);
+
+		int mid_h = m_surface->h / 2;
+		int mid_w = m_surface->w / 2;
+
+
+
+		colour = SDL_MapRGB(m_surface->format, 255, 10, 25);
+
+
+		rasterizer->drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+			, px_buff, colour);
+
+		//count++;
 	}
 
-	/*
-	uint8_t r, g, b;
-	SDL_GetRGB(colour, px_format, &r, &g, &b);
-	std::cout << (int)r << " " << (int)g << " " << (int)b << std::endl;
-	*/
+	
+
 
 	swapBuffers(px_buff);
 
+	//px_buff->clear();
 	delete px_buff;
+	delete rasterizer;
 }
 
 void Window::swapBuffers(Buffer<uint32_t> *px_buff)

@@ -2,6 +2,9 @@
 
 #include "SDL.h"
 #include "Buffer.h"
+#include "Rasterizer.h"
+
+
 
 //Window properties
 struct WindowProps {

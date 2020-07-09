@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Window.h"
 
+#include "Rasterizer.h"
+
 #include "Vector3.h"
 
 
@@ -11,7 +13,7 @@ int main(int argc, char* args[])
 
 	Window *main_window = new Window(windProperties);
 
-
+	
 
 	//THIS MAIN LOOP SHOULD BE MOVED AWAY FROM MAIN INTO engine CLASS OR SOMETHING
 
