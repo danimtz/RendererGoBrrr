@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Window.h"
 
-
+#include "Vector3.h"
 
 
 int main(int argc, char* args[])
@@ -10,7 +10,6 @@ int main(int argc, char* args[])
 	WindowProps windProperties = WindowProps("WINDOOOOOOW",640,480);
 
 	Window *main_window = new Window(windProperties);
-
 
 
 
