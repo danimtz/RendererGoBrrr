@@ -20,31 +20,31 @@ struct WindowProps {
 
 // Creates and destroys nd writes buffer to SDL window surface
 class Window {
-	public:
+public:
 
 		
-		// Constructor/Destructor
-		Window();
-		Window(WindowProps &props);
-		~Window();
+	// Constructor/Destructor
+	Window();
+	Window(WindowProps &props);
+	~Window();
 
 		
 		
-		void onUpdate();
-		//TODO memcpy buffer to surface at some point swapbuffer etc
+	void onUpdate();
+	//TODO memcpy buffer to surface at some point swapbuffer etc
 
 
-	private:
+private:
 
-		SDL_Window *m_window;
-		SDL_Surface *m_surface;
+	SDL_Window *m_window;
+	SDL_Surface *m_surface;
 		
-		void swapBuffers(Buffer<uint32_t> *px_buff);
+	void swapBuffers(Buffer<uint32_t> *px_buff);
 
 
-		// Starts and end funcions of window
-		void init(WindowProps &window_props);
-		void quit();
+	// Starts and end funcions of window
+	void init(WindowProps &window_props);
+	void quit();
 
 
 };

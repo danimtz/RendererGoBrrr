@@ -6,7 +6,7 @@
 
 
 //Default constructor
-Window::Window() :m_window(nullptr),m_surface(nullptr) {
+Window::Window() : m_window(nullptr),m_surface(nullptr) {
 
 	WindowProps props = WindowProps();
 
@@ -17,7 +17,7 @@ Window::Window() :m_window(nullptr),m_surface(nullptr) {
 };
 
 //Custom props constructor
-Window::Window(WindowProps &props) :m_window(nullptr), m_surface(nullptr)
+Window::Window(WindowProps &props) : m_window(nullptr), m_surface(nullptr)
 {
 
 	init(props);
@@ -40,7 +40,7 @@ void Window::init(WindowProps &props)
 
 	//Create SDL window HARD CODED VALUES ATM BUT COULD BE CHANGED
 	m_window = SDL_CreateWindow(
-		props.Name.c_str(),						// window title
+		props.Name.c_str(),			// window title
 		SDL_WINDOWPOS_UNDEFINED,	// x position
 		SDL_WINDOWPOS_UNDEFINED,	// y position
 		props.Width,				// width pixels
@@ -96,9 +96,9 @@ void Window::onUpdate()
 
 
 	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(m_surface->w, m_surface->h);
-	Rasterizer *rasterizer = new Rasterizer(m_surface);
 	
-	uint32_t colour ;
+	
+	uint32_t colour;
 
 	
 	
@@ -117,7 +117,7 @@ void Window::onUpdate()
 		colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
 
 
-		rasterizer->drawLine(mid_w + (int)(50 * x), mid_h + (int)(50* y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+		Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50* y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
 		, px_buff, colour);
 
 		//count++;
@@ -135,7 +135,7 @@ void Window::onUpdate()
 		colour = SDL_MapRGB(m_surface->format, 255, 10, 25);
 
 
-		rasterizer->drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+		Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
 			, px_buff, colour);
 
 		//count++;
@@ -148,7 +148,6 @@ void Window::onUpdate()
 
 	//px_buff->clear();
 	delete px_buff;
-	delete rasterizer;
 }
 
 void Window::swapBuffers(Buffer<uint32_t> *px_buff)

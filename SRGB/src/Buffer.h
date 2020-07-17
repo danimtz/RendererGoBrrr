@@ -7,7 +7,7 @@
 //Templated class to hold framebuffer and z-buffer
 template<class T>
 class Buffer {
-	public:
+public:
 
 	int m_width;
 	int m_height;

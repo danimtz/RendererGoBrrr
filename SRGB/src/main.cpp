@@ -13,8 +13,6 @@ int main(int argc, char* args[])
 
 	Window *main_window = new Window(windProperties);
 
-	
-
 	//THIS MAIN LOOP SHOULD BE MOVED AWAY FROM MAIN INTO engine CLASS OR SOMETHING
 
 	bool running = true;
@@ -47,7 +45,7 @@ int main(int argc, char* args[])
 	
 
 	delete main_window;
-	
+
 	return 0;
 
 }

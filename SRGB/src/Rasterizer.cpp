@@ -1,5 +1,12 @@
 #include "Rasterizer.h"
 
+//Constants
+const SDL_PixelFormat* Rasterizer::px_format = SDL_AllocFormat(PX_FORMAT);
+
+const uint32_t Rasterizer::red = SDL_MapRGB(px_format, 255, 0, 0);
+const uint32_t Rasterizer::green = SDL_MapRGB(px_format, 0, 255, 0);
+const uint32_t Rasterizer::blue = SDL_MapRGB(px_format, 0, 0, 255);
+const uint32_t Rasterizer::white = SDL_MapRGB(px_format, 255, 255, 255);
 
 
 
