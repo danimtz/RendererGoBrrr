@@ -14,4 +14,4 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Write emplated buffer class for z-buffer(float) and pixel buffer(uint32_t).
 - [x]  Write templated vector math library.
 - [x]  Rasterizer interger bresenham line drawing function.
-- [ ]  OBJ mesh file parser.
+- [ ]  OBJ mesh file parser and Model class to hold data from OBJ file
