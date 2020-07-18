@@ -15,3 +15,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Write templated vector math library.
 - [x]  Rasterizer interger bresenham line drawing function.
 - [ ]  OBJ mesh file parser and Model class to hold data from OBJ file
+- [ ]  Finish model class functions (getNormal, getFace etc...)
+- [ ]  Wireframe drawer

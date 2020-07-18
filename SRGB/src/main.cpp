@@ -1,17 +1,32 @@
 #include <iostream>
+
 #include "Window.h"
 
 #include "Rasterizer.h"
 
 #include "Vector3.h"
 
+#include "Model.h"
+
 
 int main(int argc, char* args[])
 {
 	
+
+	//DEBUGGING STUFF
+	//load model
+
+	Model *teapot = new Model("assets\\bunny.obj");
+
+
 	WindowProps windProperties = WindowProps("WINDOOOOOOW",640,480);
 
 	Window *main_window = new Window(windProperties);
+
+
+
+	
+
 
 	//THIS MAIN LOOP SHOULD BE MOVED AWAY FROM MAIN INTO engine CLASS OR SOMETHING
 

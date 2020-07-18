@@ -56,6 +56,20 @@ public:
 		}
 	}
 
+	const T& operator[](int n) const
+	{
+		assert(n >= 0 && n <= 1);
+
+		if (n == 0)
+		{
+			return x;
+		}
+		else
+		{
+			return y;
+		}
+	}
+
 
 	//============scalar operators=================
 	Vec2<T> operator+(T other) const
@@ -218,6 +232,24 @@ public:
 		}
 	}
 
+
+	const T& operator[](int n) const
+	{
+		assert(n >= 0 && n <= 2);
+
+		if (n == 0)
+		{
+			return x;
+		}
+		else if (n == 1)
+		{
+			return y;
+		}
+		else
+		{
+			return z;
+		}
+	}
 
 	//============scalar operators=================
 	Vec3<T> operator+(T other) const

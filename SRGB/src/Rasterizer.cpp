@@ -58,3 +58,24 @@ void Rasterizer::drawLine(int x0, int y0, int x1, int y1, Buffer<uint32_t> *px_b
 	}
 }
 
+static void drawWireFrame(Model *model, Buffer<uint32_t> *px_buff, uint32_t colour)
+{
+
+	//Iterate faces
+	for (int i = 0; i < model->getFaceCount(); i++)
+	{
+
+
+
+
+
+
+
+	}
+
+
+
+
+
+
+}
