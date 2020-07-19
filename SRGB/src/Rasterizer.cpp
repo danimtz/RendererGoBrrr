@@ -77,7 +77,7 @@ void Rasterizer::drawWireFrame(Model *model, Buffer<uint32_t> *px_buff, uint32_t
 			Vec3f v1 = model->getVertex(face_verts[(j+1)%3]);
 
 
-			
+			//viewport transform?????? SHOULD DO IT WITH MATRICES AND ITS NOT QUITE RIGHT
 			int x0 = (v0.x + 1.) * (float)px_buff->m_width / 2.0f;
 			int x1 = (v1.x + 1.) * (float)px_buff->m_width / 2.0f;
 			int y0 = (v0.y + 1.) * (float)px_buff->m_height / 2.0f;

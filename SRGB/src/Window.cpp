@@ -6,7 +6,8 @@
 
 
 //Default constructor
-Window::Window() : m_window(nullptr),m_surface(nullptr) {
+Window::Window() : m_window(nullptr),m_surface(nullptr), m_renderer(nullptr) 
+{
 
 	WindowProps props = WindowProps();
 
@@ -17,7 +18,7 @@ Window::Window() : m_window(nullptr),m_surface(nullptr) {
 };
 
 //Custom props constructor
-Window::Window(WindowProps &props) : m_window(nullptr), m_surface(nullptr)
+Window::Window(WindowProps &props) : m_window(nullptr), m_surface(nullptr), m_renderer(nullptr)
 {
 
 	init(props);
@@ -25,7 +26,10 @@ Window::Window(WindowProps &props) : m_window(nullptr), m_surface(nullptr)
 };
 
 
-Window::~Window(){};
+Window::~Window()
+{
+	delete m_renderer;
+};
 
 
 void Window::init(WindowProps &props)
@@ -63,6 +67,10 @@ void Window::init(WindowProps &props)
 		
 	}
 
+	//Create renderer instance
+	m_renderer = new Renderer(props.Width, props.Height); //deleted in destructor
+
+
 }
 
 
@@ -71,6 +79,7 @@ void Window::quit()
 	//Destroy window
 	SDL_DestroyWindow(m_window);
 	m_window = nullptr;
+	m_surface = nullptr;
 
 	// Clean up
 	SDL_Quit();
@@ -86,38 +95,28 @@ void Window::onUpdate()
 
 
 
-	//TEMP STUFF. THIS SHOULD BE CALLED FROM RENDERER OR WHEREVER LIKE: 
-	//renderer.getRenderTarget ie buffer
-	//swapBuffers(renderer.getRenderTarget)
+	
+	Buffer<uint32_t> *render_target = m_renderer->getRenderTarget();
+	
 
-	//Create rasterizer THIS SHOULD BE DONE FROM RENDERER CLASS OR SOMETHING. 
-	//SAME FOR THE PIXEL BUFFER
 
+
+#if 1 //DEBUG STUFF THAT WHOULDNT ACTUALLY GO HERE
 
 	//THE BUNNY IS BEING LOADED EACH FRAME BIG FUCKING NOPE. THIS NEEDS TO BE IN A RENDDERER CLASS OR SOMETHING WITH A RENDER QUEUE
 	Model *teapot = new Model("assets\\head.obj");// CHECK THIS
-
-
-	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(m_surface->w, m_surface->h);
-	
-	
 	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
-
-	Rasterizer::drawWireFrame(teapot, px_buff, colour);//CAUSES HEAP ALLOC ERROR. CHECK OBJ PARSER WORKS
+	Rasterizer::drawWireFrame(teapot, render_target, colour);//CAUSES HEAP ALLOC ERROR. CHECK OBJ PARSER WORKS
 	
+#endif
+
+
+	swapBuffers(render_target);
 
 	
-	
-	
-
-
-	swapBuffers(px_buff);
-
-	//px_buff->clear();
 
 	delete teapot;
 
-	delete px_buff;
 
 	
 }

@@ -36,6 +36,11 @@ public:
 		return buffer[x + m_width*y];
 	}
 
+	const T& operator()(int x, int y) const
+	{
+		return buffer[x + m_width * y];
+	}
+
 	void clear()
 	{
 	//This could use memset

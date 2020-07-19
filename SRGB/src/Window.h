@@ -1,10 +1,10 @@
 #pragma once
 
 #include "SDL.h"
-#include "Buffer.h"
 #include "Rasterizer.h"
 #include "Model.h"
-
+#include "Renderer.h"
+#include "Buffer.h"
 
 //Window properties
 struct WindowProps {
@@ -38,7 +38,9 @@ private:
 
 	SDL_Window *m_window;
 	SDL_Surface *m_surface;
-		
+	Renderer *m_renderer;
+
+
 	void swapBuffers(Buffer<uint32_t> *px_buff);
 
 
