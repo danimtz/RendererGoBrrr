@@ -107,7 +107,11 @@ void Window::onUpdate()
 	Model *teapot = new Model("assets\\head.obj");// CHECK THIS
 	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
 	Rasterizer::drawWireFrame(teapot, render_target, colour);//CAUSES HEAP ALLOC ERROR. CHECK OBJ PARSER WORKS
-	
+
+
+	//Rasterizer::drawLine(1279,719,0,0, render_target, colour);//WORK ON EDGE CASES OF PIXEL BUFFER
+
+
 #endif
 
 

@@ -9,6 +9,7 @@
 #include "Model.h"
 
 
+
 int main(int argc, char* args[])
 {
 	
@@ -36,7 +37,7 @@ int main(int argc, char* args[])
 	{
 
 		//TODO:
-		//-IMPLEMENT BUFFER CLASS AND SWAPBUFFER/ONUPDATE IN WINDOW CLASS
+		
 		//INPUT MANAGERISH CLASS HERE AND FEED RUNNING VARAIBEL ADDRESS TO IT TO CHANGE IT WHEN CLOSE WINDOW
 
 

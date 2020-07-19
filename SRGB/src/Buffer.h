@@ -14,31 +14,39 @@ public:
 	int m_pitch;
 	int m_px_count;
 	size_t m_buff_sz;
+	int m_botleft;//NEEDED IF BUFFER IS PLACED WITH ORIGIN AT BOTTOM LEFT
 	T *buffer;
 
+
+	//BUFFER CONSTRUCTOR AND DECONSTRUCTOR FOR *buffer
 	Buffer(int width, int height) :
 		m_width(width),
 		m_height(height),
 		m_pitch(width*sizeof(T)),
 		m_px_count(width*height),
-		m_buff_sz(height * m_pitch)
+		m_buff_sz(height * (int)m_pitch),
+		m_botleft(width*height - width)
+
 	{
 		buffer = new T[m_px_count];
 		clear();
 	}
 
 	~Buffer(){ delete[] buffer; }
-	//BUFFER CONSTRUCTOR AND DECONSTRUCTOR FOR *buffer
+	
 
 	//Overload () operator to access specific pixel in array
 	T& operator()(int x, int y)
 	{
 		return buffer[x + m_width*y];
+		//return buffer[m_botleft + -m_width*y + x];
 	}
 
+	
 	const T& operator()(int x, int y) const
 	{
-		return buffer[x + m_width * y];
+		return buffer[x + m_width*y];
+		//return buffer[m_botleft + -m_width * y + x];
 	}
 
 	void clear()
