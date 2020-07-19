@@ -90,64 +90,36 @@ void Window::onUpdate()
 	//renderer.getRenderTarget ie buffer
 	//swapBuffers(renderer.getRenderTarget)
 
-	//Create rasterizer THIS SHOULD BE DONE FROM RENDERER CLASS OR SOMETHING. AND NEW RASTERIZER OBJECT SHOULDNT BE CREATED AND DELETED EACH FRAME LIKE IT IS NOW
+	//Create rasterizer THIS SHOULD BE DONE FROM RENDERER CLASS OR SOMETHING. 
 	//SAME FOR THE PIXEL BUFFER
 
+
+	//THE BUNNY IS BEING LOADED EACH FRAME BIG FUCKING NOPE. THIS NEEDS TO BE IN A RENDDERER CLASS OR SOMETHING WITH A RENDER QUEUE
+	Model *teapot = new Model("assets\\head.obj");// CHECK THIS
 
 
 	Buffer<uint32_t> *px_buff = new Buffer<uint32_t>(m_surface->w, m_surface->h);
 	
 	
-	uint32_t colour;
+	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
+
+	Rasterizer::drawWireFrame(teapot, px_buff, colour);//CAUSES HEAP ALLOC ERROR. CHECK OBJ PARSER WORKS
+	
 
 	
 	
-	//Test draw circle
-	int count = 0;
-	for (float i = 0; i<M_PI; i+=M_PI/128)
-	{
-		float x = cos(i);
-		float y = sin(i);
-
-		int mid_h = m_surface->h / 2;
-		int mid_w = m_surface->w / 2;
-
-
-
-		colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
-
-
-		Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50* y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
-		, px_buff, colour);
-
-		//count++;
-	}
-	for (float i = M_PI; i < 2*M_PI; i += M_PI / 128)
-	{
-		float x = cos(i);
-		float y = sin(i);
-
-		int mid_h = m_surface->h / 2;
-		int mid_w = m_surface->w / 2;
-
-
-
-		colour = SDL_MapRGB(m_surface->format, 255, 10, 25);
-
-
-		Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
-			, px_buff, colour);
-
-		//count++;
-	}
-
 	
 
 
 	swapBuffers(px_buff);
 
 	//px_buff->clear();
+
+	delete teapot;
+
 	delete px_buff;
+
+	
 }
 
 void Window::swapBuffers(Buffer<uint32_t> *px_buff)
@@ -180,10 +152,46 @@ void Window::swapBuffers(Buffer<uint32_t> *px_buff)
 
 
 
-/* THIS WILL GO IN SDLEVENT MANAGER CLASs/INPUTCLASS/ OR WHATEVER
-SDL_Event Event;
 
-while (SDL_PollEvent(&Event))
+
+//POKEBALL
+/*
+//Test draw circle
+int count = 0;
+for (float i = 0; i < M_PI; i += M_PI / 128)
 {
-	// Later, you'll be adding your code that handles keyboard / mouse input here
-}*/
+	float x = cos(i);
+	float y = sin(i);
+
+	int mid_h = m_surface->h / 2;
+	int mid_w = m_surface->w / 2;
+
+
+
+	colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
+
+
+	Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+		, px_buff, colour);
+
+	//count++;
+}
+for (float i = M_PI; i < 2 * M_PI; i += M_PI / 128)
+{
+	float x = cos(i);
+	float y = sin(i);
+
+	int mid_h = m_surface->h / 2;
+	int mid_w = m_surface->w / 2;
+
+
+
+	colour = SDL_MapRGB(m_surface->format, 255, 10, 25);
+
+
+	Rasterizer::drawLine(mid_w + (int)(50 * x), mid_h + (int)(50 * y), mid_w + (int)(200 * x), mid_h + (int)(200 * y)
+		, px_buff, colour);
+
+	//count++;
+}
+*/

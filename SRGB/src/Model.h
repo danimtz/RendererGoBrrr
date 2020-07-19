@@ -18,13 +18,13 @@ public:
 	int getVertCount() const;
 
 	Vec3f getVertex(int n) const;
-	Vec3f getVertex(int face, int nth_vert) const;
+	Vec3f getVertex(int nface, int nth_vert) const;
 
 
-
+	std::array<int, 3>  getFaceVertices(int nface) const;
 	//TODO:
 	//Vec3f getNormal() const;
-	//std::vector<int> getFace( const;
+	
 
 private:
 	

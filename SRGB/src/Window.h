@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "Buffer.h"
 #include "Rasterizer.h"
-
+#include "Model.h"
 
 
 //Window properties

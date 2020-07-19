@@ -13,13 +13,11 @@ int main(int argc, char* args[])
 {
 	
 
-	//DEBUGGING STUFF
-	//load model
 
-	Model *teapot = new Model("assets\\bunny.obj");
+	//Model *teapot = new Model("assets\\bunny.obj");
 
 
-	WindowProps windProperties = WindowProps("WINDOOOOOOW",640,480);
+	WindowProps windProperties = WindowProps("WINDOOOOOOW",1280,720);
 
 	Window *main_window = new Window(windProperties);
 

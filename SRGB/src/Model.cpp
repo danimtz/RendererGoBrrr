@@ -4,6 +4,7 @@
 #include<fstream>
 #include<sstream>
 #include<string>
+#include<array>
 
 
 Model::Model(const char* filename) : m_vertex(), m_vnorms(), m_uv(), m_faces()
@@ -13,6 +14,12 @@ Model::Model(const char* filename) : m_vertex(), m_vnorms(), m_uv(), m_faces()
 
 	
 }
+
+Model::~Model()
+{
+}
+
+
 
 
 int Model::getFaceCount() const
@@ -32,12 +39,26 @@ Vec3f Model::getVertex(int n) const
 }
 
 //Get the nth vertex of a face
-Vec3f Model::getVertex(int face, int nth_vert) const
+Vec3f Model::getVertex(int nface, int nth_vert) const
 {
-	return m_vertex[  m_faces[face][nth_vert][0]  ];
+	return m_vertex[  m_faces[nface][nth_vert][0]  ];
 }
 
+//Returns a vector of the 3 vertex indexes of the given face
+std::array<int, 3> Model::getFaceVertices(int nface) const
+{
 
+	std::array<int, 3> face_vertices;
+
+	for (int i = 0; i<3; i++)
+	{
+		int vindex = m_faces[nface][i][0];
+		face_vertices[i] = vindex;
+	}
+
+	return face_vertices;
+
+}
 
 
 
@@ -51,11 +72,12 @@ void Model::loadOBJfile(const char* filename)
 
 	if (ifs.fail()) return;//ERROR
 
-	std::string newline, x, y, z, cmd, temp;
+	
 
 	int debug_Line = 0;
 	while (!ifs.eof())
 	{
+		std::string newline,cmd,temp;
 		std::getline(ifs, newline);
 		std::istringstream iss(newline);
 		
@@ -73,7 +95,7 @@ void Model::loadOBJfile(const char* filename)
 		else if (cmd == "vt") // texture data
 		{
 			Vec2f vt;
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 2; i++)
 			{
 				iss >> vt[i];
 			}
@@ -110,7 +132,7 @@ void Model::loadOBJfile(const char* filename)
 		}
 
 		debug_Line +=1;
-
+		
 	}
 	
 
@@ -120,7 +142,7 @@ void Model::loadOBJfile(const char* filename)
 void Model::parseFaceData(std::string (&face_data)[4], int vCount)
 {
 	
-	std::string delimiter = "\\";
+	std::string delimiter = "/";
 	
 	std::vector<Vec3i> fvertex;
 	size_t pos = 0;
@@ -137,7 +159,7 @@ void Model::parseFaceData(std::string (&face_data)[4], int vCount)
 		tmp.push_back(face_data[i].substr(0, pos));
 		
 		Vec3i vindex;
-		for (size_t k = 0; k < tmp.size(); ++k)
+		for (int k = 0; k < tmp.size(); ++k)//k used to be size_t
 		{
 			if (tmp[k] == "")
 			{
