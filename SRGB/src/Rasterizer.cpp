@@ -65,6 +65,9 @@ void Rasterizer::drawLine(int x0, int y0, int x1, int y1, Buffer<uint32_t> *px_b
 void Rasterizer::drawWireFrame(Model *model, Buffer<uint32_t> *px_buff, uint32_t colour)
 {
 
+	//Currently assumes that OBJ file is in NDC of -1 to 1
+	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
+
 	//Iterate faces
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
@@ -76,16 +79,31 @@ void Rasterizer::drawWireFrame(Model *model, Buffer<uint32_t> *px_buff, uint32_t
 			Vec3f v0 = model->getVertex(face_verts[j]);
 			Vec3f v1 = model->getVertex(face_verts[(j+1)%3]);
 
-			//Currently assumes that OBJ file is in NDC of -1 to 1
-			//viewport transform?????? SHOULD DO IT WITH MATRICES. (maxwidth-minwidth) -> 1280-1 = 1279
+
+			v0.w = 1;//NEEDED CAUSE IT DOENST WORK RIGHT NOW THE SETTING W
+			v1.w = 1;
+
+			
+			
+			Vec3f vp0 = viewPrt_transform * v0;
+			Vec3f vp1 = viewPrt_transform * v1;
+			
+			
+
+			/*
 			int x0 = (v0.x + 1.) * ((float)(px_buff->m_width - 1)/ 2.0f);
 			int x1 = (v1.x + 1.) * ((float)(px_buff->m_width - 1) / 2.0f);
 			int y0 = (-v0.y + 1.) * ((float)(px_buff->m_height - 1)/ 2.0f);
 			int y1 = (-v1.y + 1.) * ((float)(px_buff->m_height - 1) / 2.0f);
-
-
-
 			drawLine(x0, y0, x1, y1, px_buff, colour);
+			std::cout<<"NEW LINE\n";
+
+			std::cout<< x0<<" " << y0 << " " << x1 << " " << y1 << "\n";
+			std::cout << (int)tV0.x << " " << (int)tV0.y << " " << (int)tV1.x << " " << (int)tV1.y << "\n";
+			std::cout<<std::endl;
+			*/
+
+			drawLine(vp0.x, vp0.y, vp1.x, vp1.y, px_buff, colour);
 
 		}
 

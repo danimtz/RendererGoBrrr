@@ -18,4 +18,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [ ]  Finish model class functions (getNormal, getFace etc...)
 - [x]  Wireframe drawer (Make it work on any file): Works now, but requires wireframe to be in NDC space (-1, 1)
 - [x]  Fix buffer to index with (0 0) at bottom left.(Left with 0,0 at top left for now. Easily changed in buffer class or in viewport transform)
-- [ ]  Matrix4 class for homgenous coordinate transforms and add w to Vector3
+- [x]  Matrix4 class for homgenous coordinate transforms and add w to Vector3
+- [ ]  Fix w in Vector3 not being initialized properly to 1 for some reason being -1204195803 (uninitialized)

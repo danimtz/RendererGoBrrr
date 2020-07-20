@@ -14,9 +14,9 @@ int main(int argc, char* args[])
 {
 	
 
-
+	
 	//Model *teapot = new Model("assets\\bunny.obj");
-
+	Vec3f vvv;
 
 	WindowProps windProperties = WindowProps("WINDOOOOOOW",1280,720);
 
