@@ -21,7 +21,7 @@ public:
 	Vec3f getVertex(int nface, int nth_vert) const;
 
 
-	std::array<int, 3>  getFaceVertices(int nface) const;
+	Vec3i  getFaceVertices(int nface) const;
 	//TODO:
 	//Vec3f getNormal() const;
 	

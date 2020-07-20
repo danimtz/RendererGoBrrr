@@ -45,10 +45,10 @@ Vec3f Model::getVertex(int nface, int nth_vert) const
 }
 
 //Returns a vector of the 3 vertex indexes of the given face
-std::array<int, 3> Model::getFaceVertices(int nface) const
+Vec3i Model::getFaceVertices(int nface) const
 {
 
-	std::array<int, 3> face_vertices;
+	Vec3i face_vertices;
 
 	for (int i = 0; i<3; i++)
 	{

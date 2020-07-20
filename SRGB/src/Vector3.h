@@ -217,6 +217,14 @@ public:
 		return *this;
 	}
 
+	template<class otherT>
+	Vec3<T> operator=(const Vec3<otherT> &other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
+	}
 
 	T& operator[](int n)
 	{

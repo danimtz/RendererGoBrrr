@@ -104,12 +104,13 @@ void Window::onUpdate()
 #if 1 //DEBUG STUFF THAT WHOULDNT ACTUALLY GO HERE
 
 	//THE BUNNY IS BEING LOADED EACH FRAME BIG FUCKING NOPE. THIS NEEDS TO BE IN A RENDDERER CLASS OR SOMETHING WITH A RENDER QUEUE
-	Model *teapot = new Model("assets\\head.obj");// CHECK THIS
+	Model *model = new Model("assets\\head.obj");// CHECK THIS
 	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
-	Rasterizer::drawWireFrame(teapot, render_target, colour);//CAUSES HEAP ALLOC ERROR. CHECK OBJ PARSER WORKS
 
 
-	//Rasterizer::drawLine(1279,719,0,0, render_target, colour);//WORK ON EDGE CASES OF PIXEL BUFFER
+	m_renderer->renderWireFrame(model, colour);
+
+
 
 
 #endif
@@ -119,7 +120,7 @@ void Window::onUpdate()
 
 	
 
-	delete teapot;
+	delete model;
 
 
 	
