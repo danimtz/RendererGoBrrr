@@ -108,7 +108,7 @@ void Window::onUpdate()
 	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
 
 
-	m_renderer->renderWireFrame(model, colour);
+	m_renderer->renderModel(model);
 
 
 

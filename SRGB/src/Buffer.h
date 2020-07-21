@@ -22,9 +22,9 @@ public:
 	Buffer(int width, int height) :
 		m_width(width),
 		m_height(height),
-		m_pitch(width*sizeof(T)),
+		m_pitch((int)width*sizeof(T)),
 		m_px_count(width*height),
-		m_buff_sz(height * (int)m_pitch),
+		m_buff_sz(height * m_pitch),
 		m_botleft(width*height - width)
 
 	{

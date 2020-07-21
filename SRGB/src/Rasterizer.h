@@ -23,6 +23,9 @@ public:
 	
 	static void drawTriangle(const Vec3f *verts, Buffer<uint32_t> *px_buff, uint32_t colour);//colour should later be like shader or something and maybe needs zbuffer
 
+	//Simple version of drawTriangle()
+	static void simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff);
+
 private:
 
 	Rasterizer();
@@ -30,9 +33,9 @@ private:
 	//Traingle rasterizing help functions
 
 	//TODO
-	static void setTriBBox(Vec2f *min, Vec2f *max, const Vec3f *verts); 
-	//TODO
-	static Vec3f getBarycCoord(const Vec3f *verts);
+	static void setTriBBox(Vec2i &min, Vec2i &max, const Vec3f *verts, int vp_width, int vp_height);
+	
+	static float edgeFunct(const Vec3f &v0, const Vec3f &v1, const Vec3f p);
 
 
 	//SDL surface pixel formats

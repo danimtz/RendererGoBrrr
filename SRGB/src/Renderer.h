@@ -16,6 +16,9 @@ public:
 	//Render wireframe given a model. ONLY NDC RIGHT NOW
 	void renderWireFrame(Model *model, uint32_t colour);
 
+	//Render a model. extremly simple at the moment. must be overhauled later
+	void renderModel(Model *model);
+
 private:
 
 	Buffer<uint32_t> *m_px_buff;
