@@ -74,10 +74,32 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff)
+void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Vec3f &light_dir)
 {
+	//				v2
+	//				/\
+	//			   /  \
+	//			  /	   \
+	//			 /		\
+	//			/	     \
+	//		   /__________\
+	//		 v0			   v1
+	//
 
-	//transform to viewport coords
+	//Compute light intensity for that face (FLAT SHADING)
+
+	//Clculate face normal(THE FACE NORMAL IS IN MODEL ADD IT LATER WITH SHADER ARGUMENT. calculating it from the edges for now)
+	Vec3f face_normal = (verts[2]-verts[0]).cross(verts[1]-verts[0]);
+	face_normal.normalize();
+
+	//Although normally backface culling is done when light * normal is < 0, this works because
+	//light source direction has been flipped
+	float intensity = std::max(0.0f, face_normal.dot(light_dir));
+
+
+
+
+	//transform to viewport coords #VERTEXSHADER???
 	Vec3f vptri[3];
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
 	for (int i = 0; i < 3; i++)
@@ -85,31 +107,49 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 		vptri[i] = viewPrt_transform * verts[i];
 	}
 
+
+
+
 	//Find triangle bounding box
 	Vec2i min,max;
 	setTriBBox(min,max,vptri, px_buff->m_width, px_buff->m_height);
 
 	Vec3f p;//point p
+	
+
 
 	//random colour for triangle
-	uint32_t colour = SDL_MapRGB(px_format, rand() % 255, rand() % 255, rand() % 255);
+	uint32_t colour = SDL_MapRGB(px_format, intensity * 255, intensity * 255, intensity * 255);
+	
+
+
 	for (p.y = min.y; p.y <= max.y; p.y++)
 	{
 		for (p.x = min.x; p.x <= max.x; p.x++)
 		{
+
+			if (p.x == 380 && p.y == 790)//DEBUG
+			{
+				//__debugbreak();
+				int m=0;
+			}
 			//Calculate unnormalized barycentric coords
 			int w0 = edgeFunct(vptri[1], vptri[2], p);
 			int w1 = edgeFunct(vptri[2], vptri[0], p);
 			int w2 = edgeFunct(vptri[0], vptri[1], p);
 
+			
+
 			//If inside triangle draw pixel
-			if (w0 >= 0 && w1 >= 0 && w2 >= 0)
+			if (w0 >= 0 && w1 >= 0 && w2 >= 0) //(w0|w1|w2>0)bit flag
 			{
 				
 				(*px_buff)((uint32_t)p.x, (uint32_t)p.y) = colour;//THIS SHOULD BE A FUNCTION IN RASTERIZER CALLED drawPixel()
 			}
 		}
 	}
+
+
 
 }
 
@@ -143,12 +183,12 @@ void Rasterizer::setTriBBox(Vec2i &min, Vec2i &max, const Vec3f *verts, int vp_w
 
 
 	//Clip viewport bounds
-
+	
 	min.x = std::max(min.x,0);
 	min.y = std::max(min.y,0);
 	max.x = std::min(max.x, vp_width-1);
 	max.y = std::min(max.y, vp_height - 1);
-
+	
 }
 
 
@@ -160,5 +200,9 @@ float Rasterizer::edgeFunct(const Vec3f &v0, const Vec3f &v1, const Vec3f p)
 	//output weight is non-normalized barycentric coordinates. a
 	//a.k.a. 2* area of triangle between the three points v0,v1,p
 	
-	return (v1.x - v0.x)*(p.y - v0.y) - (p.x - v0.x)*(v1.y - v0.y);
+	//Negative so that inside the triangle is posive i.e. given counterclockwise triangle vertices,
+	//the positive half-space is on the left
+	return -((v1.x - v0.x)*(p.y - v0.y) - (v1.y - v0.y)*(p.x - v0.x));
 }
+
+

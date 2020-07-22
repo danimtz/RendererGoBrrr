@@ -52,8 +52,11 @@ void Renderer::renderWireFrame(Model *model, uint32_t colour)
 
 void Renderer::renderModel(Model *model)//THIS WILL BE HEAVILY OVERHAULED LATER TO USE RENDER QUEUE ETC ETC ETC
 {
-	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer FOR NOW USES ASUMES MODEL HAS NDC COORDS 
+	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
+	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION
+	Vec3f light_dir(0, 0, -1);
+	light_dir.normalize();
 
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
@@ -67,7 +70,7 @@ void Renderer::renderModel(Model *model)//THIS WILL BE HEAVILY OVERHAULED LATER 
 		}
 
 
-		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff);
+		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, light_dir);
 
 	}
 

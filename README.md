@@ -20,4 +20,6 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Fix buffer to index with (0 0) at bottom left.(Left with 0,0 at top left for now. Easily changed in buffer class or in viewport transform)
 - [x]  Matrix4 class for homgenous coordinate transforms and add w to Vector3
 - [x]  Fix w in Vector3 not being initialized properly to 1 for some reason being -1204195803 (uninitialized)
-- [ ]  Write simple triangle rasterizer. Bounding box and barycentric coordinate functions in Rasterizer class
+- [x]  Write simple triangle rasterizer. Bounding box and barycentric coordinate functions in Rasterizer class
+- [x]  Expand rasterizer to have flat shading. aka face normal lighting.
+- [ ]  Refactor a bunch of code into functions and better locations. Usually marked by ALLCAPS comments

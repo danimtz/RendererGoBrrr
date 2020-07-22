@@ -105,12 +105,13 @@ void Window::onUpdate()
 
 	//THE BUNNY IS BEING LOADED EACH FRAME BIG FUCKING NOPE. THIS NEEDS TO BE IN A RENDDERER CLASS OR SOMETHING WITH A RENDER QUEUE
 	Model *model = new Model("assets\\head.obj");// CHECK THIS
+
 	uint32_t colour = SDL_MapRGB(m_surface->format, 255, 255, 255);
 
 
+	
 	m_renderer->renderModel(model);
-
-
+	//m_renderer->renderWireFrame(model, colour);
 
 
 #endif

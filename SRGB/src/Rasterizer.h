@@ -24,7 +24,7 @@ public:
 	static void drawTriangle(const Vec3f *verts, Buffer<uint32_t> *px_buff, uint32_t colour);//colour should later be like shader or something and maybe needs zbuffer
 
 	//Simple version of drawTriangle()
-	static void simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff);
+	static void simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Vec3f &light_dir);
 
 private:
 
