@@ -74,7 +74,7 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Vec3f &light_dir)
+void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff, Vec3f &light_dir)
 {
 	//				v2
 	//				/\
@@ -88,7 +88,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 
 	//Compute light intensity for that face (FLAT SHADING)
 
-	//Clculate face normal(THE FACE NORMAL IS IN MODEL ADD IT LATER WITH SHADER ARGUMENT. calculating it from the edges for now)
+	//Calculate face normal(THE FACE NORMAL IS IN MODEL ADD IT LATER WITH SHADER ARGUMENT. calculating it from the edges for now)
 	Vec3f face_normal = (verts[2]-verts[0]).cross(verts[1]-verts[0]);
 	face_normal.normalize();
 
@@ -97,7 +97,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	float intensity = std::max(0.0f, face_normal.dot(light_dir));
 
 
-
+	
 
 	//transform to viewport coords #VERTEXSHADER???
 	Vec3f vptri[3];
@@ -108,6 +108,8 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	}
 
 
+	//Save z values for depth buffer (POST TRANSFORM)
+	Vec3f z_values(vptri[0].z, vptri[1].z, vptri[2].z);
 
 
 	//Find triangle bounding box
@@ -117,11 +119,10 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	Vec3f p;//point p
 	
 
-
 	//random colour for triangle
 	uint32_t colour = SDL_MapRGB(px_format, intensity * 255, intensity * 255, intensity * 255);
 	
-
+	
 
 	for (p.y = min.y; p.y <= max.y; p.y++)
 	{
@@ -129,17 +130,37 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 		{
 
 			//Calculate unnormalized barycentric coords
-			int w0 = edgeFunct(vptri[1], vptri[2], p);
-			int w1 = edgeFunct(vptri[2], vptri[0], p);
-			int w2 = edgeFunct(vptri[0], vptri[1], p);
+			Vec3f weights;
+			weights.x = edgeFunct(vptri[1], vptri[2], p);
+			weights.y = edgeFunct(vptri[2], vptri[0], p);
+			weights.z = edgeFunct(vptri[0], vptri[1], p);
 
 			
 
 			//If inside triangle draw pixel
-			if (w0 >= 0 && w1 >= 0 && w2 >= 0) //(w0|w1|w2>0)bit flag
+			if (weights.x >= 0 && weights.y >= 0 && weights.z >= 0) //(w0|w1|w2>0)bit flag
 			{
 				
-				(*px_buff)((uint32_t)p.x, (uint32_t)p.y) = colour;//THIS SHOULD BE A FUNCTION IN RASTERIZER CALLED drawPixel()
+				//Normalize barycentric coordinates: w weights / sum of weights (which are the area of the parallelogram)
+				//THIS IS SLOW?? could just calculate area of trinagle at the start since thats what sum of weights are
+				
+				float oneOver_w_sum = 1/(weights.x + weights.y + weights.z);
+
+				Vec3f baryC_w = weights* oneOver_w_sum;
+
+				float depth = baryC_w.dot(z_values);
+
+				//Depth buffer check
+				if ((*z_buff)(p.x, p.y) < depth)
+				{
+					(*z_buff)(p.x, p.y) = depth;
+
+					(*px_buff)(p.x, p.y) = colour;//THIS SHOULD BE A FUNCTION IN RASTERIZER CALLED drawPixel()
+				
+				}
+
+
+
 			}
 		}
 	}

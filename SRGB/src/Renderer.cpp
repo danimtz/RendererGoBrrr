@@ -2,21 +2,28 @@
 
 
 //Constructor
-Renderer::Renderer(int buff_width, int buff_height) : m_px_buff(nullptr)
+Renderer::Renderer(int buff_width, int buff_height) : m_px_buff(nullptr), m_z_buff(nullptr)
 {
 	m_px_buff = new Buffer<uint32_t>(buff_width, buff_height);
+	m_z_buff = new Buffer<float>(buff_width, buff_height);
+
 }
 
 //Destructor
 Renderer::~Renderer()
 {
 	delete m_px_buff;
+	delete m_z_buff;
 }
 
 
 Buffer<uint32_t>* Renderer::getRenderTarget() 
 {
 	return m_px_buff;
+}
+Buffer<float>* Renderer::getDepthBuffer()
+{
+	return m_z_buff;
 }
 
 
@@ -70,7 +77,7 @@ void Renderer::renderModel(Model *model)//THIS WILL BE HEAVILY OVERHAULED LATER 
 		}
 
 
-		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, light_dir);
+		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, m_z_buff,light_dir);
 
 	}
 

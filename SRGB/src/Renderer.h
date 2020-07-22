@@ -12,6 +12,7 @@ public:
 
 	//Get buffer
 	Buffer<uint32_t>* getRenderTarget();
+	Buffer<float>* getDepthBuffer();
 
 	//Render wireframe given a model. ONLY NDC RIGHT NOW
 	void renderWireFrame(Model *model, uint32_t colour);
@@ -22,6 +23,7 @@ public:
 private:
 
 	Buffer<uint32_t> *m_px_buff;
+	Buffer<float> *m_z_buff;
 
 
 };

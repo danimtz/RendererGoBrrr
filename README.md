@@ -24,4 +24,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Expand rasterizer to have flat shading. aka face normal lighting.
 - [ ]  Refactor a bunch of code into functions and better locations. Usually marked by ALLCAPS comments
 - [ ]  Get gourad shading to work
-- [ ]  Implement z buffer(reverse z buffer/ logarithmic later as well?)
+- [x]  Implement z buffer
+- [ ]  Model matrix/View matrix/Projection matrix implementations

@@ -98,7 +98,7 @@ void Window::onUpdate()
 	
 	Buffer<uint32_t> *render_target = m_renderer->getRenderTarget();
 	
-
+	
 
 
 #if 1 //DEBUG STUFF THAT WHOULDNT ACTUALLY GO HERE
