@@ -128,11 +128,6 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 		for (p.x = min.x; p.x <= max.x; p.x++)
 		{
 
-			if (p.x == 380 && p.y == 790)//DEBUG
-			{
-				//__debugbreak();
-				int m=0;
-			}
 			//Calculate unnormalized barycentric coords
 			int w0 = edgeFunct(vptri[1], vptri[2], p);
 			int w1 = edgeFunct(vptri[2], vptri[0], p);
