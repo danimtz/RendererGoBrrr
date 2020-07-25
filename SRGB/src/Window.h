@@ -6,6 +6,10 @@
 #include "Renderer.h"
 #include "Buffer.h"
 
+
+//Thi class kinda acts as both the "window manager" and the graphics context as it holds the surfaces and references to renderer
+
+
 //Window properties
 struct WindowProps {
 	std::string Name;
@@ -31,14 +35,16 @@ public:
 		
 		
 	void onUpdate();
+	Renderer* getGraphicContext();//GET RENDERER
+
 	//TODO memcpy buffer to surface at some point swapbuffer etc
 
 
 private:
 
-	SDL_Window *m_window;
-	SDL_Surface *m_surface;
-	Renderer *m_renderer;
+	SDL_Window *m_sdl_window;
+	SDL_Surface *m_sdl_surface;
+	Renderer *m_gcontext;
 
 
 	void swapBuffers(Buffer<uint32_t> *px_buff);

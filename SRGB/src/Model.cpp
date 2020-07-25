@@ -7,7 +7,7 @@
 #include<array>
 
 
-Model::Model(const char* filename) : m_vertex(), m_vnorms(), m_uv(), m_faces()
+Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform)
 {
 	
 	loadOBJfile(filename);
@@ -15,8 +15,17 @@ Model::Model(const char* filename) : m_vertex(), m_vnorms(), m_uv(), m_faces()
 	
 }
 
+
+Model::Model(const char* filename, const char* texture_fname, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform)
+{
+	loadOBJfile(filename, texture_fname);
+	
+}
+
+
 Model::~Model()
 {
+	delete m_texture;
 }
 
 
@@ -65,7 +74,7 @@ Vec3i Model::getFaceVertices(int nface) const
 
 
 //Loads OBJ file. currently doenst accept obj files with faces larger than quads
-void Model::loadOBJfile(const char* filename)
+void Model::loadOBJfile(const char* filename, const char* texture_fname)
 {
 	std::ifstream ifs;
 	ifs.open(filename, std::ifstream::in);
@@ -135,6 +144,11 @@ void Model::loadOBJfile(const char* filename)
 		
 	}
 	
+
+	//Load texture THIS COULD BE DONE IN MEMEBR INITIALIZER LIST
+	
+	m_texture = new Texture(texture_fname);
+
 
 }
 

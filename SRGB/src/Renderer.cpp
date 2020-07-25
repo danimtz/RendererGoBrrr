@@ -54,10 +54,22 @@ void Renderer::renderWireFrame(Model *model, uint32_t colour)
 
 
 
+void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC ETC. FOR NOW JUST OBJECT
+{
+	//Get render queue of models in scene. (Already in world object coordinates(aka post model matrix))
+	std::queue<Model*> *render_queue = scene->createRenderQueue();
+
+	//Render object in queue
+	while (!render_queue->empty())
+	{
+		renderModel(render_queue->front());
+		render_queue->pop();
+	}
+
+}
 
 
-
-void Renderer::renderModel(Model *model)//THIS WILL BE HEAVILY OVERHAULED LATER TO USE RENDER QUEUE ETC ETC ETC
+void Renderer::renderModel(Model *model)
 {
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 

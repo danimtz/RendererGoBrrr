@@ -3,6 +3,10 @@
 #include "Buffer.h"
 #include "Model.h"
 #include "Rasterizer.h"
+#include "Scene.h"
+
+
+#include <queue>//in .cpp maybe?
 
 class Renderer {
 public:
@@ -19,6 +23,9 @@ public:
 
 	//Render a model. extremly simple at the moment. must be overhauled later
 	void renderModel(Model *model);
+
+	//Render a scene
+	void renderScene(Scene *scene);
 
 private:
 

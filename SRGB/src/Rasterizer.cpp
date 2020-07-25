@@ -150,6 +150,9 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 
 				float depth = baryC_w.dot(z_values);
 
+
+
+
 				//Depth buffer check
 				if ((*z_buff)(p.x, p.y) < depth)
 				{

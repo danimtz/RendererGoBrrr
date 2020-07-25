@@ -1,9 +1,18 @@
 #pragma once
 
-#include<iostream>
+#ifndef _USE_MATH_DEFINES
+	#define _USE_MATH_DEFINES
+#endif
+#include <math.h>
+
+#include <iostream>
 #include <type_traits>
 #include <cassert>
 #include "Vector3.h"
+
+
+
+//DegToRad
 
 
 template<typename T>
@@ -163,6 +172,110 @@ public:
 
 	// ============== Static functions (create specific matrices) =====================
 
+	//Rotation around axis Vec3<T> x y z => x,y and z axis rotation in deg
+	static Mat4<T> createRotAxis(const Vec3<T> &rot)
+	{
+		T x_rads = DegToRad(rot.x);
+		T y_rads = DegToRad(rot.y);
+		T z_rads = DegToRad(rot.z);
+
+		Mat4<T> matX, matY, matZ;
+		float cosX = cos(x_rads);
+		float sinX = sin(x_rads);
+		float cosY = cos(y_rads);
+		float sinY = sin(y_rads);
+		float cosZ = cos(z_rads);
+		float sinZ = sin(z_rads);
+
+		matX(1, 1) = cosX;
+		matX(2, 1) = sinX;
+		matX(1, 2) = -sinX;
+		matX(2, 2) = cosX;
+
+		matY(0, 0) = cosY;
+		matY(2, 0) = -sinY;
+		matY(0, 2) = sinY;
+		matY(2, 2) = cosY;
+
+		matZ(0, 0) = cosZ;
+		matZ(1, 0) = sinZ;
+		matZ(0, 1) = -sinZ;
+		matZ(1, 1) = cosZ;
+
+		/*std::cout << "RotVec = " << a << "," << b << "," << c << std::endl;
+		 std::cout << "Rx = " << std::endl << ma;
+		 std::cout << "Ry = " << std::endl << mb;
+		 std::cout << "Rz = " << std::endl << mc;*/
+
+		Mat4<T> rotmat = matX * matY * matZ;
+		//std::cout << "Result = " << std::endl << ma * (mb * mc);
+
+		return rotmat;
+	}
+
+
+	//Scaling
+	static Mat4<T> createScale(const Vec3<T> &scale_param)
+	{
+		/*
+			Scaled matrix
+
+
+				         
+		       scale_param.x        0                0           0
+
+	
+					 0         scale_param.y         0           0    
+								                                 
+
+					 0              0          scale_param.z     0
+
+
+					 0              0                0           1
+
+
+
+			 */
+		Mat4<T> scaled_mat;
+
+		scaled_mat(0, 0) = scale_param.x;
+		scaled_mat(1, 1) = scale_param.y;
+		scaled_mat(2, 2) = scale_param.z;
+	
+		return scaled_mat;
+	}
+
+	//Translate
+	static Mat4<T> createTranslation(const Vec3<T> &trans_param)
+	{
+		/*
+			Scaled matrix
+
+
+
+			         1			    0              0        trans_param.x
+
+
+					 0              1              0		trans_param.y
+
+
+					 0              0              1		trans_param.z
+
+
+					 0              0              0            1
+
+
+
+			 */
+		Mat4<T> trans_mat;
+
+		trans_mat(0, 3) = trans_param.x;
+		trans_mat(1, 3) = trans_param.y;
+		trans_mat(2, 3) = trans_param.z;
+		
+		return trans_mat;
+	}
+
 	//Lookat
 
 
@@ -320,6 +433,13 @@ public:
 		return result;
 	}
 
+
+private:
+
+	static T DegToRad(const T &num)
+	{
+		return num * (M_PI / 180);
+	}
 };
 
 //Common type definitions
