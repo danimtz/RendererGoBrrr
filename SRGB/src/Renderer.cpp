@@ -17,17 +17,17 @@ Renderer::~Renderer()
 }
 
 
-Buffer<uint32_t>* Renderer::getRenderTarget() 
+Buffer<uint32_t>* Renderer::getRenderTarget() const
 {
 	return m_px_buff;
 }
-Buffer<float>* Renderer::getDepthBuffer()
+Buffer<float>* Renderer::getDepthBuffer() const
 {
 	return m_z_buff;
 }
 
 
-void Renderer::renderWireFrame(Model *model, uint32_t colour)
+void Renderer::renderWireFrame(const Model *model, uint32_t colour)
 {
 	//Currently assumes that OBJ file is in NDC of -1 to 1
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(m_px_buff->m_width, m_px_buff->m_height);
@@ -69,7 +69,13 @@ void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC
 }
 
 
-void Renderer::renderModel(Model *model)
+void Renderer::setRenderCam(Camera *cam)
+{
+	m_camera = cam;
+}
+
+
+void Renderer::renderModel(const Model *model)
 {
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
@@ -79,6 +85,8 @@ void Renderer::renderModel(Model *model)
 
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
+		
+		
 
 		//This could be a function like loadIndexData(). WILL BE NEEDED WHEN nEEDING TO LOAD NORMAL DATA, TEXEL DATA ETC FROM MODEL
 		Vec3i face_verts_idx = model->getFaceVertices(i);
@@ -86,8 +94,40 @@ void Renderer::renderModel(Model *model)
 		for (int j = 0; j < 3; j++)
 		{
 			face_verts[j] = model->getVertex(face_verts_idx[j]);
+
+			
 		}
 
+		//VERTEX SHADER STUFF HERE
+		Mat4f modelViewProj_mat;
+		modelViewProj_mat = (m_camera->getProjectionMat()) * (m_camera->getViewMat()) * (model->getModelMat());
+		for (int j = 0; j < 3; j++)
+		{
+			//Transform vertices
+			face_verts[j] = modelViewProj_mat * face_verts[j];
+		}
+
+		//Clip triangles (doenst reconstruct partly out ones)
+		bool isClipped = false;
+		for (int j = 0; j < 3; j++)
+		{
+			// CHECK THIS IDK IF Z IS FROM 0 1 or -1 0 etc etc
+			//If x and y are within -w and w (-1 and 1 pre perspective divide) and z is within 0 and w (0 and 1 pre perspec div)
+			bool in_bounds = (( -face_verts[j].w <= face_verts[j].x <= face_verts[j].w)&&(-face_verts[j].w <= face_verts[j].y <= face_verts[j].w)&&( 0 <= face_verts[j].z <= face_verts[j].w));
+
+			if(!in_bounds){
+				isClipped = true;
+			}
+			
+		}
+		if(isClipped) continue;//Next triangle
+
+		//Perform perspetive divide on vertices
+		for (int j = 0; j < 3; j++)
+		{
+			//Transform vertices
+			face_verts[j].perspecDiv();
+		}
 
 		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, m_z_buff,light_dir);
 

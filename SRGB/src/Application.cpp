@@ -4,14 +4,17 @@
 Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(nullptr){
 
 
-	WindowProps windProperties = WindowProps("WINDOOOOOOW", 800, 800);
+	WindowProps windProperties = WindowProps("WINDOOOOOOW", 1280, 720);
 
 	m_window = new Window(windProperties);
 
-	m_renderer = m_window->getGraphicContext();
-
+	
 	m_scene = new Scene();//SET NEW SCENE HERER. CHANGE LATER TO BE ABLE TO SWAP SCENES OR SOMETHING
 
+	m_renderer = m_window->getGraphicContext();
+
+	m_renderer->setRenderCam(m_scene->getCam());//THIS MIGHT GO AGAINST RAII idk
+	
 
 }
 

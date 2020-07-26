@@ -99,7 +99,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 
 	
 
-	//transform to viewport coords #VERTEXSHADER???
+	//transform to viewport coords 
 	Vec3f vptri[3];
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
 	for (int i = 0; i < 3; i++)

@@ -327,10 +327,90 @@ public:
 
 	}
 
+	//Lookat
+	static Mat4<T> createLookAt(const Vec3<T> &cam_pos, const Vec3<T> &cam_target, const Vec3<T> &cam_up)
+	{
+		Vec3<T> forward, right, up;
+		Mat4<T> lookat;
 
-	//Orthographic
-	//Fustrum
+		forward = cam_target - cam_pos;
+		up = cam_up;
 
+		forward.normalize();
+
+		//right = forward x up
+		right = forward.cross(up);
+		right.normalize();
+
+		//recalculate up = side x forward
+		up = right.cross(forward);
+
+		lookat(0, 0) = right.x;
+		lookat(1, 0) = right.y;
+		lookat(2, 0) = right.z;
+
+		lookat(0, 1) = up.x;
+		lookat(1, 1) = up.y;
+		lookat(2, 1) = up.z;
+
+		lookat(0, 2) = -forward.x;
+		lookat(1, 2) = -forward.y;
+		lookat(2, 2) = -forward.z;
+
+		lookat = lookat * Mat4<T>::createTranslation(Vec3f(-cam_pos.x, -cam_pos.y, -cam_pos.z));
+		return lookat;
+	}
+
+
+	//Create symmetric projection matrix
+	static Mat4<T> createProjectionMat(T fov = 100.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum
+	{
+		/*
+		
+
+		
+
+			     2n                                     
+			------------       0               0             0                          x
+			    r-l                                           
+
+							    2n                      
+				 0         ------------        0             0                          y
+								t-b                           
+					
+											-(f+n)	        -2fn
+				 0              0           ---------     --------                      z
+											  f-n           f-n
+
+
+				 0              0              -1            0                          w
+
+
+
+		 */
+		 //info: http://ogldev.org/www/tutorial12/tutorial12.html
+
+		Mat4<T> proj_mat;
+
+		float oneOverTanFovOn2 = 1 / (std::tan((fov / 2) * (M_PI / 180))); //width
+		float nearMinusFar = z_near - z_far;
+
+		//First row
+		proj_mat(0, 0) = (1/AR ) * oneOverTanFovOn2; 
+
+		//Second row
+		proj_mat(1, 1) =  oneOverTanFovOn2;
+
+		//Third row (Calculated for 1- 0)??? Inverse z buffer CHANGED FROM THINGY UP TOP
+		proj_mat(2, 2) = (nearMinusFar)/(nearMinusFar);
+		proj_mat(2, 3) =  (2*z_near*z_far)/ (nearMinusFar);
+
+		//Fourth row
+		proj_mat(3, 2) = -1;
+
+		return proj_mat;
+
+	}
 
 	//================ Scalar/Matrix addition/subtraction  =============================
 

@@ -26,6 +26,7 @@ public:
 
 	Vec3i  getFaceVertices(int nface) const;
 	
+	Mat4f getModelMat() const;
 	//TODO:
 	//Vec3f getNormal() const;
 	

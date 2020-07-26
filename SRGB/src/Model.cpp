@@ -71,6 +71,12 @@ Vec3i Model::getFaceVertices(int nface) const
 
 
 
+Mat4f Model::getModelMat() const
+{
+	return m_model_mat;
+}
+
+
 
 
 //Loads OBJ file. currently doenst accept obj files with faces larger than quads
