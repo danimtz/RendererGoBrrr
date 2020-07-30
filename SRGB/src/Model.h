@@ -26,7 +26,9 @@ public:
 	Vec2f getUV(int n) const;
 
 	Vec3i getFaceVertices(int nface) const;
-	
+
+	Vec3i getUVidx(int nface) const;
+
 	Mat4f getModelMat() const;
 	//TODO:
 	Vec3f getFaceNormal(int nface) const;

@@ -69,6 +69,19 @@ Vec3i Model::getFaceVertices(int nface) const
 
 }
 
+Vec3i Model::getUVidx(int nface) const
+{
+	Vec3i uvIdx;
+
+	for (int i = 0; i < 3; i++)
+	{
+		int vindex = m_faces[nface][i][1];
+		uvIdx[i] = vindex;
+	}
+
+	return uvIdx;
+}
+
 //Returns UV coordinates of given vertex
 Vec2f Model::getUV(int n) const
 {
@@ -209,13 +222,13 @@ void Model::parseFaceData(std::string (&face_data)[4], int vCount)
 	{
 		std::vector<Vec3i> cur_face;
 
-		//add first vertex
+		//add first vertex v
 		cur_face.push_back(fvertex[0]);
 
-		//add second vertex
+		//add second vertex vt
 		cur_face.push_back(fvertex[i]);
 
-		//add third vertex
+		//add third vertex vn
 		cur_face.push_back(fvertex[i+1]);
 
 		//push face to memeber vector of faces

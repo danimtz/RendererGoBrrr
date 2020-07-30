@@ -97,17 +97,19 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 			
 		}
 
-		//Get texture data
+		//Get texture data  
 		Texture *texture = model->getTexture();
 		Vec2f uv[3];
-
+		Vec3i uv_vert_idx = model->getUVidx(i);
 		if (texture != nullptr){
 			for (int j = 0; j < 3; j++)
 			{
-				uv[j] = model->getUV(face_verts_idx[j]);
+				
+				uv[j] = model->getUV(uv_vert_idx[j]);
 			}
 		}
 		
+
 
 
 		//VERTEX SHADER STUFF HERE

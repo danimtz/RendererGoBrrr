@@ -135,7 +135,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, const Vec2f *uvVerts, co
 				
 				float oneOver_w_sum = 1/(weights.x + weights.y + weights.z);
 
-				Vec3f baryC_w = weights* oneOver_w_sum;
+				Vec3f baryC_w = weights * oneOver_w_sum;
 
 				float depth = baryC_w.dot(z_values);
 
@@ -170,7 +170,6 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, const Vec2f *uvVerts, co
 					}
 					
 					
-
 
 
 					//DEBUG

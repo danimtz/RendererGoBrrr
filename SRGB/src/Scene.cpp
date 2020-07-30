@@ -7,9 +7,9 @@ Scene::Scene()
 	//CAM PROPERTIES SHOULD BE SPECIFIED IN FILE AS WELL AND PUT INTO A STRUCT LIKE CAM_PROPERTIES
 
 	
-	Mat4f rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	Mat4f rot = Mat4f::createRotAxis(Vec3f(0, -15, 0));
 	Mat4f sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
-	Mat4f trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
+	Mat4f trs = Mat4f::createTranslation(Vec3f(0.3, 0, 0));
 	Mat4f transf = trs*rot*sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
 	
 	Model *model = new Model("assets\\head.obj", "assets\\african_head_diffuse.tga", transf);
@@ -27,7 +27,7 @@ Scene::Scene()
 
 
 	m_models_in_scene.push_back(model);
-	//m_models_in_scene.push_back(model1);
+	m_models_in_scene.push_back(model1);
 	
 
 	m_camera = new Camera(Vec3f(0, 0, 5), 0.0f, -90.0f);
