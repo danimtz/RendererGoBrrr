@@ -74,7 +74,7 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff, Vec3f &light_dir)
+void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff, float intensity)
 {
 	//				v2
 	//				/\
@@ -86,16 +86,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	//		 v0			   v1
 	//
 
-	//Compute light intensity for that face (FLAT SHADING)
-
-	//Calculate face normal(THE FACE NORMAL IS IN MODEL ADD IT LATER WITH SHADER ARGUMENT. calculating it from the edges for now)
-	Vec3f face_normal = (verts[2]-verts[0]).cross(verts[1]-verts[0]);
-	face_normal.normalize();
-
-	//Although normally backface culling is done when light * normal is < 0, this works because
-	//light source direction has been flipped
-	float intensity = std::max(0.0f, face_normal.dot(light_dir));
-
+	
 
 	
 
@@ -119,7 +110,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	Vec3f p;//point p
 	
 
-	//random colour for triangle
+	// colour for triangle
 	uint32_t colour = SDL_MapRGB(px_format, intensity * 255, intensity * 255, intensity * 255);
 	
 	
@@ -154,9 +145,13 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 
 
 				//Depth buffer check
-				if ((*z_buff)(p.x, p.y) < depth)
+				if ((*z_buff)(p.x, p.y) < depth) //Near plane 1, far plane 0
 				{
 					(*z_buff)(p.x, p.y) = depth;
+
+					//Z buffer plot: (change viewport matrix to d/2 d/2 to d=255) 
+					//colour = SDL_MapRGB(px_format, depth, depth, depth);
+
 
 					(*px_buff)(p.x, p.y) = colour;//THIS SHOULD BE A FUNCTION IN RASTERIZER CALLED drawPixel()
 				
@@ -205,7 +200,7 @@ void Rasterizer::setTriBBox(Vec2i &min, Vec2i &max, const Vec3f *verts, int vp_w
 	
 	min.x = std::max(min.x,0);
 	min.y = std::max(min.y,0);
-	max.x = std::min(max.x, vp_width-1);
+	max.x = std::min(max.x, vp_width - 1);
 	max.y = std::min(max.y, vp_height - 1);
 	
 }

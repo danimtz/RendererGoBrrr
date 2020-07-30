@@ -24,11 +24,11 @@ public:
 	Vec3f getVertex(int nface, int nth_vert) const;
 
 
-	Vec3i  getFaceVertices(int nface) const;
+	Vec3i getFaceVertices(int nface) const;
 	
 	Mat4f getModelMat() const;
 	//TODO:
-	//Vec3f getNormal() const;
+	Vec3f getFaceNormal(int nface) const;
 	
 
 private:
@@ -40,7 +40,7 @@ private:
 	std::vector<Vec3f> m_vnorms;
 	std::vector<Vec2f> m_uv;
 	Mat4f m_model_mat;
-	// face normals member variable??
+	std::vector<Vec3f> m_fnorms;
 
 	//Faces defined by face command. 
 	//Vec3i of vertex/uv/vnormal points to the respective index in m_vertex/m_uv/m_norms
@@ -53,6 +53,8 @@ private:
 	//OBJ file parsing funcitons //THIS FUNCTION COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
 	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);
 	void parseFaceData(std::string(&face_data)[4], int vCount);
+
+	void buildFaceNormals();
 
 };
 

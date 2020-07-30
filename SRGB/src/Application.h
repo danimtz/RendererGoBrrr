@@ -3,6 +3,7 @@
 #include"Window.h"
 #include"Renderer.h"
 #include"Scene.h"
+#include"Camera.h"
 
 class Application {
 

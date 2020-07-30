@@ -76,6 +76,10 @@ Mat4f Model::getModelMat() const
 	return m_model_mat;
 }
 
+Vec3f Model::getFaceNormal(int nface) const
+{
+	return m_fnorms[nface];
+}
 
 
 
@@ -155,7 +159,8 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 	
 	m_texture = new Texture(texture_fname);
 
-
+	//Build face normals
+	buildFaceNormals();
 }
 
 
@@ -210,9 +215,18 @@ void Model::parseFaceData(std::string (&face_data)[4], int vCount)
 		//push face to memeber vector of faces
 		m_faces.push_back(cur_face);
 	}
-	
-	
-	
+}
 
 
+void Model::buildFaceNormals()
+{
+	for (int i = 0; i < m_faces.size(); i++)
+	{
+		Vec3f E_20 = getVertex(i, 2) - getVertex(i, 0);
+		Vec3f E_10 = getVertex(i, 1) - getVertex(i, 0);
+		Vec3f normal = E_20.cross(E_10);
+		normal.normalize();
+
+		m_fnorms.push_back(normal);
+	}
 }

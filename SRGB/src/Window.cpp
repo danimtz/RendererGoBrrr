@@ -94,6 +94,7 @@ void Window::onUpdate()
 	
 	swapBuffers(render_target);
 
+	
 }
 
 void Window::swapBuffers(Buffer<uint32_t> *px_buff)

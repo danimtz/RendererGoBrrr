@@ -62,7 +62,7 @@ void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC
 	//Render object in queue
 	while (!render_queue->empty())
 	{
-		renderModel(render_queue->front());
+		renderModel(render_queue->front(), scene->getLights());
 		render_queue->pop();
 	}
 
@@ -75,14 +75,13 @@ void Renderer::setRenderCam(Camera *cam)
 }
 
 
-void Renderer::renderModel(const Model *model)
+void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights)
 {
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
 	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION
-	Vec3f light_dir(0, 0, -1);
+	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
 	light_dir.normalize();
-
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		
@@ -99,12 +98,40 @@ void Renderer::renderModel(const Model *model)
 		}
 
 		//VERTEX SHADER STUFF HERE
+
+
+		//Compute light intensity for that face (FLAT SHADING)
+
+		//Calculate face normal 
+		Vec3f face_normal = model->getFaceNormal(i); //CURRENTLY DOENST TAKE MODELVIEW matrix INTO ACCOUNT
+
+		//Transform face normal
+
+
+		//Although normally backface culling is done when light * normal is < 0, this works because
+		//light source direction has been flipped
+		float intensity = std::max(0.0f, face_normal.dot(light_dir));
+
+
+
+
+		Mat4f modelView_mat;
 		Mat4f modelViewProj_mat;
-		modelViewProj_mat = (m_camera->getProjectionMat()) * (m_camera->getViewMat()) * (model->getModelMat());
+		//(m_camera->getProjectionMat()) *
+		modelView_mat =  (m_camera->getViewMat()) * (model->getModelMat());
+
+		//modelViewProj_mat = (m_camera->getProjectionMat()) * modelView_mat;
 		for (int j = 0; j < 3; j++)
 		{
 			//Transform vertices
-			face_verts[j] = modelViewProj_mat * face_verts[j];
+			
+			//TESTING STUFF
+			face_verts[j] = modelView_mat * face_verts[j];
+	
+
+			face_verts[j] = m_camera->getProjectionMat() * face_verts[j];
+
+			
 		}
 
 		//Clip triangles (doenst reconstruct partly out ones)
@@ -113,7 +140,9 @@ void Renderer::renderModel(const Model *model)
 		{
 			// CHECK THIS IDK IF Z IS FROM 0 1 or -1 0 etc etc
 			//If x and y are within -w and w (-1 and 1 pre perspective divide) and z is within 0 and w (0 and 1 pre perspec div)
-			bool in_bounds = (( -face_verts[j].w <= face_verts[j].x <= face_verts[j].w)&&(-face_verts[j].w <= face_verts[j].y <= face_verts[j].w)&&( 0 <= face_verts[j].z <= face_verts[j].w));
+			bool in_bounds = (( -face_verts[j].w <= face_verts[j].x <= face_verts[j].w) && 
+								(-face_verts[j].w <= face_verts[j].y <= face_verts[j].w) && 
+												( 0 <= face_verts[j].z <= face_verts[j].w));
 
 			if(!in_bounds){
 				isClipped = true;
@@ -129,7 +158,7 @@ void Renderer::renderModel(const Model *model)
 			face_verts[j].perspecDiv();
 		}
 
-		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, m_z_buff,light_dir);
+		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, m_z_buff,intensity);
 
 	}
 

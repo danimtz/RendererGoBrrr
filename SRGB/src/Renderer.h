@@ -23,7 +23,7 @@ public:
 	void renderWireFrame(const Model *model, uint32_t colour);
 
 	//Render a model. extremly simple at the moment. must be overhauled later
-	void renderModel(const Model *model);
+	void renderModel(const Model *model, const std::vector<Light*>& lights);
 
 	//Render a scene
 	void renderScene(Scene *scene);

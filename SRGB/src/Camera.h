@@ -2,7 +2,7 @@
 
 #include "Vector3.h"
 #include "Matrix4.h"
-
+#include "SDL.h"
 
 //Default cam constants
 const float D_PITCH = 0.0f;
@@ -26,8 +26,10 @@ public:
 
 	Mat4f m_projection_mat;//CREATE THIS
 
+
 	//Constructor
-	Camera(Vec3f pos = Vec3f(0.0f, 0.0f, 0.0f),  float pitch = D_PITCH, float yaw = D_YAW, Vec3f up = Vec3f(0.0f, 1.0f, 0.0f)) : m_pos(pos), m_yaw(yaw), m_world_up(up), m_pitch(pitch)
+	Camera(Vec3f pos = Vec3f(0.0f, 0.0f, 0.0f),  float pitch = D_PITCH, float yaw = D_YAW, Vec3f up = Vec3f(0.0f, 1.0f, 0.0f)) : m_pos(pos), m_yaw(yaw), 
+																																	m_world_up(up), m_pitch(pitch)
 	{
 		//FUSTRUM PARAMETERS ON A STRUCT
 		m_projection_mat = Mat4f::createProjectionMat();
@@ -44,12 +46,12 @@ public:
 		return m_projection_mat;
 	}
 
-private:
+
 	
 	void updateCam()
 	{
 		//New front vector
-
+		
 		float radYaw = m_yaw*(M_PI / 180);
 		float radPitch = m_pitch*(M_PI / 180);
 

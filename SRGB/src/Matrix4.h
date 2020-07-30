@@ -78,6 +78,7 @@ public:
 	//		[ 2  6  10 14 ]
 	//		[ 3  7  11 15 ]
 
+	//Access col row
 	T& at(int row, int col)
 	{
 		return this->data[row + col * 4];
@@ -87,6 +88,20 @@ public:
 	{
 		return this->data[row + col * 4];
 	}
+
+
+
+	T& at_colrow(int col, int row)
+	{
+		return this->data[col * 4 + row];
+	}
+
+	const T& at_colrow(int col, int row) const
+	{
+		return this->data[col * 4 + row];
+	}
+
+
 
 	T& operator()(int row, int col)
 	{
@@ -299,7 +314,7 @@ public:
 				 0         ------------        0         -----------
 								2                            2
 
-				 0              0              1/2          1/2
+				 0              0              1             1       NO NEED TO TRANSFORM Z IF PROJECTION MATRIX NDC CUBE ALREADY BETWEEN [1,0]
 
 
 				 0              0              0             1
@@ -314,12 +329,12 @@ public:
 		//scale
 		vp_trans.at(0, 0) = (vwidth - 1) / 2;
 		vp_trans.at(1, 1) = -(vheight - 1) / 2;
-		vp_trans.at(2, 2) = 0.5;
+		//vp_trans.at(2, 2) = -0.5;
 
 		//translate
 		vp_trans.at(0, 3) = (vwidth) / 2;
 		vp_trans.at(1, 3) = (vheight) / 2;
-		vp_trans.at(2, 3) = 0.5;
+		//vp_trans.at(2, 3) = 0.5;
 
 
 
@@ -330,32 +345,32 @@ public:
 	//Lookat
 	static Mat4<T> createLookAt(const Vec3<T> &cam_pos, const Vec3<T> &cam_target, const Vec3<T> &cam_up)
 	{
-		Vec3<T> forward, right, up;
+		Vec3<T> front, right, up;
 		Mat4<T> lookat;
 
-		forward = cam_target - cam_pos;
+		front = cam_pos - cam_target;
 		up = cam_up;
 
-		forward.normalize();
+		front.normalize();
 
 		//right = forward x up
-		right = forward.cross(up);
+		right = up.cross(front);
 		right.normalize();
 
 		//recalculate up = side x forward
-		up = right.cross(forward);
+		up = front.cross(right);
 
 		lookat(0, 0) = right.x;
-		lookat(1, 0) = right.y;
-		lookat(2, 0) = right.z;
+		lookat(0, 1) = right.y;
+		lookat(0, 2) = right.z;
 
-		lookat(0, 1) = up.x;
+		lookat(1, 0) = up.x;
 		lookat(1, 1) = up.y;
-		lookat(2, 1) = up.z;
+		lookat(1, 2) = up.z;
 
-		lookat(0, 2) = -forward.x;
-		lookat(1, 2) = -forward.y;
-		lookat(2, 2) = -forward.z;
+		lookat(2, 0) = front.x;
+		lookat(2, 1) = front.y;
+		lookat(2, 2) = front.z;
 
 		lookat = lookat * Mat4<T>::createTranslation(Vec3f(-cam_pos.x, -cam_pos.y, -cam_pos.z));
 		return lookat;
@@ -363,7 +378,7 @@ public:
 
 
 	//Create symmetric projection matrix
-	static Mat4<T> createProjectionMat(T fov = 100.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum
+	static Mat4<T> createProjectionMat(T fov = 65.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
 	{
 		/*
 		
@@ -378,9 +393,9 @@ public:
 				 0         ------------        0             0                          y
 								t-b                           
 					
-											-(f+n)	        -2fn
-				 0              0           ---------     --------                      z
-											  f-n           f-n
+											   n             f*n
+				 0              0           ---------     --------                      z  THIS ROW CHANGES DEPENDING ON Z BUFFER SETUP
+											  f-n	         f-n
 
 
 				 0              0              -1            0                          w
@@ -393,7 +408,7 @@ public:
 		Mat4<T> proj_mat;
 
 		float oneOverTanFovOn2 = 1 / (std::tan((fov / 2) * (M_PI / 180))); //width
-		float nearMinusFar = z_near - z_far;
+		
 
 		//First row
 		proj_mat(0, 0) = (1/AR ) * oneOverTanFovOn2; 
@@ -401,12 +416,12 @@ public:
 		//Second row
 		proj_mat(1, 1) =  oneOverTanFovOn2;
 
-		//Third row (Calculated for 1- 0)??? Inverse z buffer CHANGED FROM THINGY UP TOP
-		proj_mat(2, 2) = (nearMinusFar)/(nearMinusFar);
-		proj_mat(2, 3) =  (2*z_near*z_far)/ (nearMinusFar);
+		//Third row (Calculated for 1 - 0)??? Inverse z buffer  FIX THIS THING TO BE REVERSE BUFFER?! CURRENTLY NEAR PLANE CLIP DOENST SEEM TO WORK
+		proj_mat(2, 2) = (z_near)/(z_far-z_near);//-(z_near + z_far )/(z_far-z_near);
+		proj_mat(2, 3) =  (z_far*z_near)/(z_far-z_near);//-(2*z_near*z_far)/ (z_far-z_near);
 
 		//Fourth row
-		proj_mat(3, 2) = -1;
+		proj_mat(3, 2) = 1;
 
 		return proj_mat;
 
@@ -512,6 +527,100 @@ public:
 		}
 		return result;
 	}
+
+	//---------------------------[ Determinant/Inverse/Transpose operations ]----------------------------
+
+	T det()
+	{
+
+		return +at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(1, 2) * at_colrow(0, 3) - at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(1, 2) * at_colrow(0, 3)
+			- at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(2, 2) * at_colrow(0, 3) + at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(2, 2) * at_colrow(0, 3)
+
+			+ at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(3, 2) * at_colrow(0, 3) - at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(3, 2) * at_colrow(0, 3)
+			- at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(0, 2) * at_colrow(1, 3) + at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(0, 2) * at_colrow(1, 3)
+
+			+ at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(2, 2) * at_colrow(1, 3) - at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(2, 2) * at_colrow(1, 3)
+			- at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(3, 2) * at_colrow(1, 3) + at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(3, 2) * at_colrow(1, 3)
+
+			+ at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(0, 2) * at_colrow(2, 3) - at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(0, 2) * at_colrow(2, 3)
+			- at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(1, 2) * at_colrow(2, 3) + at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(1, 2) * at_colrow(2, 3)
+
+			+ at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(3, 2) * at_colrow(2, 3) - at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(3, 2) * at_colrow(2, 3)
+			- at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(0, 2) * at_colrow(3, 3) + at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(0, 2) * at_colrow(3, 3)
+
+			+ at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(1, 2) * at_colrow(3, 3) - at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(1, 2) * at_colrow(3, 3)
+			- at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(2, 2) * at_colrow(3, 3) + at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(2, 2) * at_colrow(3, 3);
+
+	}
+
+	Mat4<T> inverse()
+	{
+		Mat4<T> ret;
+
+		ret.at_colrow(0, 0) = +at_colrow(2, 1) * at_colrow(3, 2) * at_colrow(1, 3) - at_colrow(3, 1) * at_colrow(2, 2) * at_colrow(1, 3) + at_colrow(3, 1) * at_colrow(1, 2) * at_colrow(2, 3)
+			- at_colrow(1, 1) * at_colrow(3, 2) * at_colrow(2, 3) - at_colrow(2, 1) * at_colrow(1, 2) * at_colrow(3, 3) + at_colrow(1, 1) * at_colrow(2, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(1, 0) = +at_colrow(3, 0) * at_colrow(2, 2) * at_colrow(1, 3) - at_colrow(2, 0) * at_colrow(3, 2) * at_colrow(1, 3) - at_colrow(3, 0) * at_colrow(1, 2) * at_colrow(2, 3)
+			+ at_colrow(1, 0) * at_colrow(3, 2) * at_colrow(2, 3) + at_colrow(2, 0) * at_colrow(1, 2) * at_colrow(3, 3) - at_colrow(1, 0) * at_colrow(2, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(2, 0) = +at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(1, 3) - at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(1, 3) + at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(2, 3)
+			- at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(2, 3) - at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(3, 3) + at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(3, 3);
+
+		ret.at_colrow(3, 0) = +at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(1, 2) - at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(1, 2) - at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(2, 2)
+			+ at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(2, 2) + at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(3, 2) - at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(3, 2);
+
+		ret.at_colrow(0, 1) = +at_colrow(3, 1) * at_colrow(2, 2) * at_colrow(0, 3) - at_colrow(2, 1) * at_colrow(3, 2) * at_colrow(0, 3) - at_colrow(3, 1) * at_colrow(0, 2) * at_colrow(2, 3)
+			+ at_colrow(0, 1) * at_colrow(3, 2) * at_colrow(2, 3) + at_colrow(2, 1) * at_colrow(0, 2) * at_colrow(3, 3) - at_colrow(0, 1) * at_colrow(2, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(1, 1) = +at_colrow(2, 0) * at_colrow(3, 2) * at_colrow(0, 3) - at_colrow(3, 0) * at_colrow(2, 2) * at_colrow(0, 3) + at_colrow(3, 0) * at_colrow(0, 2) * at_colrow(2, 3)
+			- at_colrow(0, 0) * at_colrow(3, 2) * at_colrow(2, 3) - at_colrow(2, 0) * at_colrow(0, 2) * at_colrow(3, 3) + at_colrow(0, 0) * at_colrow(2, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(2, 1) = +at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(0, 3) - at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(0, 3) - at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(2, 3)
+			+ at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(2, 3) + at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(3, 3) - at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(3, 3);
+
+		ret.at_colrow(3, 1) = +at_colrow(2, 0) * at_colrow(3, 1) * at_colrow(0, 2) - at_colrow(3, 0) * at_colrow(2, 1) * at_colrow(0, 2) + at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(2, 2)
+			- at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(2, 2) - at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(3, 2) + at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(3, 2);
+
+		ret.at_colrow(0, 2) = +at_colrow(1, 1) * at_colrow(3, 2) * at_colrow(0, 3) - at_colrow(3, 1) * at_colrow(1, 2) * at_colrow(0, 3) + at_colrow(3, 1) * at_colrow(0, 2) * at_colrow(1, 3)
+			- at_colrow(0, 1) * at_colrow(3, 2) * at_colrow(1, 3) - at_colrow(1, 1) * at_colrow(0, 2) * at_colrow(3, 3) + at_colrow(0, 1) * at_colrow(1, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(1, 2) = +at_colrow(3, 0) * at_colrow(1, 2) * at_colrow(0, 3) - at_colrow(1, 0) * at_colrow(3, 2) * at_colrow(0, 3) - at_colrow(3, 0) * at_colrow(0, 2) * at_colrow(1, 3)
+			+ at_colrow(0, 0) * at_colrow(3, 2) * at_colrow(1, 3) + at_colrow(1, 0) * at_colrow(0, 2) * at_colrow(3, 3) - at_colrow(0, 0) * at_colrow(1, 2) * at_colrow(3, 3);
+
+		ret.at_colrow(2, 2) = +at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(0, 3) - at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(0, 3) + at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(1, 3)
+			- at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(1, 3) - at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(3, 3) + at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(3, 3);
+
+		ret.at_colrow(3, 2) = +at_colrow(3, 0) * at_colrow(1, 1) * at_colrow(0, 2) - at_colrow(1, 0) * at_colrow(3, 1) * at_colrow(0, 2) - at_colrow(3, 0) * at_colrow(0, 1) * at_colrow(1, 2)
+			+ at_colrow(0, 0) * at_colrow(3, 1) * at_colrow(1, 2) + at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(3, 2) - at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(3, 2);
+
+		ret.at_colrow(0, 3) = +at_colrow(2, 1) * at_colrow(1, 2) * at_colrow(0, 3) - at_colrow(1, 1) * at_colrow(2, 2) * at_colrow(0, 3) - at_colrow(2, 1) * at_colrow(0, 2) * at_colrow(1, 3)
+			+ at_colrow(0, 1) * at_colrow(2, 2) * at_colrow(1, 3) + at_colrow(1, 1) * at_colrow(0, 2) * at_colrow(2, 3) - at_colrow(0, 1) * at_colrow(1, 2) * at_colrow(2, 3);
+
+		ret.at_colrow(1, 3) = +at_colrow(1, 0) * at_colrow(2, 2) * at_colrow(0, 3) - at_colrow(2, 0) * at_colrow(1, 2) * at_colrow(0, 3) + at_colrow(2, 0) * at_colrow(0, 2) * at_colrow(1, 3)
+			- at_colrow(0, 0) * at_colrow(2, 2) * at_colrow(1, 3) - at_colrow(1, 0) * at_colrow(0, 2) * at_colrow(2, 3) + at_colrow(0, 0) * at_colrow(1, 2) * at_colrow(2, 3);
+
+		ret.at_colrow(2, 3) = +at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(0, 3) - at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(0, 3) - at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(1, 3)
+			+ at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(1, 3) + at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(2, 3) - at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(2, 3);
+
+		ret.at_colrow(3, 3) = +at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(0, 2) - at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(0, 2) + at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(1, 2)
+			- at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(1, 2) - at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(2, 2) + at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(2, 2);
+
+		return ret / det();
+	}
+
+	Mat4<T> transpose()
+	{
+		Mat4<T> ret;
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				ret.at_colrow(i, j) = at_colrow(j, i);
+			}
+		}
+		return ret;
+	}
+	
 
 
 private:

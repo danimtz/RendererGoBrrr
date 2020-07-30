@@ -13,6 +13,7 @@ Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(null
 
 	m_renderer = m_window->getGraphicContext();
 
+
 	m_renderer->setRenderCam(m_scene->getCam());//THIS MIGHT GO AGAINST RAII idk
 	
 
@@ -55,6 +56,9 @@ void Application::run()
 
 
 		//scene->onUpdate(deltatime)
+		Camera *cam = m_scene->getCam();
+
+		//cam->updateCam();
 
 		m_renderer->renderScene(m_scene);
 

@@ -5,6 +5,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 
 - Working SDL2 window with capability to swap between buffers.
 - Working templated vector math library
+- Working flat shading renderer
 - more to come...
 
 ### **TODO:**
@@ -25,4 +26,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [ ]  Refactor a bunch of code into functions and better locations. Usually marked by ALLCAPS comments
 - [ ]  Get gourad shading to work
 - [x]  Implement z buffer
-- [ ]  Model matrix/View matrix/Projection matrix implementations
+- [x]  Model matrix/View matrix/Projection matrix implementations
+- [ ]  Fix projection matrix clipping and properly understand z buffer fucntionality w.r.t. projection matrix
