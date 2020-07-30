@@ -79,14 +79,14 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 {
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
-	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION
+	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION done
 	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
 	light_dir.normalize();
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		
 		
-
+		//LOAD MODEL DATA
 		//This could be a function like loadIndexData(). WILL BE NEEDED WHEN nEEDING TO LOAD NORMAL DATA, TEXEL DATA ETC FROM MODEL
 		Vec3i face_verts_idx = model->getFaceVertices(i);
 		Vec3f face_verts[3];
@@ -97,28 +97,52 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 			
 		}
 
+		//Get texture data
+		Texture *texture = model->getTexture();
+		Vec2f uv[3];
+
+		if (texture != nullptr){
+			for (int j = 0; j < 3; j++)
+			{
+				uv[j] = model->getUV(face_verts_idx[j]);
+			}
+		}
+		
+
+
 		//VERTEX SHADER STUFF HERE
+
+		Mat4f modelView_mat;
+		Mat4f modelViewProj_mat;
+		Mat4f invTransM;
+		//(m_camera->getProjectionMat()) *
+		modelView_mat = (m_camera->getViewMat()) * (model->getModelMat());
+
+		//FIX NORMAL TRANSFORMATION WITH INVERSE TRANSPOSE ETC
+		invTransM = model->getModelMat();
+		invTransM = invTransM.inverse().transpose();
+		
 
 
 		//Compute light intensity for that face (FLAT SHADING)
+	
 
 		//Calculate face normal 
 		Vec3f face_normal = model->getFaceNormal(i); //CURRENTLY DOENST TAKE MODELVIEW matrix INTO ACCOUNT
 
 		//Transform face normal
+		Vec3f trans_normal = invTransM*face_normal;
+		trans_normal.normalize();
+
 
 
 		//Although normally backface culling is done when light * normal is < 0, this works because
 		//light source direction has been flipped
-		float intensity = std::max(0.0f, face_normal.dot(light_dir));
+		float intensity = std::max(0.0f, trans_normal.dot(light_dir));
 
 
 
 
-		Mat4f modelView_mat;
-		Mat4f modelViewProj_mat;
-		//(m_camera->getProjectionMat()) *
-		modelView_mat =  (m_camera->getViewMat()) * (model->getModelMat());
 
 		//modelViewProj_mat = (m_camera->getProjectionMat()) * modelView_mat;
 		for (int j = 0; j < 3; j++)
@@ -145,11 +169,12 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 												( 0 <= face_verts[j].z <= face_verts[j].w));
 
 			if(!in_bounds){
-				isClipped = true;
+				isClipped = true; //WHY DOENST THIS CLIP ANYTHING EVER?!?!??!?!!?!?!?!?
 			}
 			
 		}
 		if(isClipped) continue;//Next triangle
+
 
 		//Perform perspetive divide on vertices
 		for (int j = 0; j < 3; j++)
@@ -158,7 +183,11 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 			face_verts[j].perspecDiv();
 		}
 
-		Rasterizer::simpleRasterizeTri(face_verts, m_px_buff, m_z_buff,intensity);
+
+
+
+
+		Rasterizer::simpleRasterizeTri(face_verts, uv, texture, m_px_buff, m_z_buff,intensity);
 
 	}
 

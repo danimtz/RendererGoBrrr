@@ -605,7 +605,8 @@ public:
 		ret.at_colrow(3, 3) = +at_colrow(1, 0) * at_colrow(2, 1) * at_colrow(0, 2) - at_colrow(2, 0) * at_colrow(1, 1) * at_colrow(0, 2) + at_colrow(2, 0) * at_colrow(0, 1) * at_colrow(1, 2)
 			- at_colrow(0, 0) * at_colrow(2, 1) * at_colrow(1, 2) - at_colrow(1, 0) * at_colrow(0, 1) * at_colrow(2, 2) + at_colrow(0, 0) * at_colrow(1, 1) * at_colrow(2, 2);
 
-		return ret / det();
+		T determinant = det();
+		return ret / determinant;
 	}
 
 	Mat4<T> transpose()

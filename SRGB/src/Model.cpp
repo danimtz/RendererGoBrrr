@@ -7,7 +7,7 @@
 #include<array>
 
 
-Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform)
+Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr)
 {
 	
 	loadOBJfile(filename);
@@ -16,7 +16,7 @@ Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms
 }
 
 
-Model::Model(const char* filename, const char* texture_fname, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform)
+Model::Model(const char* filename, const char* texture_fname, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr)
 {
 	loadOBJfile(filename, texture_fname);
 	
@@ -69,6 +69,11 @@ Vec3i Model::getFaceVertices(int nface) const
 
 }
 
+//Returns UV coordinates of given vertex
+Vec2f Model::getUV(int n) const
+{
+	return m_uv[n];
+}
 
 
 Mat4f Model::getModelMat() const
@@ -157,7 +162,8 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 
 	//Load texture THIS COULD BE DONE IN MEMEBR INITIALIZER LIST
 	
-	m_texture = new Texture(texture_fname);
+	if (texture_fname!=nullptr)
+		m_texture = new Texture(texture_fname);
 
 	//Build face normals
 	buildFaceNormals();
@@ -229,4 +235,9 @@ void Model::buildFaceNormals()
 
 		m_fnorms.push_back(normal);
 	}
+}
+
+Texture* Model::getTexture() const
+{
+	return m_texture;
 }

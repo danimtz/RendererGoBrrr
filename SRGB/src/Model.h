@@ -23,6 +23,7 @@ public:
 	Vec3f getVertex(int n) const;
 	Vec3f getVertex(int nface, int nth_vert) const;
 
+	Vec2f getUV(int n) const;
 
 	Vec3i getFaceVertices(int nface) const;
 	
@@ -30,6 +31,7 @@ public:
 	//TODO:
 	Vec3f getFaceNormal(int nface) const;
 	
+	Texture* getTexture() const;
 
 private:
 	

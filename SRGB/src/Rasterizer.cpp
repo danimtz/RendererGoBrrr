@@ -74,7 +74,7 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff, float intensity)
+void Rasterizer::simpleRasterizeTri(const Vec3f *verts, const Vec2f *uvVerts, const Texture *texture, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff, float intensity)
 {
 	//				v2
 	//				/\
@@ -110,8 +110,6 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 	Vec3f p;//point p
 	
 
-	// colour for triangle
-	uint32_t colour = SDL_MapRGB(px_format, intensity * 255, intensity * 255, intensity * 255);
 	
 	
 
@@ -149,22 +147,45 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, Buffer<uint32_t> *px_buf
 				{
 					(*z_buff)(p.x, p.y) = depth;
 
+					//FRAGMENT SHADER(textures etc)
+
+					uint32_t colour;
+					// colour for triangle
+					if (texture != nullptr)
+					{
+						
+						Vec3f uValues{ uvVerts[0].u, uvVerts[1].u, uvVerts[2].u };
+						Vec3f vValues{ uvVerts[0].v, uvVerts[1].v, uvVerts[2].v };
+
+						float u = baryC_w.dot(uValues);
+						float v = baryC_w.dot(vValues);
+
+						Vec3f fragmentRGB = texture->getTexel(u, v);
+
+						colour = SDL_MapRGB(px_format, intensity * fragmentRGB.r, intensity * fragmentRGB.g, intensity * fragmentRGB.b);
+					}
+					else
+					{
+						colour = SDL_MapRGB(px_format, intensity * 255, intensity * 255, intensity * 255);
+					}
+					
+					
+
+
+
+					//DEBUG
 					//Z buffer plot: (change viewport matrix to d/2 d/2 to d=255) 
 					//colour = SDL_MapRGB(px_format, depth, depth, depth);
+
+
 
 
 					(*px_buff)(p.x, p.y) = colour;//THIS SHOULD BE A FUNCTION IN RASTERIZER CALLED drawPixel()
 				
 				}
-
-
-
 			}
 		}
 	}
-
-
-
 }
 
 
