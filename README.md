@@ -27,4 +27,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [ ]  Get gourad shading to work
 - [x]  Implement z buffer
 - [x]  Model matrix/View matrix/Projection matrix implementations
-- [ ]  Fix projection matrix clipping and properly understand z buffer fucntionality w.r.t. projection matrix
+- [ ]  Fix projection matrix clipping and 
+- [x]  Reverse z buffer in projection matrix working
+- [x]  Correctly transform scene lights
+- [ ]  Get texture UV map to map correctly to model
