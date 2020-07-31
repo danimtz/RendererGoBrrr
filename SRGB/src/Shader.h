@@ -154,9 +154,9 @@ public:
 			rgb = Vec3f(255, 255, 255);
 		}
 
-		
+		float intensity = bary.dot(varying_intensity);
 		//Interpolate intensityies between vertices
-		rgb = rgb*bary.dot(varying_intensity);
+		rgb = rgb*intensity;
 		
 
 		return rgb;

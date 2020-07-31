@@ -202,6 +202,13 @@ public:
 		z = z/len;
 	}
 
+	void negate()
+	{
+		x = -x;
+		y = -y;
+		z = -z;
+	}
+
 	void perspecDiv()
 	{
 		x /= w;

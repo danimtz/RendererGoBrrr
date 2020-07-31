@@ -117,7 +117,7 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 
 	if (ifs.fail()) return;//ERROR
 
-	
+	bool has_vn = false;
 
 	int debug_Line = 0;
 	while (!ifs.eof())
@@ -153,7 +153,9 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 			{
 				iss >> vn[i];
 			}
+			vn.negate(); //	Normals are technically flipped. So is light direction I guess but works.
 			m_vnorms.push_back(vn);
+			has_vn = true;
 		}
 		else if (cmd == "f") // face command
 		{
@@ -190,7 +192,12 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 	buildFaceNormals();
 
 	//Build vertex normals DO THIS NEXT FOR BUNNY
-	//buildVertexNormals();
+	if (!has_vn)
+	{
+		m_vnorms.resize(m_vertex.size());
+		buildVertexNormals();
+	}
+	
 }
 
 
@@ -260,6 +267,28 @@ void Model::buildFaceNormals()
 		m_fnorms.push_back(normal);
 	}
 }
+
+void Model::buildVertexNormals()
+{
+	for (int i = 0; i < m_faces.size(); i++)
+	{
+		Vec3f face_normal = getFaceNormal(i);
+		Vec3i vidx = getFaceVertices(i);
+		//Add normal to all three vertices
+		for (int j = 0; j < 3; j++)
+		{
+			m_vnorms[vidx[j]] += face_normal;
+			m_faces[i][j][2] = vidx[j];//Assign vertex normal index to face list
+		}
+	}
+
+	//Iterate all vertex normals and normalize
+	for (int i = 0; i < m_vnorms.size(); i++)
+	{
+		m_vnorms[i].normalize();
+	}
+}
+
 
 Texture* Model::getTexture() const
 {

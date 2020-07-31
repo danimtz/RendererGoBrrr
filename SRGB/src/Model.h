@@ -61,6 +61,7 @@ private:
 	void parseFaceData(std::string(&face_data)[4], int vCount);
 
 	void buildFaceNormals();
+	void buildVertexNormals();
 
 };
 
