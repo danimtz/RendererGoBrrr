@@ -100,6 +100,14 @@ Vec3f Model::getFaceNormal(int nface) const
 }
 
 
+Vec3f Model::getVertexNormal(int nface, int nth_vert) const
+{
+	
+	int vnindex = m_faces[nface][nth_vert][2];
+
+	return m_vnorms[vnindex];
+}
+
 
 //Loads OBJ file. currently doenst accept obj files with faces larger than quads
 void Model::loadOBJfile(const char* filename, const char* texture_fname)
@@ -180,6 +188,9 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 
 	//Build face normals
 	buildFaceNormals();
+
+	//Build vertex normals DO THIS NEXT FOR BUNNY
+	//buildVertexNormals();
 }
 
 

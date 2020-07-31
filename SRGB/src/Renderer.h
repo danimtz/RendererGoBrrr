@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "Matrix4.h"
+#include "Shader.h"
 
 #include <queue>//in .cpp maybe?
 

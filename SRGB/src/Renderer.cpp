@@ -75,6 +75,8 @@ void Renderer::setRenderCam(Camera *cam)
 }
 
 
+
+
 void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights)
 {
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
@@ -82,83 +84,37 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION done
 	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
 	light_dir.normalize();
+
+	GouradShader shader;
+	
+	//Load shader members
+	shader.MVP = (m_camera->getProjectionMat()) * (m_camera->getViewMat()) * (model->getModelMat());
+
+	shader.itM = model->getModelMat();
+	shader.itM = shader.itM.inverse().transpose();
+
+
+	//Iterate each face
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		
 		
-		//LOAD MODEL DATA
-		//This could be a function like loadIndexData(). WILL BE NEEDED WHEN nEEDING TO LOAD NORMAL DATA, TEXEL DATA ETC FROM MODEL
-		Vec3i face_verts_idx = model->getFaceVertices(i);
+
+		//vertex shader per face members
+		shader.verts_idx = model->getFaceVertices(i);
+		shader.uv_idx = model->getUVidx(i);
+		shader.texture = model->getTexture();
+	
+
+
+
 		Vec3f face_verts[3];
 		for (int j = 0; j < 3; j++)
 		{
-			face_verts[j] = model->getVertex(face_verts_idx[j]);
+			face_verts[j] = shader.vertex(*model, light_dir, i, j);
 
-			
 		}
 
-		//Get texture data  
-		Texture *texture = model->getTexture();
-		Vec2f uv[3];
-		Vec3i uv_vert_idx = model->getUVidx(i);
-		if (texture != nullptr){
-			for (int j = 0; j < 3; j++)
-			{
-				
-				uv[j] = model->getUV(uv_vert_idx[j]);
-			}
-		}
-		
-
-
-
-		//VERTEX SHADER STUFF HERE
-
-		Mat4f modelView_mat;
-		Mat4f modelViewProj_mat;
-		Mat4f invTransM;
-		//(m_camera->getProjectionMat()) *
-		modelView_mat = (m_camera->getViewMat()) * (model->getModelMat());
-
-		//FIX NORMAL TRANSFORMATION WITH INVERSE TRANSPOSE ETC
-		invTransM = model->getModelMat();
-		invTransM = invTransM.inverse().transpose();
-		
-
-
-		//Compute light intensity for that face (FLAT SHADING)
-	
-
-		//Calculate face normal 
-		Vec3f face_normal = model->getFaceNormal(i); //CURRENTLY DOENST TAKE MODELVIEW matrix INTO ACCOUNT
-
-		//Transform face normal
-		Vec3f trans_normal = invTransM*face_normal;
-		trans_normal.normalize();
-
-
-
-		//Although normally backface culling is done when light * normal is < 0, this works because
-		//light source direction has been flipped
-		float intensity = std::max(0.0f, trans_normal.dot(light_dir));
-
-
-
-
-
-		//modelViewProj_mat = (m_camera->getProjectionMat()) * modelView_mat;
-		for (int j = 0; j < 3; j++)
-		{
-			//Transform vertices
-			
-			//TESTING STUFF
-			face_verts[j] = modelView_mat * face_verts[j];
-	
-
-			face_verts[j] = m_camera->getProjectionMat() * face_verts[j];
-
-			
-		}
 
 		//Clip triangles (doenst reconstruct partly out ones)
 		bool isClipped = false;
@@ -187,9 +143,7 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 
 
 
-
-
-		Rasterizer::simpleRasterizeTri(face_verts, uv, texture, m_px_buff, m_z_buff,intensity);
+		Rasterizer::simpleRasterizeTri(face_verts, shader, m_px_buff, m_z_buff);
 
 	}
 

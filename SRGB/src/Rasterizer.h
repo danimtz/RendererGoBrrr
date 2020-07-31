@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "SDL.h"
 #include "Model.h"
+#include "Shader.h"
 
 
 //Static method class. 
@@ -24,7 +25,7 @@ public:
 	static void drawTriangle(const Vec3f *verts, Buffer<uint32_t> *px_buff, uint32_t colour);//colour should later be like shader or something and maybe needs zbuffer
 
 	//Simple version of drawTriangle()
-	static void simpleRasterizeTri(const Vec3f *verts, const Vec2f *uvVerts, const Texture *texture, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff, float intensity);
+	static void simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff);
 
 private:
 

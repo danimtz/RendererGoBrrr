@@ -27,12 +27,14 @@ public:
 
 	Vec3i getFaceVertices(int nface) const;
 
-	Vec3i getUVidx(int nface) const;
+	Vec3i getUVidx(int nface) const;//COULD PROBABLY COMBINE GETUV AND GETUVIDX. SAME FOR VERTEX (change in renderer/rasterizer/shader too)
 
 	Mat4f getModelMat() const;
 	//TODO:
 	Vec3f getFaceNormal(int nface) const;
-	
+
+	Vec3f getVertexNormal(int nface, int nth_vert) const;
+
 	Texture* getTexture() const;
 
 private:

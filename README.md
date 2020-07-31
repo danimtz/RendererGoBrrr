@@ -16,7 +16,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Write templated vector math library.
 - [x]  Rasterizer interger bresenham line drawing function.
 - [x]  OBJ mesh file parser and Model class to hold data from OBJ file
-- [ ]  Finish model class functions (getNormal, getFace etc...)
+- [x]  Finish model class functions (getNormal, getFace etc...)
 - [x]  Wireframe drawer (Make it work on any file): Works now, but requires wireframe to be in NDC space (-1, 1)
 - [x]  Fix buffer to index with (0 0) at bottom left.(Left with 0,0 at top left for now. Easily changed in buffer class or in viewport transform)
 - [x]  Matrix4 class for homgenous coordinate transforms and add w to Vector3
@@ -30,4 +30,6 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Reverse z buffer in projection matrix working
 - [x]  Correctly transform scene lights
 - [x]  Get texture UV map to map correctly to model
-- [ ]  Create shader class (Interface polymorphism)
+- [x]  Create shader class (Interface polymorphism)
+- [ ]  Fix gourad shader vertex normals
+- [ ]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)

@@ -27,7 +27,7 @@ Scene::Scene()
 
 
 	m_models_in_scene.push_back(model);
-	m_models_in_scene.push_back(model1);
+	//m_models_in_scene.push_back(model1);
 	
 
 	m_camera = new Camera(Vec3f(0, 0, 5), 0.0f, -90.0f);
