@@ -85,11 +85,11 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
 	light_dir.normalize();
 
-	GouradShader shader;
+	PhongShader shader;
 	
 	//Load shader members
-	shader.MVP = (m_camera->getProjectionMat()) * (m_camera->getViewMat()) * (model->getModelMat());
-
+	shader.MV = (m_camera->getViewMat()) * (model->getModelMat());
+	shader.MVP = (m_camera->getProjectionMat()) * shader.MV;
 	shader.itM = model->getModelMat();
 	shader.itM = shader.itM.inverse().transpose();
 

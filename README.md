@@ -31,5 +31,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Correctly transform scene lights
 - [x]  Get texture UV map to map correctly to model
 - [x]  Create shader class (Interface polymorphism)
-- [ ]  Fix gourad shader vertex normals
-- [ ]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)
+- [x]  Fix gourad shader vertex normals
+- [x]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)
+- [ ]  Phong Shading
+- [ ]  Texture bilinear interpolation

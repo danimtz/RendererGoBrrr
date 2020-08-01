@@ -217,6 +217,15 @@ public:
 		w = 1;
 	}
 
+	static Vec3<T> reflect(const Vec3<T> &incident, const Vec3<T> &normal)
+	{
+		Vec3<T> reflection;
+		
+		reflection = incident - normal*2.0f*(incident.dot(normal));
+
+		return reflection;
+	}
+
 };
 
 //Common type definitions

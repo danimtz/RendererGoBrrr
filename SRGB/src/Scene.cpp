@@ -7,7 +7,7 @@ Scene::Scene()
 	//CAM PROPERTIES SHOULD BE SPECIFIED IN FILE AS WELL AND PUT INTO A STRUCT LIKE CAM_PROPERTIES
 
 	
-	Mat4f rot = Mat4f::createRotAxis(Vec3f(0, 5, 0));
+	Mat4f rot = Mat4f::createRotAxis(Vec3f(0, -10, 0));
 	Mat4f sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
 	Mat4f trs = Mat4f::createTranslation(Vec3f(0.3, 0, 0));
 	Mat4f transf = trs*rot*sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
@@ -18,15 +18,15 @@ Scene::Scene()
 
 
 
-	rot = Mat4f::createRotAxis(Vec3f(0, -15, 0));
+	rot = Mat4f::createRotAxis(Vec3f(5, 5, 0));
 	sc = Mat4f::createScale(Vec3f(3, 3, 3));
-	trs = Mat4f::createTranslation(Vec3f(-0.2, -0.3, 0));
+	trs = Mat4f::createTranslation(Vec3f(0, -0.4, 0));
 	transf = trs * rot * sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
 
 	Model *model1 = new Model("assets\\bunny.obj", transf);
 
 
-	m_models_in_scene.push_back(model);
+	//m_models_in_scene.push_back(model);
 	m_models_in_scene.push_back(model1);
 	
 
@@ -36,7 +36,7 @@ Scene::Scene()
 	//Lights
 
 	//1 light only for now
-	Light *light = new Light(Vec3f(-0.2, 0.4, 0.7));
+	Light *light = new Light(Vec3f(0.3, 0.3, 1));
 	
 	m_lights_in_scene.push_back(light);
 
