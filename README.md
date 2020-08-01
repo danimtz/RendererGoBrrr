@@ -33,5 +33,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Create shader class (Interface polymorphism)
 - [x]  Fix gourad shader vertex normals
 - [x]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)
-- [ ]  Phong Shading
+- [x]  Phong Shading
 - [ ]  Texture bilinear interpolation

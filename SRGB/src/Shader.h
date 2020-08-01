@@ -272,6 +272,9 @@ public:
 		//Interpolate normals and view direction
 		Vec3f interp_normal = normals[0] * bary.x + normals[1] * bary.y + normals[2] * bary.z;
 		Vec3f interp_viewdir = view_dir[0] * bary.x + view_dir[1] * bary.y + view_dir[2] * bary.z;
+		interp_normal.normalize();
+		interp_viewdir.normalize();
+
 
 		Vec3f reflect_dir = Vec3f::reflect(light_dir, interp_normal);
 
