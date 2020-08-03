@@ -48,6 +48,8 @@ private:
 	Mat4f m_model_mat;
 	std::vector<Vec3f> m_fnorms;
 
+	static constexpr int MAXPOLY = 20;
+
 	//Faces defined by face command. 
 	//Vec3i of vertex/uv/vnormal points to the respective index in m_vertex/m_uv/m_norms
 	std::vector<std::vector<Vec3i>> m_faces;
@@ -58,7 +60,7 @@ private:
 
 	//OBJ file parsing funcitons //THIS FUNCTION COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
 	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);
-	void parseFaceData(std::string(&face_data)[4], int vCount);
+	void parseFaceData(std::string(&face_data)[MAXPOLY], int vCount);
 
 	void buildFaceNormals();
 	void buildVertexNormals();

@@ -2,12 +2,14 @@
 
 #include <iostream>
 #include <type_traits>
-
+#include <SDL.h>
 
 //Templated class to hold framebuffer and z-buffer
 template<class T>
 class Buffer {
 public:
+	
+
 
 	int m_width;
 	int m_height;
@@ -57,5 +59,12 @@ public:
 			buffer[i] = 0;
 		}	
 	}
+
+	/*
+private:
+	inline static const uint32_t PX_FORMAT = SDL_PIXELFORMAT_RGB888;
+	inline static uint32_t m_colour = SDL_MapRGB(SDL_AllocFormat(PX_FORMAT), 50, 50, 50);
+*/
+
 };
 

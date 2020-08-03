@@ -100,7 +100,6 @@ void Window::onUpdate()
 void Window::swapBuffers(Buffer<uint32_t> *px_buff)
 {
 	
-
 	
 	//Lock SDL surface
 	SDL_LockSurface(m_sdl_surface);

@@ -162,7 +162,7 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 			
 			//Parse and count vertices in face command
 			int count = 0;
-			std::string face_data[4];
+			std::string face_data[MAXPOLY];
 			while(iss >> temp)
 			{
 				face_data[count] = temp;
@@ -171,7 +171,7 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 
 			//Assert that face is a triangle or quad
 			//assert(count > 2 && count <=4);
-			if (!(count > 2 && count <= 4)){
+			if (!(count > 2)){
 				__debugbreak();
 				return;//ERROR
 			}
@@ -198,10 +198,12 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 		buildVertexNormals();
 	}
 	
+
+	std::cout << "OBJ load succesfully." << std::endl;
 }
 
 
-void Model::parseFaceData(std::string (&face_data)[4], int vCount)
+void Model::parseFaceData(std::string (&face_data)[MAXPOLY], int vCount)
 {
 	
 	std::string delimiter = "/";

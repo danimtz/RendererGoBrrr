@@ -205,7 +205,7 @@ public:
 
 	float ka = 0.3, kd = 0.8, ks = 0.4; // Ambient, diffuse, specular coefficients
 
-	float spec_n = 40; // Specular shininess coefficient
+	float spec_n = 32; // Specular shininess coefficient
 
 	//Per triangle
 	Vec3i verts_idx, uv_idx; // Triangle indexes
@@ -266,6 +266,7 @@ public:
 		{
 			Il = texture->getTexel(u, v);
 		}
+
 
 		//Fragment illumination
 
