@@ -142,8 +142,8 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		}
 
 
-
-		Rasterizer::simpleRasterizeTri(face_verts, shader, m_px_buff, m_z_buff);
+		//Rasterizer::simpleRasterizeTri(face_verts, shader, m_px_buff, m_z_buff);
+		Rasterizer::drawTriangle(face_verts, shader, m_px_buff, m_z_buff);
 
 	}
 

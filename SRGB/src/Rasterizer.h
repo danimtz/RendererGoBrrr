@@ -22,10 +22,13 @@ public:
 	static void drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, uint32_t colour);
 
 	
-	static void drawTriangle(const Vec3f *verts, Buffer<uint32_t> *px_buff, uint32_t colour);//colour should later be like shader or something and maybe needs zbuffer
-
+	
 	//Simple version of drawTriangle()
 	static void simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff);
+
+	//Optimized rasterizer function with subpixel precision 8x8 tile rejection
+	static void drawTriangle(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff);
+
 
 private:
 
@@ -38,6 +41,7 @@ private:
 	
 	static float edgeFunct(const Vec3f &v0, const Vec3f &v1, const Vec3f p);
 
+	static void drawPixel(Buffer<uint32_t> *buff, int x, int y, uint32_t colour);
 
 	//SDL surface pixel formats
 	static const uint32_t PX_FORMAT = SDL_PIXELFORMAT_RGB888;

@@ -214,7 +214,7 @@ public:
 		x /= w;
 		y /= w;
 		z /= w;
-		w = 1;
+		//w = 1; LEAVE W as is. This is only used in renderer->rasterizer part of pipeline
 	}
 
 	static Vec3<T> reflect(const Vec3<T> &incident, const Vec3<T> &normal)

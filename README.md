@@ -6,6 +6,8 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - Working SDL2 window with capability to swap between buffers.
 - Working templated vector math library
 - Working flat shading renderer
+- Working Gourad and Phong shading renderer
+- Texture loading through stb image lib
 - more to come...
 
 ### **TODO:**
@@ -34,4 +36,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Fix gourad shader vertex normals
 - [x]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)
 - [x]  Phong Shading
+- [x]  Optimize rasterizer
+- [ ]  Fixed point arithmetic/subpixel precision rasterizer
+- [ ]  Fix projection matrix appearing as orthographic not perspective
 - [ ]  Texture bilinear interpolation

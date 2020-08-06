@@ -9,21 +9,23 @@ Scene::Scene()
 	
 	Mat4f rot = Mat4f::createRotAxis(Vec3f(0, -15, 0));
 	Mat4f sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
-	Mat4f trs = Mat4f::createTranslation(Vec3f(0.3, 0, 0));
+	Mat4f trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	Mat4f transf = trs*rot*sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
 	
-	//Model *model = new Model("assets\\head.obj", "assets\\african_head_diffuse.tga", transf);
+	//Model *model = new Model("assets\\head.obj","assets\\african_head_diffuse.tga", transf);
+
+	//Model *model = new Model("assets\\head.obj",transf);
 
 
 
 
 
-	rot = Mat4f::createRotAxis(Vec3f(0, 45, 0));
+	rot = Mat4f::createRotAxis(Vec3f(90, 0, 0));
 	sc = Mat4f::createScale(Vec3f(0.2, 0.2, 0.2));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * rot * sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
 
-	Model *model1 = new Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", transf);
+    Model *model1 = new Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", transf);
 
 
 	//m_models_in_scene.push_back(model);
