@@ -16,6 +16,7 @@ Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(null
 
 	m_renderer->setRenderCam(m_scene->getCam());//THIS MIGHT GO AGAINST RAII idk
 	
+	m_input_handler = new InputHandler(m_scene->getCam());
 
 }
 
@@ -23,6 +24,7 @@ Application::~Application()
 {
 	delete m_window;
 	delete m_scene;
+	delete m_input_handler;
 }
 
 
@@ -33,32 +35,17 @@ void Application::run()
 	bool running = true;
 	//main loop
 
-	SDL_Event event;//DEBUG
+	
 	while (running)
 	{
 
-		//TODO:
 
-		//INPUT MANAGERISH CLASS HERE AND FEED RUNNING VARAIBEL ADDRESS TO IT TO CHANGE IT WHEN CLOSE WINDOW
-
-
-		//DEBUG
-		SDL_WaitEvent(&event);
-		switch (event.type)
-		{
-		case SDL_QUIT:
-
-			running = false;
-			break;
-		}
-		//DEBUG
-
-
-
+		m_input_handler->onUpdate(running);
+		
 		//scene->onUpdate(deltatime)
 		Camera *cam = m_scene->getCam();
 
-		//cam->updateCam();
+		cam->updateCam();
 
 		m_renderer->renderScene(m_scene);
 

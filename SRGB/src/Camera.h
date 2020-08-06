@@ -24,6 +24,8 @@ public:
 	float m_yaw;
 	float m_pitch;
 
+	float camSpeed{0.1f};
+
 	Mat4f m_projection_mat;//CREATE THIS
 
 

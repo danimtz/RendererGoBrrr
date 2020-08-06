@@ -197,7 +197,7 @@ class PhongShader : public IShader {
 public:
 
 	//Per Model
-	Mat4f MVP, MV, itM; // Matrices
+	Mat4f MVP, MV, N; // Matrices
 	Texture *texture;
 
 	//Phong illumination variables
@@ -236,7 +236,7 @@ public:
 		Vec3f vertex_normal = model.getVertexNormal(face_idx, nth_vert);
 
 		//Calculate diffuse intensity
-		normals[nth_vert] = itM * vertex_normal;
+		normals[nth_vert] = N * vertex_normal;
 		normals[nth_vert].normalize();
 
 

@@ -37,6 +37,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Code buildVertexNormals() function in model (For bunny with no vn in obj file)
 - [x]  Phong Shading
 - [x]  Optimize rasterizer
+- [x]  Camera movement and input handling
 - [ ]  Fixed point arithmetic/subpixel precision rasterizer
 - [ ]  Fix projection matrix appearing as orthographic not perspective
 - [ ]  Texture bilinear interpolation

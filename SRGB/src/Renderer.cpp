@@ -56,6 +56,10 @@ void Renderer::renderWireFrame(const Model *model, uint32_t colour)
 
 void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC ETC. FOR NOW JUST OBJECT
 {
+	//Clear buffers
+	m_z_buff->clear();
+	m_px_buff->clear();
+	
 	//Get render queue of models in scene. (Already in world object coordinates(aka post model matrix))
 	std::queue<Model*> *render_queue = scene->createRenderQueue();
 
@@ -90,8 +94,8 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	//Load shader members
 	shader.MV = (m_camera->getViewMat()) * (model->getModelMat());
 	shader.MVP = (m_camera->getProjectionMat()) * shader.MV;
-	shader.itM = model->getModelMat();
-	shader.itM = shader.itM.inverse().transpose();
+	shader.N = model->getModelMat();
+	shader.N = shader.N.inverse().transpose();
 
 
 	//Iterate each face

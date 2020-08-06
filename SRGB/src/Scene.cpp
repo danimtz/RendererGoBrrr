@@ -20,7 +20,7 @@ Scene::Scene()
 
 
 
-	rot = Mat4f::createRotAxis(Vec3f(90, 0, 0));
+	rot = Mat4f::createRotAxis(Vec3f(0, 90, 0));
 	sc = Mat4f::createScale(Vec3f(0.2, 0.2, 0.2));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * rot * sc; //T R S (firts scale then rotate then translate)(although theres no translation here)
@@ -38,7 +38,7 @@ Scene::Scene()
 	//Lights
 
 	//1 light only for now
-	Light *light = new Light(Vec3f(0.3, 0.6, 1));
+	Light *light = new Light(Vec3f(0.3, 0.8, 1));
 	
 	m_lights_in_scene.push_back(light);
 
