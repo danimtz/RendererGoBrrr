@@ -267,8 +267,10 @@ void Rasterizer::drawTriangle(const Vec3f *verts, IShader &shader, Buffer<uint32
 					(*z_buff)(p.x, p.y) = depth;//drawZbuff function
 
 
-					//Perspective correct barycentric coordinates CHECK IF THEY ARE WORKING RIGHT ALSO THIS CAN BE OPTIMIZED
+					//Perspective divide barycentric weights
 					baryW = Vec3f(w0*invW.x, w1*invW.y, w2*invW.z);
+
+					//Calculate barycentric coordinates from perpectiv div weights
 					float persp_area = 1/(baryW.x + baryW.y + baryW.z);
 					persp_bary = baryW * persp_area;
 

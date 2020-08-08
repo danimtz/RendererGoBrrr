@@ -46,6 +46,7 @@ public:
 		x = other.x;
 		y = other.y;
 		z = other.z;
+		w = other.w;
 		return *this;
 	}
 
@@ -55,6 +56,7 @@ public:
 		x = other.x;
 		y = other.y;
 		z = other.z;
+		w = other.w;
 		return *this;
 	}
 

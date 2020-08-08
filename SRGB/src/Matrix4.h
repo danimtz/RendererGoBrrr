@@ -421,7 +421,7 @@ public:
 		proj_mat(2, 3) =  (z_far*z_near)/(z_far-z_near);//-(2*z_near*z_far)/ (z_far-z_near);
 
 		//Fourth row
-		proj_mat(3, 2) = 1;
+		proj_mat(3, 2) = -1;
 
 		return proj_mat;
 
@@ -502,10 +502,13 @@ public:
 	Vec3<T> operator*(const Vec3<T> &other) const
 	{
 		//data[] here is this->data but too long to type
-		Vec3<T> result(data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w,
-			data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w,
-			data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w,
-			data[3] * other.x + data[7] * other.y + data[11] * other.z + data[15] * other.w);
+		float x_ = data[0] * other.x + data[4] * other.y + data[8] * other.z + data[12] * other.w;
+		float y_ = data[1] * other.x + data[5] * other.y + data[9] * other.z + data[13] * other.w;
+		float z_ = data[2] * other.x + data[6] * other.y + data[10] * other.z + data[14] * other.w;
+		float w_ = data[3] * other.x + data[7] * other.y + data[11] * other.z + data[15] * other.w;
+		
+		Vec3<T> result(x_, y_, z_, w_);
+	
 
 		return result;
 	}
