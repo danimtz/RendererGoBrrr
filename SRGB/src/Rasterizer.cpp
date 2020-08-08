@@ -163,7 +163,7 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<
 }
 
 
-void Rasterizer::drawTriangle(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
+void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
 {
 	//				v2
 	//				/\
@@ -185,6 +185,7 @@ void Rasterizer::drawTriangle(const Vec3f *verts, IShader &shader, Buffer<uint32
 	float invArea;
 	Vec3f v[3];
 	Vec3f invW{ 1 / verts[0].w, 1 / verts[1].w, 1 / verts[2].w };
+	
 
 	//Fragment variables
 	float depth;
@@ -197,7 +198,10 @@ void Rasterizer::drawTriangle(const Vec3f *verts, IShader &shader, Buffer<uint32
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
 	for (int i = 0; i < 3; i++)
 	{
-		v[i] = viewPrt_transform * verts[i];
+		//Reset hidden w
+		verts[i].w = 1;
+		//Transorm to viewport
+		v[i] = viewPrt_transform * verts[i];//MAYBE HERE
 	}
 
 	//Save z values for depth buffer (POST TRANSFORM)

@@ -329,13 +329,18 @@ public:
 		//scale
 		vp_trans.at(0, 0) = (vwidth - 1) / 2;
 		vp_trans.at(1, 1) = -(vheight - 1) / 2;
-		//vp_trans.at(2, 2) = -0.5;
+		
 
 		//translate
 		vp_trans.at(0, 3) = (vwidth) / 2;
 		vp_trans.at(1, 3) = (vheight) / 2;
-		//vp_trans.at(2, 3) = 0.5;
-
+		
+		
+#if 0l
+		// WITHOUT PROJECTION MATRIX Z SCALING
+		vp_trans.at(2, 3) = 0.5;
+		vp_trans.at(2, 2) = -0.5;
+#endif
 
 
 		return vp_trans;
@@ -378,7 +383,7 @@ public:
 
 
 	//Create symmetric projection matrix
-	static Mat4<T> createProjectionMat(T fov = 65.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
+	static Mat4<T> createProjectionMat(T fov = 45.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
 	{
 		/*
 		

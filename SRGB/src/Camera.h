@@ -23,6 +23,7 @@ public:
 
 	float m_yaw;
 	float m_pitch;
+	float m_fov;
 
 	float camSpeed{0.1f};
 
@@ -31,10 +32,10 @@ public:
 
 	//Constructor
 	Camera(Vec3f pos = Vec3f(0.0f, 0.0f, 0.0f),  float pitch = D_PITCH, float yaw = D_YAW, Vec3f up = Vec3f(0.0f, 1.0f, 0.0f)) : m_pos(pos), m_yaw(yaw), 
-																																	m_world_up(up), m_pitch(pitch)
+																																	m_world_up(up), m_pitch(pitch), m_fov(45.0f)
 	{
 		//FUSTRUM PARAMETERS ON A STRUCT
-		m_projection_mat = Mat4f::createProjectionMat();
+		m_projection_mat = Mat4f::createProjectionMat(m_fov);
 		updateCam();
 	}
 	
@@ -69,5 +70,12 @@ public:
 		m_up = m_right.cross(m_front);
 		m_up.normalize();
 		
+		
+	}
+
+	void updateCamFOV(float new_fov)
+	{	
+		m_fov = new_fov;
+		m_projection_mat = Mat4f::createProjectionMat(m_fov);
 	}
 };

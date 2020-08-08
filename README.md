@@ -39,5 +39,7 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Optimize rasterizer
 - [x]  Camera movement and input handling
 - [ ]  Fixed point arithmetic/subpixel precision rasterizer
-- [ ]  Fix projection matrix appearing as orthographic not perspective
+- [x]  Fix projection matrix appearing as orthographic not perspective
+- [x]  Fix renderer looking extremely skewed after perspective divide. Might have to do with lookat matrix
+- [x]  OMP parallelization of renderer
 - [ ]  Texture bilinear interpolation

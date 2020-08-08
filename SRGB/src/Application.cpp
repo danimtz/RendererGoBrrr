@@ -45,7 +45,7 @@ void Application::run()
 		//scene->onUpdate(deltatime)
 		Camera *cam = m_scene->getCam();
 
-		cam->updateCam();
+		//cam->updateCam(); Done in input handler
 
 		m_renderer->renderScene(m_scene);
 

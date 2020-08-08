@@ -1,5 +1,5 @@
 #include "Renderer.h"
-
+#include "omp.h"
 
 //Constructor
 Renderer::Renderer(int buff_width, int buff_height) : m_px_buff(nullptr), m_z_buff(nullptr)
@@ -89,16 +89,19 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
 	light_dir.normalize();
 
-	GouradShader shader;
+	PhongShader shader;
 	
-	//Load shader members
+	//Load shader matrices
 	shader.MV = (m_camera->getViewMat()) * (model->getModelMat()); 
-	shader.MVP = (m_camera->getProjectionMat()) * shader.MV;
-	//shader.N = model->getModelMat();
-	//shader.N = shader.N.inverse().transpose();
+	shader.MVP = m_camera->getProjectionMat() * shader.MV;
+	shader.N = model->getModelMat();
+	shader.N = shader.N.inverse().transpose();
 
 
 	//Iterate each face
+	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
+	//Schedule dynamic since many threads will finish early due to early rejection due to backface culling and clipping
+	#pragma omp parallel for firstprivate(shader) schedule(dynamic)
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		
@@ -110,8 +113,11 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		shader.texture = model->getTexture();
 	
 
+		//Perform backface culling
+		//TODO
 
 
+		//Vertex shader
 		Vec3f face_verts[3];
 		for (int j = 0; j < 3; j++)
 		{

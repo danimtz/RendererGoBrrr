@@ -270,9 +270,14 @@ public:
 
 		//Fragment illumination
 
-		//Interpolate normals and view direction
-		Vec3f interp_normal = normals[0] * bary.x + normals[1] * bary.y + normals[2] * bary.z;
-		Vec3f interp_viewdir = view_dir[0] * bary.x + view_dir[1] * bary.y + view_dir[2] * bary.z;
+		//Interpolate normals and view direction    ONE OF THESE VERSION SHOULD BE MORE EFFICIENT, BUT ITS ACTING WEIRD
+		//Vec3f interp_normal = normals[0] * bary.x + normals[1] * bary.y + normals[2] * bary.z;
+		//Vec3f interp_viewdir = view_dir[0] * bary.x + view_dir[1] * bary.y + view_dir[2] * bary.z;
+		Vec3f interp_normal = normals[0] + (normals[1]-normals[0])*bary.y  + (normals[2] - normals[0])*bary.z;
+		Vec3f interp_viewdir = view_dir[0] + (view_dir[1] - view_dir[0]) * bary.y + (view_dir[2] - view_dir[0]) * bary.z;
+
+
+
 		interp_normal.normalize();
 		interp_viewdir.normalize();
 

@@ -42,36 +42,48 @@ void InputHandler::handleSDLevent(SDL_Event &event)
 	if (event.type == SDL_KEYDOWN)
 	{
 
-		switch (event.key.keysym.sym)
+		if (event.key.keysym.sym == SDLK_w)
 		{
-			case SDLK_w:
-				m_sceneCam->m_pos += m_sceneCam->m_front * speed;
-				break;
+			m_sceneCam->m_pos += m_sceneCam->m_front * speed;
+		}
 
-			case SDLK_s:
-				m_sceneCam->m_pos -= m_sceneCam->m_front * speed;
-            
-				break;
+		if (event.key.keysym.sym == SDLK_s)
+		{
+			m_sceneCam->m_pos -= m_sceneCam->m_front * speed;
+		}
 
-			case SDLK_a:
-				m_sceneCam->m_pos -= m_sceneCam->m_right * speed;
-				break;
+		if (event.key.keysym.sym == SDLK_a)
+		{
+			m_sceneCam->m_pos -= m_sceneCam->m_right * speed;
+		}
 
-			case SDLK_d:
-				m_sceneCam->m_pos += m_sceneCam->m_right * speed;
-				break;
+		if (event.key.keysym.sym == SDLK_d)
+		{
+			m_sceneCam->m_pos += m_sceneCam->m_right * speed;
+		}
 
-			case SDLK_q:
-				m_sceneCam->m_pos += m_sceneCam->m_up * speed;
-				break;
+		if (event.key.keysym.sym == SDLK_SPACE)
+		{
+			m_sceneCam->m_pos += m_sceneCam->m_up * speed;
+		}
 
-			case SDLK_e:
-				m_sceneCam->m_pos -= m_sceneCam->m_up * speed;
-				break;
+		if (event.key.keysym.sym == SDLK_LSHIFT)
+		{
+			m_sceneCam->m_pos -= m_sceneCam->m_up * speed;
+		}
 
-		}	
+
+		if (event.key.keysym.sym == SDLK_r)
+		{
+			//RESET CAMERA FUNCTION
+		}
+
+
+		//Update camera
+		m_sceneCam->updateCam();
+
 	}
-	else if (event.motion.state & SDL_BUTTON_RMASK)
+	else if ((event.motion.state & SDL_BUTTON_LMASK) || (event.motion.state & SDL_BUTTON_RMASK))
 	{
 		if (event.type == SDL_MOUSEMOTION)
 		{ 
@@ -95,5 +107,34 @@ void InputHandler::handleSDLevent(SDL_Event &event)
 
 			m_sceneCam->updateCam();
 		}
+	}
+	else if (event.type == SDL_MOUSEWHEEL)
+	{
+
+		float zoom = 5.0f;
+		float fov = m_sceneCam->m_fov;
+
+		if (event.wheel.y > 0)// scroll up
+		{ 
+			fov -= zoom;
+		}
+		else if (event.wheel.y < 0)// scroll down
+		{
+			fov += zoom;
+		}
+
+		//Limit FOV range
+		if (fov < 20)
+		{
+			fov = 20;
+		}
+		else if (fov > 130)
+		{
+			fov = 130;
+		}
+
+		//Updating the camera
+		m_sceneCam->updateCamFOV(fov);
+		m_sceneCam->updateCam();
 	}
 }
