@@ -1,5 +1,5 @@
 #include "Application.h"
-
+#include "Profiler.h"
 
 Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(nullptr){
 
@@ -39,7 +39,7 @@ void Application::run()
 	while (running)
 	{
 
-
+		Timer timer;
 		m_input_handler->onUpdate(running);
 		
 		//scene->onUpdate(deltatime)

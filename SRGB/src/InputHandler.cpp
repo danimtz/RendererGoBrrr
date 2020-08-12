@@ -24,7 +24,7 @@ void InputHandler::onUpdate(bool &running)
 				break;
 
 			default:
-				handleSDLevent(event);
+				handleSDLevent(running, event);
 				break;
 		}
 	}
@@ -33,7 +33,7 @@ void InputHandler::onUpdate(bool &running)
 }
 
 
-void InputHandler::handleSDLevent(SDL_Event &event)
+void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 {
 
 	float speed = m_sceneCam->camSpeed;// * deltaT;
@@ -76,6 +76,11 @@ void InputHandler::handleSDLevent(SDL_Event &event)
 		if (event.key.keysym.sym == SDLK_r)
 		{
 			//RESET CAMERA FUNCTION
+		}
+
+		if (event.key.keysym.sym == SDLK_ESCAPE)
+		{
+			running = false;
 		}
 
 

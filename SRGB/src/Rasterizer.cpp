@@ -209,7 +209,7 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 
 
 	float tempinvArea = edgeFunct(v[0], v[1], v[2]);
-	if (tempinvArea <= 0) return; //If traingle degenerate return
+	if (tempinvArea <= 0) return; //Winding order backface culling
 	invArea = 1 / tempinvArea;
 
 

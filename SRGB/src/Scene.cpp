@@ -33,8 +33,20 @@ Scene::Scene()
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * rot * sc;
     model = new Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", transf);
+	//model = new Model("assets\\survival_guitar\\source\\guitar.obj", transf);
+
 	m_models_in_scene.push_back(model);
 	
+
+
+
+
+
+
+
+
+
+
 
 
 	m_camera = new Camera(Vec3f(0, 0, 1), 0.0f, -90.0f);

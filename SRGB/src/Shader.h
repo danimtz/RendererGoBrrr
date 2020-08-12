@@ -20,7 +20,7 @@ class FlatShader : public IShader {
 public:
 
 	//Per Model
-	Mat4f MVP, MV, itM; // Matrices
+	Mat4f MVPmat, MVmat, Nmat; // Matrices  
 	Texture *texture;
 
 	//Per triangle
@@ -48,12 +48,12 @@ public:
 		Vec3f face_normal = model.getFaceNormal(face_idx);
 
 		//Transform face normal
-		Vec3f trans_normal = itM * face_normal;
+		Vec3f trans_normal = Nmat * face_normal;
 		trans_normal.normalize();
 
 		varying_intensity[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir));
 
-		return MVP*vertex;
+		return MVPmat *vertex;
 
 
 	}
@@ -97,7 +97,7 @@ class GouradShader : public IShader {
 public:
 
 	//Per Model
-	Mat4f MVP, MV, itM; // Matrices
+	Mat4f MVPmat, MVmat, Nmat; // Matrices
 	Texture *texture;
 
 	//Phong illumination variables
@@ -136,14 +136,14 @@ public:
 
 
 		//Calculate diffuse intensity
-		Vec3f trans_normal = itM * vertex_normal;
+		Vec3f trans_normal = Nmat * vertex_normal;
 		trans_normal.normalize();
 		
 		varying_diffuse[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir));
 
 
 		//Calculate specular intensity
-		Vec3f view_dir = MV * vertex;
+		Vec3f view_dir = MVmat * vertex;
 		view_dir.normalize();
 
 		Vec3f reflect_dir = Vec3f::reflect(light_dir, trans_normal);
@@ -151,7 +151,7 @@ public:
 		varying_spec[nth_vert] = std::pow(std::max(0.0f, -view_dir.dot(reflect_dir)), spec_n);
 
 
-		return MVP * vertex;
+		return MVPmat * vertex;
 
 
 	}
@@ -197,7 +197,7 @@ class PhongShader : public IShader {
 public:
 
 	//Per Model
-	Mat4f MVP, MV, N; // Matrices
+	Mat4f MVPmat, MVmat, Nmat; // Matrices
 	Texture *texture;
 
 	//Phong illumination variables
@@ -236,19 +236,19 @@ public:
 		Vec3f vertex_normal = model.getVertexNormal(face_idx, nth_vert);
 
 		//Calculate diffuse intensity
-		normals[nth_vert] = N * vertex_normal;
+		normals[nth_vert] = Nmat * vertex_normal;
 		normals[nth_vert].normalize();
 
 
 
 		//Calculate specular intensity
-		view_dir[nth_vert] = MV * vertex;
+		view_dir[nth_vert] = MVmat * vertex;
 		view_dir[nth_vert].normalize();
 
 		//Save light direction
 		light_dir = light_dir_;
 
-		return MVP * vertex;
+		return MVPmat * vertex;
 
 	}
 

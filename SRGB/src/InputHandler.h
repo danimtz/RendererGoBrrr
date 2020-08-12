@@ -15,7 +15,7 @@ private:
 
 	Camera *m_sceneCam;
 	
-	void handleSDLevent(SDL_Event &event);
+	void handleSDLevent(bool &running, SDL_Event &event);
 
 };
 

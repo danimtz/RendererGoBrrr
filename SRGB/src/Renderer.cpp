@@ -92,15 +92,17 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	PhongShader shader;
 	
 	//Load shader matrices
-	shader.MV = (m_camera->getViewMat()) * (model->getModelMat()); 
-	shader.MVP = m_camera->getProjectionMat() * shader.MV;
-	shader.N = model->getModelMat();
-	shader.N = shader.N.inverse().transpose();
+	shader.MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
+	shader.MVPmat = m_camera->getProjectionMat() * shader.MVmat;
+	shader.Nmat = model->getModelMat();
+	shader.Nmat = shader.Nmat.inverse().transpose();
+
+	Mat4f invModel = model->getModelMat().inverse();
 
 
 	//Iterate each face
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
-	//Schedule dynamic since many threads will finish early due to early rejection due to backface culling and clipping
+	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
 	#pragma omp parallel for firstprivate(shader) schedule(dynamic)
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
@@ -111,10 +113,18 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		shader.verts_idx = model->getFaceVertices(i);
 		shader.uv_idx = model->getUVidx(i);
 		shader.texture = model->getTexture();
-	
+		
 
-		//Perform backface culling
-		//TODO
+
+		//Front-end perspective correct backface culling
+		Vec3f faceNormal = model->getFaceNormal(i);
+		Vec3f viewVec = model->getVertex(shader.verts_idx[0]) - (invModel * m_camera->m_pos); //A BIT DODGY TO USE SHADER MEMBER FOR THIS. MAYBE REFACTOR VERTEX SHADER ARGUMENTS
+		viewVec.normalize();
+		float normLimit = cos((m_camera->m_fov/2.0f + 90.0f) * (M_PI / 180.0f));
+		float bfc_intentsity1 = faceNormal.dot(viewVec);
+		if (bfc_intentsity1 <= normLimit) continue;
+
+
 
 
 		//Vertex shader
