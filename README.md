@@ -42,4 +42,5 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Fix projection matrix appearing as orthographic not perspective
 - [x]  Fix renderer looking extremely skewed after perspective divide. Might have to do with lookat matrix
 - [x]  OMP parallelization of renderer
+- [x]  Multiple and coloured directional light support
 - [ ]  Texture bilinear interpolation

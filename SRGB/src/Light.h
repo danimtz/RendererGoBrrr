@@ -11,6 +11,6 @@ struct Light {
 	
 	Light(Vec3f pos = Vec3f( 0.0f, 0.0f, 1.0f ), 
 			Vec3f target = Vec3f( 0.0f, 0.0f, 0.0f ), 
-			Vec3f colour = Vec3f( 255.0f, 255.0f, 255.0f )) : m_pos(pos), m_target(target), m_colour(colour){};
+			Vec3f colour = Vec3f( 1.0f, 1.0f, 1.0f )) : m_pos(pos), m_target(target), m_colour(colour){};
 
 };

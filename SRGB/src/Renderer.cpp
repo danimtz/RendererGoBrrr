@@ -86,17 +86,18 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
 	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION done
-	Vec3f light_dir = lights[0]->m_target - lights[0]->m_pos;
-	light_dir.normalize();
-
-	PhongShader shader;
+	
+	
 	
 	//Load shader matrices
-	shader.MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
-	shader.MVPmat = m_camera->getProjectionMat() * shader.MVmat;
-	shader.Nmat = model->getModelMat();
-	shader.Nmat = shader.Nmat.inverse().transpose();
+	Mat4f MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
+	Mat4f MVPmat = m_camera->getProjectionMat() * MVmat;
+	Mat4f Nmat = model->getModelMat();
+	Nmat = Nmat.inverse().transpose();
 
+	PhongShader shader(MVmat, MVPmat, Nmat, lights);
+
+	//For backface culling
 	Mat4f invModel = model->getModelMat().inverse();
 
 
@@ -131,7 +132,7 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		Vec3f face_verts[3];
 		for (int j = 0; j < 3; j++)
 		{
-			face_verts[j] = shader.vertex(*model, light_dir, i, j);
+			face_verts[j] = shader.vertex(*model, i, j);
 
 		}
 

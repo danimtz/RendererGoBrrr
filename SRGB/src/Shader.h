@@ -3,18 +3,17 @@
 #include "Vector3.h"
 #include "Matrix4.h"
 #include "Model.h"
-
+#include "Light.h"
 #include <algorithm>
 
 class IShader {
 public:
-
+	
 	virtual ~IShader() {};
-	virtual Vec3f vertex(const Model &model, const Vec3f &light_dir, int face_idx, int nth_vert) = 0;
+	virtual Vec3f vertex(const Model &model, int face_idx, int nth_vert) = 0;
 	virtual Vec3f fragment(const Vec3f &bary) = 0;
 
 };
-
 
 class FlatShader : public IShader {
 public:
@@ -22,6 +21,8 @@ public:
 	//Per Model
 	Mat4f MVPmat, MVmat, Nmat; // Matrices  
 	Texture *texture;
+	std::vector<Vec3f> light_dir;
+
 
 	//Per triangle
 	Vec3i verts_idx, uv_idx; // Triangle indexes
@@ -30,7 +31,19 @@ public:
 	Vec3f varying_intensity;
 	Vec2f uv_values[3];
 
-	Vec3f vertex(const Model &model, const Vec3f &light_dir, int face_idx, int nth_vert) override
+
+	FlatShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N)
+	{
+		light_dir.reserve(lights.size());
+		for (int i = 0; i < lights.size(); i++)
+		{
+			light_dir.push_back(lights[i]->m_target - lights[i]->m_pos);
+			light_dir[i].normalize();
+		}
+	};
+
+
+	Vec3f vertex(const Model &model, int face_idx, int nth_vert) override
 	{
 		//Load vertex
 		Vec3f vertex;
@@ -42,7 +55,7 @@ public:
 			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
 		}
 
-		//Compute light intensity for face
+		//Compute light intensity for face  
 
 		//Calculate face normal 
 		Vec3f face_normal = model.getFaceNormal(face_idx);
@@ -51,7 +64,7 @@ public:
 		Vec3f trans_normal = Nmat * face_normal;
 		trans_normal.normalize();
 
-		varying_intensity[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir));
+		varying_intensity[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir[0]));
 
 		return MVPmat *vertex;
 
@@ -99,6 +112,8 @@ public:
 	//Per Model
 	Mat4f MVPmat, MVmat, Nmat; // Matrices
 	Texture *texture;
+	std::vector<Vec3f> light_dir;
+
 
 	//Phong illumination variables
 	Vec3f Ia{ 50,50,50 }, Il{ 199, 134, 36 }; // Ambient and light intensity (defult colour)
@@ -117,7 +132,20 @@ public:
 	Vec2f uv_values[3];
 
 
-	Vec3f vertex(const Model &model, const Vec3f &light_dir, int face_idx, int nth_vert) override
+
+	GouradShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N)
+	{
+		light_dir.reserve(lights.size());
+		for (int i = 0; i < lights.size(); i++)
+		{
+			light_dir.push_back(lights[i]->m_target - lights[i]->m_pos);
+			light_dir[i].normalize();
+		}
+	};
+
+
+
+	Vec3f vertex(const Model &model, int face_idx, int nth_vert) override
 	{
 		//Load vertex
 		Vec3f vertex;
@@ -131,6 +159,9 @@ public:
 
 		//Compute light intensity 
 
+		//Compute light intensity for face  //THIS SHOULD BE DONE ONLY ONCE, NOT INSIDE vertex() BUT SINCE ITS FLAT SHADER IM LEAVING IT UNOPTIMIZED. SAME FOR GOURAD
+		
+
 		//Get face normal 
 		Vec3f vertex_normal = model.getVertexNormal(face_idx, nth_vert);
 
@@ -139,14 +170,14 @@ public:
 		Vec3f trans_normal = Nmat * vertex_normal;
 		trans_normal.normalize();
 		
-		varying_diffuse[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir));
+		varying_diffuse[nth_vert] = std::max(0.0f, trans_normal.dot(light_dir[0]));
 
 
 		//Calculate specular intensity
 		Vec3f view_dir = MVmat * vertex;
 		view_dir.normalize();
 
-		Vec3f reflect_dir = Vec3f::reflect(light_dir, trans_normal);
+		Vec3f reflect_dir = Vec3f::reflect(light_dir[0], trans_normal);
 
 		varying_spec[nth_vert] = std::pow(std::max(0.0f, -view_dir.dot(reflect_dir)), spec_n);
 
@@ -197,8 +228,11 @@ class PhongShader : public IShader {
 public:
 
 	//Per Model
-	Mat4f MVPmat, MVmat, Nmat; // Matrices
+	Mat4f  MVmat, MVPmat, Nmat; // Matrices
 	Texture *texture;
+	std::vector<Vec3f> light_dir;
+	std::vector<Vec3f> light_colour;
+
 
 	//Phong illumination variables
 	Vec3f Ia{ 50,50,50 }, Il{ 199, 134, 36 }; // Ambient and light intensity (defult colour)
@@ -214,11 +248,25 @@ public:
 
 	//Written by vertex shader
 	Vec3f normals[3], view_dir[3];
-	Vec3f light_dir;
 	Vec2f uv_values[3];
 
 
-	Vec3f vertex(const Model &model, const Vec3f &light_dir_, int face_idx, int nth_vert) override
+	PhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr)
+	{
+		light_dir.reserve(lights.size());
+		light_colour.reserve(lights.size());
+		for (int i = 0; i < lights.size(); i++)
+		{
+			light_dir.push_back(lights[i]->m_target - lights[i]->m_pos);
+			light_dir[i].normalize();
+
+			light_colour.push_back(lights[i]->m_colour);
+		}
+	};
+
+
+
+	Vec3f vertex(const Model &model, int face_idx, int nth_vert) override
 	{
 		//Load vertex
 		Vec3f vertex;
@@ -245,8 +293,7 @@ public:
 		view_dir[nth_vert] = MVmat * vertex;
 		view_dir[nth_vert].normalize();
 
-		//Save light direction
-		light_dir = light_dir_;
+		
 
 		return MVPmat * vertex;
 
@@ -266,6 +313,7 @@ public:
 		{
 			Il = texture->getTexel(u, v);
 		}
+		
 
 
 		//Fragment illumination
@@ -276,25 +324,33 @@ public:
 		Vec3f interp_normal = normals[0] + (normals[1]-normals[0])*bary.y  + (normals[2] - normals[0])*bary.z;
 		Vec3f interp_viewdir = view_dir[0] + (view_dir[1] - view_dir[0]) * bary.y + (view_dir[2] - view_dir[0]) * bary.z;
 
-
-
 		interp_normal.normalize();
 		interp_viewdir.normalize();
 
 
-		Vec3f reflect_dir = Vec3f::reflect(light_dir, interp_normal);
-
-
-		//Calculate diffuse and specular components
-		float diff_NL = std::max(0.0f, interp_normal.dot(light_dir));
-		float spec_RVn = std::pow(std::max(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
-
-
-		//Illumination equation
+		//FOR EACH LIGHT:
 		Vec3f colour;
+		for(int i = 0; i < light_dir.size(); i++)
+		{ 
+			Vec3f reflect_dir = Vec3f::reflect(light_dir[i], interp_normal);
+
+			//Calculate diffuse and specular components
+			float diff_NL = std::max(0.0f, interp_normal.dot(light_dir[i]));
+			float spec_RVn = std::pow(std::max(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
+
+
+			//Illumination equation
+			
+			for (int j = 0; j < 3; j++)
+			{
+				colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia[j] + Il[j] * (diff_NL * kd + spec_RVn * ks)));
+			}
+		}
+		
+		//Cap intensity values
 		for (int i = 0; i < 3; i++)
 		{
-			colour[i] = std::min<float>(255, ka * Ia[i] + Il[i] * (diff_NL * kd + spec_RVn * ks));
+			colour[i] = std::min<float>(255, colour[i]);
 		}
 
 
