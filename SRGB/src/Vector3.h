@@ -108,6 +108,12 @@ public:
 		return Vec3<T>(x - other, y - other, z - other);
 	}
 
+	Vec3<T> operator-() const
+	{
+		return Vec3<T>(-x, -y, -z);
+	}
+
+
 	Vec3<T> operator*(T other) const
 	{
 		return Vec3<T>(x * other, y * other, z * other);

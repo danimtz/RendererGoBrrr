@@ -353,7 +353,7 @@ public:
 		Vec3<T> front, right, up;
 		Mat4<T> lookat;
 
-		front = cam_pos - cam_target;
+		front = cam_pos - cam_target; //From target to camera
 		up = cam_up;
 
 		front.normalize();

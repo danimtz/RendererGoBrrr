@@ -23,8 +23,8 @@ Scene::Scene()
 	sc = Mat4f::createScale(Vec3f(4, 4, 4));
 	trs = Mat4f::createTranslation(Vec3f(-1, -0.5, 0));
 	transf = trs * rot * sc;
-	model = new Model("assets\\bunnyHD.obj", transf);
-	m_models_in_scene.push_back(model);
+	//model = new Model("assets\\bunnyHD.obj", transf);
+	//m_models_in_scene.push_back(model);
 	
 
 
@@ -32,18 +32,17 @@ Scene::Scene()
 	sc = Mat4f::createScale(Vec3f(0.2, 0.2, 0.2));
 	trs = Mat4f::createTranslation(Vec3f(1, 0, 0));
 	transf = trs * rot * sc;
-    model = new Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", transf);
-	m_models_in_scene.push_back(model);
+   // model = new Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", transf);
+	//m_models_in_scene.push_back(model);
 	
 
 
-
-
-
-
-
-
-
+	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	sc = Mat4f::createScale(Vec3f(0.5, 0.5, 0.5));
+	trs = Mat4f::createTranslation(Vec3f(2, 0, 0));
+	transf = trs * rot * sc;
+	model = new Model("assets\\cube.obj", transf);
+	m_models_in_scene.push_back(model);
 
 
 
@@ -52,15 +51,20 @@ Scene::Scene()
 
 	//Lights
 
-	//1 light only for now
-	Light *light = new Light(Vec3f(0.7, 0.8, 1), Vec3f(0, 0, 0), Vec3f(1, 1, 1));
+	//POTENTIAL MEMORY LEAK IF NOT ADDED TO VECTOR
+	//new Light(Vec3f(0, 0, -1), Vec3f(0,0,0), Vec3f(0.2, 0.8, 0.9)); //BLUEISH LIGHT
+
+
+	//m_lights_in_scene.push_back(new Light(Vec3f(0.7, 0.8, 1), Vec3f(0, 0, 0), Vec3f(0.7, 0.4, 0.15)));
+
+
 	
-	m_lights_in_scene.push_back(light);
+	//m_lights_in_scene.push_back(new Light(Vec3f(0, 0.3, -1), Vec3f(0, 0, 0), Vec3f(0.4, 0.5, 0.9)) );
 
-	Light *light2 = new Light(Vec3f(0, 0, -1), Vec3f(0,0,0), Vec3f(0.2, 0.8, 0.9));
 
-	m_lights_in_scene.push_back(light2);
+	//m_lights_in_scene.push_back(new Light(Vec3f(0, 0.5, 1), Vec3f(0, 0, 0), Vec3f(0.9, 0.9, 0.9)) );
 
+	m_lights_in_scene.push_back(new Light(Vec3f(0.7, 0.8, 5), Vec3f(0, 0, 0), Vec3f(1, 1, 1)));
 
 	std::cout<< "Finished scene setup."<<std::endl;
 

@@ -95,7 +95,7 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	Mat4f Nmat = model->getModelMat();
 	Nmat = Nmat.inverse().transpose();
 
-	PhongShader shader(MVmat, MVPmat, Nmat, lights);
+	BlinnPhongShader shader(MVmat, MVPmat, Nmat, lights);
 
 	//For backface culling
 	Mat4f invModel = model->getModelMat().inverse();
@@ -123,7 +123,7 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		viewVec.normalize();
 		float normLimit = cos((m_camera->m_fov/2.0f + 90.0f) * (M_PI / 180.0f));
 		float bfc_intentsity1 = faceNormal.dot(viewVec);
-		if (bfc_intentsity1 <= normLimit) continue;
+		//if (bfc_intentsity1 <= normLimit) continue;
 
 
 

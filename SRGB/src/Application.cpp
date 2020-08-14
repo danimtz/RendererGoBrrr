@@ -39,7 +39,7 @@ void Application::run()
 	while (running)
 	{
 
-		Timer timer;
+		Timer fpstimer;
 		m_input_handler->onUpdate(running);
 		
 		//scene->onUpdate(deltatime)

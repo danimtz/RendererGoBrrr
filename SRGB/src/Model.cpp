@@ -153,7 +153,6 @@ void Model::loadOBJfile(const char* filename, const char* texture_fname)
 			{
 				iss >> vn[i];
 			}
-			vn.negate(); //	Normals are technically flipped. So is light direction I guess but works.
 			m_vnorms.push_back(vn);
 			has_vn = true;
 		}
