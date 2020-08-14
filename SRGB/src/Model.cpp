@@ -262,7 +262,7 @@ void Model::buildFaceNormals()
 	{
 		Vec3f E_20 = getVertex(i, 2) - getVertex(i, 0);
 		Vec3f E_10 = getVertex(i, 1) - getVertex(i, 0);
-		Vec3f normal = E_20.cross(E_10);
+		Vec3f normal = E_10.cross(E_20);
 		normal.normalize();
 
 		m_fnorms.push_back(normal);

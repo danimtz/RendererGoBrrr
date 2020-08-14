@@ -58,7 +58,7 @@ public:
 		//Compute light intensity for face  
 
 		//Calculate face normal 
-		Vec3f face_normal = model.getFaceNormal(face_idx); //FACE NORMALS ARE UPSIDE DOWN FIX THEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		Vec3f face_normal = model.getFaceNormal(face_idx); 
 
 		//Transform face normal
 		Vec3f trans_normal = Nmat * face_normal;
