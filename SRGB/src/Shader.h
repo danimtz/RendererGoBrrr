@@ -32,7 +32,7 @@ public:
 	Vec2f uv_values[3];
 
 
-	FlatShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N)
+	FlatShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr)
 	{
 		light_dir.reserve(lights.size());
 		for (int i = 0; i < lights.size(); i++)
@@ -104,6 +104,16 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
 //Gourad shader
 
 class GouradShader : public IShader {
@@ -116,11 +126,11 @@ public:
 
 
 	//Phong illumination variables
-	Vec3f Ia{ 50,50,50 }, Il{ 199, 134, 36 }; // Ambient and light intensity (defult colour)
+	Vec3f Ia, Il; // Ambient and light intensity (defult colour)
 
-	float ka = 0.3, kd = 0.8, ks = 0.4; // Ambient, diffuse, specular coefficients
+	float ka, kd, ks; // Ambient, diffuse, specular coefficients
 
-	float spec_n = 40; // Specular shininess coefficient
+	float spec_n; // Specular shininess coefficient
 
 
 	//Per triangle
@@ -133,7 +143,8 @@ public:
 
 
 
-	GouradShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N)
+	GouradShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights, const Material* material)
+		: MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
 	{
 		light_dir.reserve(lights.size());
 		for (int i = 0; i < lights.size(); i++)
@@ -225,6 +236,18 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 class PhongShader : public IShader {
 public:
 
@@ -236,11 +259,11 @@ public:
 
 
 	//Phong illumination variables
-	Vec3f Ia{ 50,50,50 }, Il{ 199, 134, 36 }; // Ambient and light intensity (defult colour)
+	Vec3f Ia, Il; // Ambient and light intensity (defult colour)
 
-	float ka = 0.3, kd = 0.8, ks = 0.4; // Ambient, diffuse, specular coefficients
+	float ka, kd, ks; // Ambient, diffuse, specular coefficients
 
-	float spec_n = 32; // Specular shininess coefficient    32
+	float spec_n; // Specular shininess coefficient    32
 
 	//Per triangle
 	Vec3i verts_idx, uv_idx; // Triangle indexes
@@ -252,7 +275,8 @@ public:
 	Vec2f uv_values[3];
 
 
-	PhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr)
+	PhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights, const Material* material)
+		: MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
 	{
 		light_dir.reserve(lights.size());
 		light_colour.reserve(lights.size());
@@ -362,6 +386,20 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class BlinnPhongShader : public IShader {
 public:
 
@@ -372,12 +410,12 @@ public:
 	std::vector<Vec3f> light_colour;
 
 
-	//Phong illumination variables
-	Vec3f Ia{ 50,50,50 }, Il{ 199, 134, 36 }; // Ambient and light intensity (defult colour)
+	//Phong illumination variables from material
+	Vec3f Ia, Il; // Ambient and light intensity (defult colour)
 
-	float ka = 0.3, kd = 0.8, ks = 0.4; // Ambient, diffuse, specular coefficients
+	float ka, kd, ks; // Ambient, diffuse, specular coefficients
 
-	float spec_n = 32; // Specular shininess coefficient
+	float spec_n; // Specular shininess coefficient
 
 	//Per triangle
 	Vec3i verts_idx, uv_idx; // Triangle indexes
@@ -389,7 +427,8 @@ public:
 	Vec2f uv_values[3];
 
 
-	BlinnPhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights) : MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr)
+	BlinnPhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights, const Material* material)
+	: MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
 	{
 		light_dir.reserve(lights.size());
 		light_colour.reserve(lights.size());

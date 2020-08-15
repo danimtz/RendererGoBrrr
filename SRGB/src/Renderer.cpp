@@ -83,11 +83,7 @@ void Renderer::setRenderCam(Camera *cam)
 
 void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights)
 {
-	//Object coordinates to clip coordinates must be done here. viewport transform done in rasterizer(although that is done by the vertex shader techinically) FOR NOW USES ASUMES MODEL HAS NDC COORDS 
 
-	//DIRECTIONAL LIGHT:  THIS WILL LATER BE STORED SOMETHWERER ELSE SUCH AS IN SCENE WITH MODELS ETC. PROBABLY FED AS ARGUEMENT AS PART OF SHADER OR SOMETHING TO RASTERIZER FUNCTION done
-	
-	
 	
 	//Load shader matrices
 	Mat4f MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
@@ -95,7 +91,7 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 	Mat4f Nmat = model->getModelMat();
 	Nmat = Nmat.inverse().transpose();
 
-	BlinnPhongShader shader(MVmat, MVPmat, Nmat, lights);
+	BlinnPhongShader shader(MVmat, MVPmat, Nmat, lights, model->getMaterial());
 
 	//For backface culling
 	Mat4f invModel = model->getModelMat().inverse();
@@ -121,10 +117,10 @@ void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights
 		Vec3f faceNormal = model->getFaceNormal(i);
 		Vec3f viewVec = model->getVertex(shader.verts_idx[0]) - (invModel * m_camera->m_pos); //A BIT DODGY TO USE SHADER MEMBER FOR THIS. MAYBE REFACTOR VERTEX SHADER ARGUMENTS
 		viewVec.normalize();
-		float normLimit = cos((m_camera->m_fov/2.0f + 90.0f) * (M_PI / 180.0f));
-		float bfc_intentsity1 = faceNormal.dot(viewVec);
-		//if (bfc_intentsity1 <= normLimit) continue;
-
+		float normLimit = cos(((90.0f - m_camera->m_fov/2.0f) + 90.0f) * (M_PI / 180.0f));
+		float bfc_intentsity1 = faceNormal.dot(-viewVec);
+		if (bfc_intentsity1 <= normLimit) continue;
+		
 
 
 

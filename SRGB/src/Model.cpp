@@ -7,7 +7,7 @@
 #include<array>
 
 
-Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr)
+Model::Model(const char* filename, const Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr), m_material(material)
 {
 	
 	loadOBJfile(filename);
@@ -16,12 +16,11 @@ Model::Model(const char* filename, const Mat4f transform) : m_vertex(), m_vnorms
 }
 
 
-Model::Model(const char* filename, const char* texture_fname, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr)
+Model::Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr), m_material(material)
 {
 	loadOBJfile(filename, texture_fname);
 	
 }
-
 
 Model::~Model()
 {
@@ -294,4 +293,9 @@ void Model::buildVertexNormals()
 Texture* Model::getTexture() const
 {
 	return m_texture;
+}
+
+const Material* Model::getMaterial() const
+{
+	return m_material;
 }

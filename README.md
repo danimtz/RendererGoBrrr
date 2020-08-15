@@ -44,5 +44,6 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  OMP parallelization of renderer
 - [x]  Multiple and coloured directional light support
 - [x]  Blinn Phong shader
-- [ ]  Fix normals for flat shader being wrong way around buildFaceNormals()
+- [x]  Added materials
+- [x]  Fix normals for flat shader being wrong way around buildFaceNormals()
 - [ ]  Texture bilinear interpolation

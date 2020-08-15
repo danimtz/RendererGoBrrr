@@ -4,6 +4,7 @@
 #include "Vector3.h"
 #include "Texture.h"
 #include "Matrix4.h"
+#include "Material.h"
 
 class Model {
 
@@ -11,8 +12,8 @@ class Model {
 public:
 
 	//Constructor that will call OBJ loader function to fill model data
-	Model(const char* filename, const Mat4f transform = Mat4f());
-	Model(const char* filename, const char* texture_fname, const Mat4f transform = Mat4f());
+	Model(const char* filename, const Material *material, const Mat4f transform = Mat4f());
+	Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform = Mat4f());
 	~Model();
 
 	//getters for normals, vertices and uv given the face number and vertex etc etc
@@ -36,6 +37,7 @@ public:
 	Vec3f getVertexNormal(int nface, int nth_vert) const;
 
 	Texture* getTexture() const;
+	const Material* getMaterial() const;
 
 private:
 	
@@ -57,6 +59,8 @@ private:
 	//Model texture
 	Texture *m_texture;
 
+	//Model material
+	const Material *m_material;
 
 	//OBJ file parsing funcitons //THIS FUNCTION COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
 	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);
