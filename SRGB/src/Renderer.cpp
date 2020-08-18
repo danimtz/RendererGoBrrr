@@ -81,7 +81,7 @@ void Renderer::setRenderCam(Camera *cam)
 
 
 
-void Renderer::renderModel(const Model *model, const std::vector<Light*>& lights)
+void Renderer::renderModel(const Model *model, const SceneLights* lights)
 {
 
 	

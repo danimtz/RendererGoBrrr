@@ -14,7 +14,16 @@ public:
 	//Constructor that will call OBJ loader function to fill model data
 	Model(const char* filename, const Material *material, const Mat4f transform = Mat4f());
 	Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform = Mat4f());
+	
+	//COPY CONSTRUCTOR AND ASSIGNMENT detruct
+	Model(const Model &other);
+	Model& operator = (const Model &other) = delete;
 	~Model();
+
+	
+
+
+
 
 	//getters for normals, vertices and uv given the face number and vertex etc etc
 	

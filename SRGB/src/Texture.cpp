@@ -21,6 +21,14 @@ Texture::Texture(const char* filename)
 
 }
 
+Texture::Texture(const Texture &other) : m_width(other.m_width), m_height(other.m_height), m_nchannels(other.m_nchannels), m_raw_data(nullptr)
+{
+	int size = m_width * m_height * m_nchannels;
+	m_data = new float[size];
+	memcpy(m_data, other.m_data, sizeof(float)*size);
+}
+
+
 Texture::~Texture()
 {
 	delete[] m_data;

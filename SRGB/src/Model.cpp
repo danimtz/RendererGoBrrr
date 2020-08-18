@@ -7,7 +7,7 @@
 #include<array>
 
 
-Model::Model(const char* filename, const Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr), m_material(material)
+Model::Model(const char* filename, const Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material)
 {
 	
 	loadOBJfile(filename);
@@ -16,11 +16,22 @@ Model::Model(const char* filename, const Material *material, const Mat4f transfo
 }
 
 
-Model::Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_faces(), m_model_mat(transform), m_texture(nullptr), m_material(material)
+Model::Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material)
 {
 	loadOBJfile(filename, texture_fname);
 	
 }
+
+Model::Model(const Model &other) :
+m_vertex(other.m_vertex), m_vnorms(other.m_vnorms), m_uv(other.m_uv),m_model_mat(other.m_model_mat), 
+m_fnorms(other.m_fnorms), m_faces(other.m_faces), m_texture(nullptr), m_material(other.m_material)
+{
+	if (other.m_texture != nullptr)
+	{
+		m_texture = new Texture(*other.m_texture);
+	}
+}
+
 
 Model::~Model()
 {

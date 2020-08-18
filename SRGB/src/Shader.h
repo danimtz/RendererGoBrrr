@@ -4,6 +4,7 @@
 #include "Matrix4.h"
 #include "Model.h"
 #include "Light.h"
+#include "Scene.h"
 #include <algorithm>
 
 class IShader {
@@ -15,6 +16,8 @@ public:
 
 };
 
+
+#if 0
 class FlatShader : public IShader {
 public:
 
@@ -382,10 +385,7 @@ public:
 
 };
 
-
-
-
-
+#endif
 
 
 
@@ -427,17 +427,18 @@ public:
 	Vec2f uv_values[3];
 
 
-	BlinnPhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const std::vector<Light*> &lights, const Material* material)
+	BlinnPhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f N, const SceneLights* sceneLights, const Material* material)
 	: MVPmat(MVP), MVmat(MV), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
 	{
+		auto lights = sceneLights->dirLights;
 		light_dir.reserve(lights.size());
 		light_colour.reserve(lights.size());
 		for (int i = 0; i < lights.size(); i++)
 		{
-			light_dir.push_back(lights[i]->m_pos - lights[i]->m_target);
+			light_dir.push_back(lights[i].m_pos - lights[i].m_target);
 			light_dir[i].normalize();
 
-			light_colour.push_back(lights[i]->m_colour);
+			light_colour.push_back(lights[i].m_colour);
 		}
 	};
 
