@@ -272,13 +272,16 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 
 
 					//Perspective divide barycentric weights
-					baryW = Vec3f(w0*invW.x, w1*invW.y, w2*invW.z);
+					//baryW = Vec3f(w0, w1, w2);
+					baryW = Vec3f(w0 * invW.x, w1 * invW.y, w2 * invW.z);
 
 					//Calculate barycentric coordinates from perpectiv div weights
 					float persp_area = 1/(baryW.x + baryW.y + baryW.z);
 					persp_bary = baryW * persp_area;
 
 					rgb = shader.fragment(persp_bary);
+
+
 					colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
 
 					drawPixel(px_buff, p.x, p.y, colour);

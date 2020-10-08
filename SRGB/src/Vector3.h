@@ -120,6 +120,11 @@ public:
 	}
 
 
+	Vec3<T> operator/(T other) const
+	{
+		return Vec3<T>(x / other, y / other, z / other);
+	}
+
 	Vec3<T>& operator+=(T other) 
 	{
 		x += other;
@@ -135,6 +140,8 @@ public:
 		z -= other;
 		return *this;
 	}
+
+
 	//*= and /= could be added
 
 

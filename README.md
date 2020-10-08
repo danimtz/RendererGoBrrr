@@ -25,7 +25,6 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Fix w in Vector3 not being initialized properly to 1 for some reason being -1204195803 (uninitialized)
 - [x]  Write simple triangle rasterizer. Bounding box and barycentric coordinate functions in Rasterizer class
 - [x]  Expand rasterizer to have flat shading. aka face normal lighting.
-- [ ]  Refactor a bunch of code into functions and better locations. Usually marked by ALLCAPS comments
 - [x]  Implement z buffer
 - [x]  Model matrix/View matrix/Projection matrix implementations
 - [ ]  Fix projection matrix clipping
@@ -47,3 +46,4 @@ Writing a software renderer for learning purposes. And yes acronym for the proje
 - [x]  Added materials
 - [x]  Fix normals for flat shader being wrong way around buildFaceNormals()
 - [ ]  Texture bilinear interpolation
+- [ ]  Fix specular light reflections not being correctly interpolated I THINK!!!!

@@ -6,6 +6,9 @@ Scene::Scene()
 	//Create materials
 	m_material_list.push_back(Material());
 
+	m_material_list.push_back(Material(Vec3f(120, 134, 36), 200.0f, 0.4));
+
+	m_material_list.push_back(Material(Vec3f(255, 255, 255), 32.0f, 0, Vec3f(255,255,255),1,0));
 
 	//TEMPORARY MODEL CREATION LATER WILL BE DONE TRHOUGH READING A FILE OR SOMETHING. 
 	//CAM PROPERTIES SHOULD BE SPECIFIED IN FILE AS WELL AND PUT INTO A STRUCT LIKE CAM_PROPERTIES
@@ -16,9 +19,9 @@ Scene::Scene()
 
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
-	trs = Mat4f::createTranslation(Vec3f(1, 0, 0));
+	trs = Mat4f::createTranslation(Vec3f(1, 0, -1));
 	transf = trs*rot*sc;
-	m_models_in_scene.push_back(Model("assets\\head.obj", "assets\\african_head_diffuse.tga", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\head.obj", "assets\\african_head_diffuse.tga", &m_material_list[0], transf));
 
 
 	
@@ -26,7 +29,7 @@ Scene::Scene()
 	sc = Mat4f::createScale(Vec3f(4, 4, 4));
 	trs = Mat4f::createTranslation(Vec3f(-1, -0.5, 0));
 	transf = trs * rot * sc;
-	m_models_in_scene.push_back(Model("assets\\bunnyHD.obj", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\bunnyHD.obj", &m_material_list[0], transf));
 	
 
 
@@ -34,17 +37,16 @@ Scene::Scene()
 	sc = Mat4f::createScale(Vec3f(0.2, 0.2, 0.2));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * rot * sc;
-	m_models_in_scene.push_back(Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", &m_material_list[0], transf));
 	
 
 
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
-	sc = Mat4f::createScale(Vec3f(10, 0.5, 10));
-	trs = Mat4f::createTranslation(Vec3f(0, -0.5, 0));
+	sc = Mat4f::createScale(Vec3f(1, 1, 1));
+	trs = Mat4f::createTranslation(Vec3f(0, -2, -1.5));
 	transf = trs * rot * sc;
-	//model = new Model("assets\\cube.obj", m_material_list[0], transf);
-	//m_models_in_scene.push_back(model);
-
+	
+	m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[1], transf));
 
 
 	m_camera = Camera(Vec3f(0, 0, 1), 0.0f, -90.0f);
@@ -55,16 +57,24 @@ Scene::Scene()
 	//new Light(Vec3f(0, 0, -1), Vec3f(0,0,0), Vec3f(0.2, 0.8, 0.9)); //BLUEISH LIGHT
 
 
-	m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0.7, 0.8, 1), Vec3f(0.7, 0.4, 0.15), Vec3f(0, 0, 0))); //Sun colouredish
+	//m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0.7, 0.8, 1), Vec3f(0.7, 0.4, 0.15), Vec3f(0, 0, 0))); //Sun colouredish
 
 
 	
-	m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0, 0.3, -1), Vec3f(0.4, 0.5, 0.9), Vec3f(0, 0, 0)) ); //BACK
+	//m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0, 0.3, -1), Vec3f(0.4, 0.5, 0.9), Vec3f(0, 0, 0)) ); //BACK
+
+	Vec3f lightpos = Vec3f(0,3,-6);
+	m_lights_in_scene.dirLights.push_back( DirLight(lightpos, Vec3f(1, 1, 1), Vec3f(0, 0, 0)) ); //FRONT
 
 
-	m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0, 0.5, 1), Vec3f(0.9, 0.9, 0.9), Vec3f(0, 0, 0)) ); //FRONT
 
+	//LIGHT OBJECT
+	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	sc = Mat4f::createScale(Vec3f(0.1, 0.1, 0.1));
+	trs = Mat4f::createTranslation(lightpos);
+	transf = trs * rot * sc;
 
+	m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));
 
 
 	std::cout<< "Finished scene setup."<<std::endl;

@@ -21,6 +21,7 @@ Buffer<uint32_t>* Renderer::getRenderTarget() const
 {
 	return m_px_buff;
 }
+
 Buffer<float>* Renderer::getDepthBuffer() const
 {
 	return m_z_buff;
@@ -60,7 +61,7 @@ void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC
 	m_z_buff->clear();
 	m_px_buff->clear();
 	
-	//Get render queue of models in scene. (Already in world object coordinates(aka post model matrix))
+	//Get render queue of models in scene. 
 	std::queue<Model*> *render_queue = scene->createRenderQueue();
 
 	//Render object in queue
@@ -88,10 +89,11 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	//Load shader matrices
 	Mat4f MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
 	Mat4f MVPmat = m_camera->getProjectionMat() * MVmat;
-	Mat4f Nmat = model->getModelMat();
-	Nmat = Nmat.inverse().transpose();
+	Mat4f Vmat = m_camera->getViewMat();
+	Mat4f Nmat = MVmat;
+	Nmat = Nmat.normalMatrix();
 
-	BlinnPhongShader shader(MVmat, MVPmat, Nmat, lights, model->getMaterial());
+	PhongShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
 
 	//For backface culling
 	Mat4f invModel = model->getModelMat().inverse();
@@ -100,7 +102,8 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	//Iterate each face
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
 	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
-	#pragma omp parallel for firstprivate(shader) schedule(dynamic)
+	
+	//#pragma omp parallel for firstprivate(shader) schedule(dynamic)
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		

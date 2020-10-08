@@ -64,12 +64,12 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 
 		if (event.key.keysym.sym == SDLK_SPACE)
 		{
-			m_sceneCam->m_pos += m_sceneCam->m_up * speed;
+			m_sceneCam->m_pos += m_sceneCam->m_world_up * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_LSHIFT)
 		{
-			m_sceneCam->m_pos -= m_sceneCam->m_up * speed;
+			m_sceneCam->m_pos -= m_sceneCam->m_world_up * speed;
 		}
 
 

@@ -383,7 +383,7 @@ public:
 
 
 	//Create symmetric projection matrix
-	static Mat4<T> createProjectionMat(T fov = 45.0f, T AR = (16/9), T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
+	static Mat4<T> createProjectionMat(T fov = 45.0f, T AR = 16.0f/9.0f, T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
 	{
 		/*
 		
@@ -630,6 +630,23 @@ public:
 		return ret;
 	}
 	
+	//==============MISC====================================================
+
+	Mat4<T> normalMatrix()
+	{
+		
+		setTranslation(0,0,0);
+		Mat4<T> ret = inverse().transpose();
+		return ret;
+
+	}
+
+	Mat4<T> castToMat3()
+	{
+		Mat4<T> ret = *this;
+		ret.setTranslation(0,0,0);
+		return ret;
+	}
 
 
 private:
