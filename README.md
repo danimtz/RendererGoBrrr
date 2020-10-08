@@ -1,5 +1,6 @@
 # SoftwareRendererGoBrrr
-Writing a software renderer for learning purposes. And yes acronym for the project is SRGB which is a completely unrelated thing
+Writing a software renderer for learning purposes. And yes acronym for the project is SRGB which is a completely unrelated thing.
+-Note: when downloading repo, SDL2.dll in SDL2\lib\x64 must be copied to working folder inside bin (bin\Release-x64 or Debug-x64)
 
 ## **CURRENT FEATURES**
 
