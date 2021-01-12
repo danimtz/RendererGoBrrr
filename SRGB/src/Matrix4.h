@@ -336,7 +336,7 @@ public:
 		vp_trans.at(1, 3) = (vheight) / 2;
 		
 		
-#if 0l
+#if 0
 		// WITHOUT PROJECTION MATRIX Z SCALING
 		vp_trans.at(2, 3) = 0.5;
 		vp_trans.at(2, 2) = -0.5;

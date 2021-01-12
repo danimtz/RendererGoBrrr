@@ -42,12 +42,16 @@ void Rasterizer::drawLine(int x0, int y0, int x1, int y1, Buffer<uint32_t> *px_b
 
 	for (int x=x0; x <= x1; x++)
 	{
-		if (steep){
+		
+		if (steep){//TEMPORARY FIX AS DIAGONAL 1 y 2 WORK BUT -1 y -2 DONT AND BREAK. FIX DIAGONAL -1 y -2
+			if((y>=px_buff->m_width || y<0) || (x >= px_buff->m_height || x < 0)) continue;
 			(*px_buff)(y, x) = colour;
 		}
 		else{
+			if ((x >= px_buff->m_width || x < 0) || (y >= px_buff->m_height || y < 0)) continue;
 			(*px_buff)(x, y) = colour;
 		}
+
 
 		//If derr is larger than 0 increment y and update derr
 		if (err >= 0){
@@ -70,6 +74,40 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 }
 
+
+//Draws normal of given face DUNNO IF NORMAL IS IN WORLD SPACE OR VIEW SPACE ATM, but verts and normal should be in same space( post viewport transform?)
+void Rasterizer::drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf)
+{
+	
+	Vec3f norm_line[2];
+
+	//Calculate midpoint of face
+	norm_line[0].x = (verts[0].x + verts[1].x + verts[2].x) / 3.0f;
+	norm_line[0].y = (verts[0].y + verts[1].y + verts[2].y) / 3.0f;
+	norm_line[0].z = (verts[0].z + verts[1].z + verts[2].z) / 3.0f;
+
+	//Calculate endpoint of normal
+	norm_line[1].x = norm_line[0].x + (sf * normal->x);
+	norm_line[1].y = norm_line[0].y + (sf * normal->y);
+	norm_line[1].z = norm_line[0].z + (sf * normal->z);
+	
+
+	Vec3f v[2];
+	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
+	for (int i = 0; i < 2; i++)
+	{
+		
+		//Transorm to viewport
+		v[i] = viewPrt_transform * norm_line[i];
+	}
+
+	//Save z values for depth buffer (POST TRANSFORM) THIS IS NOT USED FOR THE NORMAL DRAWING CURRENTLY
+	Vec2f z_values(v[0].z, v[1].z);
+
+	
+
+	drawLine(v[0].x, v[0].y, v[1].x, v[1].y, px_buff, Rasterizer::red);
+}
 
 
 
@@ -206,6 +244,10 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 
 	//Save z values for depth buffer (POST TRANSFORM)
 	Vec3f z_values(v[0].z, v[1].z, v[2].z);
+
+	
+	//DEBUG FUNCTION: Draw normal
+
 
 
 	float tempinvArea = edgeFunct(v[0], v[1], v[2]);

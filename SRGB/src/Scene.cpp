@@ -48,6 +48,7 @@ Scene::Scene()
 	
 	m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[1], transf));
 
+	m_models_in_scene.back().setDrawNormal(true);
 
 	m_camera = Camera(Vec3f(0, 0, 1), 0.0f, -90.0f);
 

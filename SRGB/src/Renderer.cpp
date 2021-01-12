@@ -103,7 +103,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
 	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
 	
-	//#pragma omp parallel for firstprivate(shader) schedule(dynamic)
+	#pragma omp parallel for firstprivate(shader) schedule(dynamic)
 	for (int i = 0; i < model->getFaceCount(); i++)
 	{
 		
@@ -161,10 +161,16 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 			face_verts[j].perspecDiv();
 		}
 
-
+		
+		
 		//Rasterizer::simpleRasterizeTri(face_verts, shader, m_px_buff, m_z_buff);
 		Rasterizer::drawTriangle(face_verts, shader, m_px_buff, m_z_buff);
 
+		//DEBUG FUNCTION DRAW NORMAL
+		Vec3f shiftedNormal = Nmat * faceNormal;
+		if (model->getDrawNormal()) {
+			Rasterizer::drawNormal(face_verts, &shiftedNormal, m_px_buff, m_z_buff);
+		}
 	}
 
 }

@@ -29,6 +29,9 @@ public:
 	//Optimized rasterizer function with subpixel precision 8x8 tile rejection
 	static void drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff);
 
+	//Draws given normal of a face for debugging
+	static void drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf = 0.5f);
+
 
 private:
 

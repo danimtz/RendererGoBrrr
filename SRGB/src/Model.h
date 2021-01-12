@@ -48,6 +48,9 @@ public:
 	Texture* getTexture() const;
 	const Material* getMaterial() const;
 
+	void setDrawNormal(bool isdrawn);
+	bool getDrawNormal() const;
+
 private:
 	
 	//TEMP move this to mesh class later.
@@ -70,6 +73,9 @@ private:
 
 	//Model material
 	const Material *m_material;
+
+	//Debug boolean for normals
+	bool m_draw_normal;
 
 	//OBJ file parsing funcitons //THIS FUNCTION COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
 	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);

@@ -7,7 +7,7 @@
 #include<array>
 
 
-Model::Model(const char* filename, const Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material)
+Model::Model(const char* filename, const Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material), m_draw_normal(false)
 {
 	
 	loadOBJfile(filename);
@@ -16,7 +16,7 @@ Model::Model(const char* filename, const Material *material, const Mat4f transfo
 }
 
 
-Model::Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material)
+Model::Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform) : m_vertex(), m_vnorms(), m_uv(), m_model_mat(transform), m_faces(), m_texture(nullptr), m_material(material), m_draw_normal(false)
 {
 	loadOBJfile(filename, texture_fname);
 	
@@ -24,7 +24,7 @@ Model::Model(const char* filename, const char* texture_fname, const  Material *m
 
 Model::Model(const Model &other) :
 m_vertex(other.m_vertex), m_vnorms(other.m_vnorms), m_uv(other.m_uv),m_model_mat(other.m_model_mat), 
-m_fnorms(other.m_fnorms), m_faces(other.m_faces), m_texture(nullptr), m_material(other.m_material)
+m_fnorms(other.m_fnorms), m_faces(other.m_faces), m_texture(nullptr), m_material(other.m_material), m_draw_normal(other.m_draw_normal)
 {
 	if (other.m_texture != nullptr)
 	{
@@ -309,4 +309,13 @@ Texture* Model::getTexture() const
 const Material* Model::getMaterial() const
 {
 	return m_material;
+}
+
+void Model::setDrawNormal(bool isdrawn) {
+	m_draw_normal = isdrawn;
+}
+
+bool Model::getDrawNormal() const
+{
+	return m_draw_normal;
 }
