@@ -72,7 +72,19 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 			m_sceneCam->m_pos -= m_sceneCam->m_world_up * speed;
 		}
 
+		if (event.key.keysym.sym == SDLK_LALT) 
+		{
 
+			if (SDL_GetRelativeMouseMode() == 0) 
+			{
+				SDL_SetRelativeMouseMode(SDL_TRUE);
+			}
+			else 
+			{
+				SDL_SetRelativeMouseMode(SDL_FALSE);
+			}
+		}
+			
 		if (event.key.keysym.sym == SDLK_r)
 		{
 			//RESET CAMERA FUNCTION
