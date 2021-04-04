@@ -1,6 +1,6 @@
 # SoftwareRendererGoBrrr
-Writing a software renderer for learning purposes. And yes acronym for the project is SRGB which is a completely unrelated thing.
--Note: when downloading repo, SDL2.dll in SDL2\lib\x64 must be copied to working folder inside bin (bin\Release-x64 or Debug-x64)
+Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and VUlkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
+-Build system using premake soon to be added
 
 ## **CURRENT FEATURES**
 
