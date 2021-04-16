@@ -143,23 +143,23 @@ public:
 	//-----------Translation set/get-------------
 	void setTranslation(T tx, T ty, T tz)
 	{
-		at(3, 0) = tx;
-		at(3, 1) = ty;
-		at(3, 2) = tz;
+		at(0, 3) = tx;
+		at(1, 3) = ty;
+		at(2, 3) = tz;
 		at(3, 3) = 1;
 	}
 
 	void setTranslation(const Vec3<T> &vec)
 	{
-		at(3, 0) = vec.x;
-		at(3, 1) = vec.y;
-		at(3, 2) = vec.z;
+		at(0, 3) = vec.x;
+		at(1, 3) = vec.y;
+		at(2, 3) = vec.z;
 		at(3, 3) = 1;
 	}
 
 	Vec3<T> getTranslation() const
 	{
-		return Vec3<T>(at(0.0), at(1, 1), at(2, 2));
+		return Vec3<T>(at(0, 3), at(1, 3), at(2, 3));
 	}
 
 
@@ -377,7 +377,9 @@ public:
 		lookat(2, 1) = front.y;
 		lookat(2, 2) = front.z;
 
+
 		lookat = lookat * Mat4<T>::createTranslation(Vec3f(-cam_pos.x, -cam_pos.y, -cam_pos.z));
+		
 		return lookat;
 	}
 
@@ -636,10 +638,21 @@ public:
 	{
 		
 		setTranslation(0,0,0);
-		Mat4<T> ret = inverse().transpose();
+		Mat4<T> ret = inverse(); //inverse().transpose() or transpose().inverse()
+		//printMatToConsole(ret);
+		ret = ret.transpose();
 		return ret;
 
 	}
+
+	//Multiply matrix by vector ignoring translation. used for converting directional light direction to view space
+	Vec3<T> convertDirToViewSpace(const Vec3<T>& other) {
+		Mat4<T> mat = *this;
+		mat.setTranslation(0, 0, 0);
+		Vec3<T> ret = mat * other;
+		return ret;
+	}
+
 
 	Mat4<T> castToMat3()
 	{
@@ -648,6 +661,19 @@ public:
 		return ret;
 	}
 
+	static void printMatToConsole(const Mat4<T>& mat)
+	{
+		for (int i = 0; i < 4; i++) 
+		{ 
+			for (int j = 0; j < 4; j++)
+			{
+				printf("[%f]   ",mat.at(i,j));
+				
+			}
+			printf("\n");
+		}
+		printf("\n\n");
+	}
 
 private:
 

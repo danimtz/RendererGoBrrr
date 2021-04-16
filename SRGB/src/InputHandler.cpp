@@ -38,7 +38,7 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 
 	float speed = m_sceneCam->camSpeed;// * deltaT;
 
-	//Handling keyboard input
+	//Handling keyboard input 
 	if (event.type == SDL_KEYDOWN)
 	{
 

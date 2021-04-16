@@ -44,12 +44,12 @@ void Rasterizer::drawLine(int x0, int y0, int x1, int y1, Buffer<uint32_t> *px_b
 	{
 		
 		if (steep){//TEMPORARY FIX AS DIAGONAL 1 y 2 WORK BUT -1 y -2 DONT AND BREAK. FIX DIAGONAL -1 y -2
-			if((y>=px_buff->m_width || y<0) || (x >= px_buff->m_height || x < 0)) continue;
-			(*px_buff)(y, x) = colour;
+			if(!((y>=px_buff->m_width || y<0) || (x >= px_buff->m_height || x < 0))) 
+				(*px_buff)(y, x) = colour;
 		}
 		else{
-			if ((x >= px_buff->m_width || x < 0) || (y >= px_buff->m_height || y < 0)) continue;
-			(*px_buff)(x, y) = colour;
+			if (!((x >= px_buff->m_width || x < 0) || (y >= px_buff->m_height || y < 0)))
+				(*px_buff)(x, y) = colour;
 		}
 
 
@@ -75,44 +75,117 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 }
 
 
-//Draws normal of given face DUNNO IF NORMAL IS IN WORLD SPACE OR VIEW SPACE ATM, but verts and normal should be in same space( post viewport transform?)
+//Draws debug arrow of given face  CHANGE THIS FUNCTION TO BE DRAW ARROW. THEN MAKE FUNCTION THAT CALLS THIS ONE CALLED DRAW NORMAL
 void Rasterizer::drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf)
 {
 	
-	Vec3f norm_line[2];
-
-	//Calculate midpoint of face
-	norm_line[0].x = (verts[0].x + verts[1].x + verts[2].x) / 3.0f;
-	norm_line[0].y = (verts[0].y + verts[1].y + verts[2].y) / 3.0f;
-	norm_line[0].z = (verts[0].z + verts[1].z + verts[2].z) / 3.0f;
+	
+	Vec3f start, end;
+	//Calculate origin()at vertex 0 for now
+	start.x = (verts[0].x);// + verts[1].x + verts[2].x) / 3.0f;
+	start.y = (verts[0].y);// + verts[1].y + verts[2].y) / 3.0f;
+	start.z = (verts[0].z);// + verts[1].z + verts[2].z) / 3.0f;
 
 	//Calculate endpoint of normal
-	norm_line[1].x = norm_line[0].x + (sf * normal->x);
-	norm_line[1].y = norm_line[0].y + (sf * normal->y);
-	norm_line[1].z = norm_line[0].z + (sf * normal->z);
+	end.x = start.x + (sf * normal->x);
+	end.y = start.y + (sf * normal->y);
+	end.z = start.z + (sf * normal->z);
+
+	drawArrow(start, end, px_buff, z_buff);
+}
+
+
+
+void Rasterizer::drawArrow(const Vec3f &start, const Vec3f &end, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff) {
+
+	Vec3f line[2];
+	Vec3f arrow_line1[2];
+	Vec3f arrow_line2[2];
+
+	//Calculate origin()at vertex 0 for now
+	line[0].x = (start.x);// + verts[1].x + verts[2].x) / 3.0f;
+	line[0].y = (start.y);// + verts[1].y + verts[2].y) / 3.0f;
+	line[0].z = (start.z);// + verts[1].z + verts[2].z) / 3.0f;
+
+	//Calculate endpoint of normal
+	line[1].x = (end.x);// + verts[1].x + verts[2].x) / 3.0f;
+	line[1].y = (end.y);// + verts[1].y + verts[2].y) / 3.0f;
+	line[1].z = (end.z);// + verts[1].z + verts[2].z) / 3.0f;
+
+	//Set arrow lines end points
+	arrow_line1[1].x = line[1].x;
+	arrow_line2[1].x = line[1].x;
+	arrow_line1[1].y = line[1].y;
+	arrow_line2[1].y = line[1].y;
+	arrow_line1[1].z = line[1].z;
+	arrow_line2[1].z = line[1].z;
+
 	
+	//Lerp value
+	float att = 0.85;
+	Vec3f arrow_base((1 - att)*line[0].x + att * line[1].x, (1 - att) * line[0].y + att * line[1].y, (1 - att) * line[0].z + att * line[1].z);
+
+	//Find a vector perpendicular to line at arrow_base
+	Vec3f arrow_normal;
+	if ((line[0].z - line[1].z) != 0) {
+		arrow_normal.x = 1;
+		arrow_normal.y = 1;
+		arrow_normal.z = -((line[0].x - line[1].x) - (line[0].y - line[1].y)) / (line[0].z - line[1].z);
+		arrow_normal.normalize();
+	}
+	else if ((line[0].x - line[1].x) != 0) {
+		arrow_normal.z = 1;
+		arrow_normal.y = 1;
+		arrow_normal.x = -((line[0].y - line[1].y) - (line[0].z - line[1].z)) / (line[0].x - line[1].x);
+		arrow_normal.normalize();
+	}
+	else {
+		arrow_normal.z = 1;
+		arrow_normal.x = 1;
+		arrow_normal.y = -((line[0].x - line[1].x) - (line[0].z - line[1].z)) / (line[0].y - line[1].y);
+		arrow_normal.normalize();
+	}
+
+	arrow_line1[0].x = arrow_base.x + 0.08 * arrow_normal.x;
+	arrow_line1[0].y = arrow_base.y + 0.08 * arrow_normal.y;
+	arrow_line1[0].z = arrow_base.z + 0.08 * arrow_normal.z;
+
+	arrow_normal.negate();
+
+	arrow_line2[0].x = arrow_base.x + 0.08 * arrow_normal.x;
+	arrow_line2[0].y = arrow_base.y + 0.08 * arrow_normal.y;
+	arrow_line2[0].z = arrow_base.z + 0.08 * arrow_normal.z;
+
+
 
 	Vec3f v[2];
+	Vec3f varrow1[2];
+	Vec3f varrow2[2];
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
 	for (int i = 0; i < 2; i++)
 	{
-		
+
 		//Transorm to viewport
-		v[i] = viewPrt_transform * norm_line[i];
+		v[i] = viewPrt_transform * line[i];
+		varrow1[i] = viewPrt_transform * arrow_line1[i];
+		varrow2[i] = viewPrt_transform * arrow_line2[i];
 	}
 
 	//Save z values for depth buffer (POST TRANSFORM) THIS IS NOT USED FOR THE NORMAL DRAWING CURRENTLY
 	Vec2f z_values(v[0].z, v[1].z);
 
-	
 
+	//main line
 	drawLine(v[0].x, v[0].y, v[1].x, v[1].y, px_buff, Rasterizer::red);
+
+	//sub arrows
+	drawLine(varrow1[0].x, varrow1[0].y, varrow1[1].x, varrow1[1].y, px_buff, Rasterizer::red);
+	drawLine(varrow2[0].x, varrow2[0].y, varrow2[1].x, varrow2[1].y, px_buff, Rasterizer::red);
 }
 
 
-
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
+void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
 {
 	//				v2
 	//				/\
@@ -129,8 +202,10 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<
 	//transform to viewport coords 
 	Vec3f vptri[3];
 	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
+	Vec3f invW{ 1 / verts[0].w, 1 / verts[1].w, 1 / verts[2].w };
 	for (int i = 0; i < 3; i++)
 	{
+		verts[i].w = 1;
 		vptri[i] = viewPrt_transform * verts[i];
 	}
 
@@ -167,9 +242,10 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<
 				//Normalize barycentric coordinates: w weights / sum of weights (which are the area of the parallelogram)
 				//THIS IS SLOW?? could just calculate area of trinagle at the start since thats what sum of weights are
 				
-				float oneOver_w_sum = 1/(weights.x + weights.y + weights.z);
+				Vec3f baryWeights = weights*invW;
+				float oneOver_w_sum = 1/(baryWeights.x + baryWeights.y + baryWeights.z);
 
-				Vec3f baryC_w = weights * oneOver_w_sum;
+				Vec3f baryC_w = baryWeights * oneOver_w_sum;
 
 				float depth = z_values.x + baryC_w.y*(z_values.y-z_values.x) + baryC_w.z*(z_values.z-z_values.x);//baryC_w.dot(z_values);
 
@@ -180,8 +256,8 @@ void Rasterizer::simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<
 				{
 					(*z_buff)(p.x, p.y) = depth;
 
-					
-					Vec3f rgb = shader.fragment(baryC_w);
+					Vec3f rgb;
+					//Vec3f rgb = shader.fragment(baryC_w);
 
 					uint32_t colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
 
@@ -240,6 +316,7 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 		verts[i].w = 1;
 		//Transorm to viewport
 		v[i] = viewPrt_transform * verts[i];//MAYBE HERE
+		
 	}
 
 	//Save z values for depth buffer (POST TRANSFORM)
@@ -314,12 +391,19 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 
 
 					//Perspective divide barycentric weights
-					//baryW = Vec3f(w0, w1, w2);
 					baryW = Vec3f(w0 * invW.x, w1 * invW.y, w2 * invW.z);
 
 					//Calculate barycentric coordinates from perpectiv div weights
 					float persp_area = 1/(baryW.x + baryW.y + baryW.z);
 					persp_bary = baryW * persp_area;
+
+
+					/*
+					Vec3f baryW2 = Vec3f(w0, w1, w2);
+					float persp_area2 = 1 / (baryW2.x + baryW2.y + baryW2.z);
+					Vec3f persp_bary2 = baryW2 * persp_area2;
+					*/
+
 
 					rgb = shader.fragment(persp_bary);
 
@@ -342,7 +426,6 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 		w2_row -= Dx01;
 	}
 }
-
 
 
 
@@ -391,9 +474,8 @@ float Rasterizer::edgeFunct(const Vec3f &v0, const Vec3f &v1, const Vec3f p)
 	
 	//Negative so that inside the triangle is positve i.e. given counterclockwise triangle vertices,
 	//the positive half-space is on the left
-	return -((v1.x - v0.x) * (p.y - v0.y) - (v1.y - v0.y) * (p.x - v0.x));
+	return -((v1.x - v0.x) * (p.y - v0.y) - (v1.y - v0.y) * (p.x - v0.x));//REMOVED THE NEGASTIVE FOR TESTS
 }
-
 
 void Rasterizer::drawPixel(Buffer<uint32_t> *buff, int x, int y, uint32_t colour)
 {

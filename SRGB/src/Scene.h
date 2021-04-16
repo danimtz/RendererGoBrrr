@@ -14,6 +14,7 @@ struct SceneLights {
 	std::vector<DirLight>	dirLights;
 };
 
+
 //TODO: Add scene to renderer class?
 class Scene {
 public:
@@ -27,6 +28,7 @@ public:
 
 	Camera* getCam();
 
+	
 private:
 
 
@@ -36,6 +38,8 @@ private:
 
 	// INSTEAD OF A VECTOR TO STORE THE MATERIALS A MAP OR SOMETHING WITH NAME WOULD BE BETTER
 	std::vector<Material> m_material_list;
+
+	
 
 	Camera m_camera;
 

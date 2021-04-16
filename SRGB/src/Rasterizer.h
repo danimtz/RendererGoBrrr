@@ -24,14 +24,17 @@ public:
 	
 	
 	//Simple version of drawTriangle()
-	static void simpleRasterizeTri(const Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff);
+	static void simpleRasterizeTri( Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff);
 
 	//Optimized rasterizer function with subpixel precision 8x8 tile rejection
 	static void drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff);
 
-	//Draws given normal of a face for debugging
-	static void drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf = 0.5f);
 
+	//Draws given normal of a face for debugging
+	static void drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf = 0.3f);
+
+	//Draws arrow for debugging
+	static void drawArrow(const Vec3f& start, const Vec3f& end, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff);
 
 private:
 

@@ -236,9 +236,15 @@ public:
 	{
 		Vec3<T> reflection;
 		
-		reflection = incident - normal*2.0f*(incident.dot(normal));
+		reflection = incident - (normal*2.0f*(incident.dot(normal)));
 
 		return reflection;
+	}
+
+	static void printVec3ToConsole(const Vec3<T>& vec) 
+	{
+		printf("[%f] [%f] [%f]\n", vec.x, vec.y, vec.z);
+
 	}
 
 };
