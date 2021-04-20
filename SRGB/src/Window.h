@@ -44,7 +44,7 @@ private:
 
 	SDL_Window *m_sdl_window;
 	SDL_Surface *m_sdl_surface;
-	Renderer *m_gcontext;
+	Renderer *m_gcontext;//owns it
 
 
 	void swapBuffers(Buffer<uint32_t> *px_buff);

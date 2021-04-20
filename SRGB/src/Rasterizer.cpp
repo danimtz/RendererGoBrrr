@@ -76,27 +76,27 @@ void Rasterizer::drawWireFrame(const Vec3f *verts, Buffer<uint32_t> *px_buff, ui
 
 
 //Draws debug arrow of given face  CHANGE THIS FUNCTION TO BE DRAW ARROW. THEN MAKE FUNCTION THAT CALLS THIS ONE CALLED DRAW NORMAL
-void Rasterizer::drawNormal(const Vec3f *verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff, const float sf)
+void Rasterizer::drawNormal(const Vec3f &verts, const Vec3f *normal, Buffer<uint32_t>* px_buff, const float sf)
 {
 	
 	
 	Vec3f start, end;
 	//Calculate origin()at vertex 0 for now
-	start.x = (verts[0].x);// + verts[1].x + verts[2].x) / 3.0f;
-	start.y = (verts[0].y);// + verts[1].y + verts[2].y) / 3.0f;
-	start.z = (verts[0].z);// + verts[1].z + verts[2].z) / 3.0f;
+	start.x = (verts.x);// + verts[1].x + verts[2].x) / 3.0f;
+	start.y = (verts.y);// + verts[1].y + verts[2].y) / 3.0f;
+	start.z = (verts.z);// + verts[1].z + verts[2].z) / 3.0f;
 
 	//Calculate endpoint of normal
 	end.x = start.x + (sf * normal->x);
 	end.y = start.y + (sf * normal->y);
 	end.z = start.z + (sf * normal->z);
 
-	drawArrow(start, end, px_buff, z_buff);
+	drawArrow(start, end, px_buff);
 }
 
 
 
-void Rasterizer::drawArrow(const Vec3f &start, const Vec3f &end, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff) {
+void Rasterizer::drawArrow(const Vec3f &start, const Vec3f &end, Buffer<uint32_t>* px_buff) {
 
 	Vec3f line[2];
 	Vec3f arrow_line1[2];
@@ -185,7 +185,7 @@ void Rasterizer::drawArrow(const Vec3f &start, const Vec3f &end, Buffer<uint32_t
 
 
 //Unoptimized simple version of triangle rasterization
-void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
+void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader *shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
 {
 	//				v2
 	//				/\
@@ -257,7 +257,7 @@ void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader &shader, Buffer<uint3
 					(*z_buff)(p.x, p.y) = depth;
 
 					Vec3f rgb;
-					//Vec3f rgb = shader.fragment(baryC_w);
+					//Vec3f rgb = shader->fragment(baryC_w);
 
 					uint32_t colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
 
@@ -277,7 +277,7 @@ void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader &shader, Buffer<uint3
 }
 
 
-void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
+void Rasterizer::drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
 {
 	//				v2
 	//				/\
@@ -363,7 +363,7 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 	//if (Dy01 < 0 || (Dy01 == 0 && Dy01 > 0)) w2_row++;
 
 
-
+	int fragment_number = 0;//DEBUG
 	for (p.y = min.y; p.y <= max.y; p.y++)
 	{
 		//Update weights
@@ -405,12 +405,13 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader &shader, Buffer<uint32_t> *p
 					*/
 
 
-					rgb = shader.fragment(persp_bary);
-
+					//rgb = shader.fragment(persp_bary);
+					rgb = shader->fragment(persp_bary);
 
 					colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
 
 					drawPixel(px_buff, p.x, p.y, colour);
+					fragment_number++;//debug
 				}
 			}
 

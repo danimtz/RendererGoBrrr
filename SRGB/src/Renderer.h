@@ -31,12 +31,19 @@ public:
 
 	void setRenderCam(Camera *cam);
 
+	//Loads shader by moving data from created shader to member shader
+	void loadShader(std::unique_ptr<IShader>& shader) { this->m_shader = std::move(shader); } //CHECK UNDERSTANDING OF THIS LINE /AKA go trough debugger memory understand how it works
+
 private:
+	
+	void setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V, const Mat4f N, const SceneLights* sceneLights, const Model* model);
 
 	Buffer<uint32_t> *m_px_buff;
 	Buffer<float> *m_z_buff;
 
 	Camera *m_camera; //Scene owns this
+
+	std::unique_ptr<IShader> m_shader;
 
 };
 

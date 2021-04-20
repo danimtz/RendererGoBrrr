@@ -5,18 +5,25 @@
 #include "Model.h"
 #include "Light.h"
 #include "Scene.h"
+#include "Rasterizer.h"
 #include <algorithm>
 
+enum class ShaderType : int {
+	FLAT,
+	GOURAD,
+	PHONG
+};
 class IShader {
 public:
 	
 	virtual ~IShader() {};
 	virtual Vec3f vertex(const Model &model, int face_idx, int nth_vert) = 0;
-	virtual Vec3f fragment(const Vec3f &bary) = 0;
-
+	virtual Vec3f fragment(const Vec3f& bary) = 0;
+	virtual ShaderType getType() = 0;
 };
 
-#if 0
+
+
 //Flat and Gourad 
 class FlatShader : public IShader {
 public:
@@ -27,6 +34,8 @@ public:
 	std::vector<Vec3f> light_dir;
 
 
+	float ka; // Ambient coefficient
+
 	//Per triangle
 	Vec3i verts_idx, uv_idx; // Triangle indexes
 
@@ -35,27 +44,20 @@ public:
 	Vec2f uv_values[3];
 
 
-	FlatShader(const Mat4f MV, const Mat4f MVP, const Mat4f V, const Mat4f N, const SceneLights* sceneLights) : MVPmat(MVP), MVmat(MV), Vmat(V), Nmat(N), texture(nullptr)
-	{
-		auto lights = sceneLights->dirLights;
-		light_dir.reserve(lights.size());
-		for (int i = 0; i < lights.size(); i++)
-		{
-			light_dir.push_back( Vmat.convertDirToViewSpace(lights[i].m_direction) );//(Vmat*lights[i].m_pos) - (Vmat * lights[i].m_target) This works cuase it converts points not direction
-			light_dir[i].normalize();					
-		}				   										
-	};
 
 
 	Vec3f vertex(const Model &model, int face_idx, int nth_vert) override
 	{
 		//Load vertex
 		Vec3f vertex;
+		verts_idx = model.getFaceVertices(face_idx);
 		vertex = model.getVertex(verts_idx[nth_vert]);
 		
 		//If texture, load uv values
 		if (texture != nullptr)
 		{
+
+			uv_idx = model.getUVidx(face_idx);
 			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
 		}
 
@@ -65,20 +67,14 @@ public:
 		Vec3f face_normal = Nmat*model.getFaceNormal(face_idx); 
 
 		//Transform face normal 
-		Vec3f trans_normal =  face_normal;
+		Vec3f trans_normal = face_normal;
 		trans_normal.normalize();
 
 	
 
-		varying_intensity[nth_vert] = std::max(0.05f, trans_normal.dot(light_dir[0])); //Hard coded 0.05 is ambient light. dirty but quick fix
+		varying_intensity[nth_vert] = std::max(ka, trans_normal.dot(light_dir[0])); //Hard coded 0.05 is ambient light. dirty but quick fix
 		
-		//Vec3f::printVec3ToConsole(trans_normal);DEBUG
-		//printf("Intensity: %f    Face number:%d \n", varying_intensity[nth_vert], face_idx);DEBUG
-		//if (face_idx == 1 && nth_vert == 0)DEBUG
-		//{
-		//	Vec3f::printVec3ToConsole(trans_normal);
-		//}
-
+		
 		return MVPmat *vertex;
 
 
@@ -110,6 +106,11 @@ public:
 
 		return rgb;
 	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::FLAT;
+	}
+
 
 };
 
@@ -149,17 +150,6 @@ public:
 
 
 
-	GouradShader(const Mat4f MV, const Mat4f MVP, const Mat4f V, const Mat4f N, const SceneLights* sceneLights, const Material* material)
-		: MVPmat(MVP), MVmat(MV), Vmat(V), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
-	{
-		auto lights = sceneLights->dirLights;
-		light_dir.reserve(lights.size());
-		for (int i = 0; i < lights.size(); i++)
-		{
-			light_dir.push_back(Vmat.convertDirToViewSpace(lights[i].m_direction));
-			light_dir[i].normalize();
-		}
-	};
 
 
 
@@ -167,11 +157,13 @@ public:
 	{
 		//Load vertex
 		Vec3f vertex;
+		verts_idx = model.getFaceVertices(face_idx);
 		vertex = model.getVertex(verts_idx[nth_vert]);
 
 		//If texture, load uv values
 		if (texture != nullptr)
 		{
+			uv_idx = model.getUVidx(face_idx);
 			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
 		}
 
@@ -218,19 +210,22 @@ public:
 		
 		if (texture != nullptr)//If model has texture
 		{
-			Il, Ia = texture->getTexel(u, v);
+			Il = texture->getTexel(u, v);
+			Ia = texture->getTexel(u, v);
 
 		}
 
 		//Phong reflection
 		float diff_NL =   bary.dot(varying_diffuse);
-		float spec_RVn =   bary.dot(varying_spec);
+		float spec_RVn =  bary.dot(varying_spec);
 
 
 		Vec3f colour;
 		for (int i = 0; i < 3; i++)
 		{
-			colour[i] = std::min<float>(255, ka*Ia[i] + Il[i]*(diff_NL*kd + spec_RVn*ks));
+			colour[i] += std::min<float>(255, ka*Ia[i] + Il[i]*(diff_NL*kd + spec_RVn*ks));
+
+			//colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia[j] + Il[j] * (diff_NL * kd + spec_RVn * ks)));//only specular and ambient for now
 		}
 		
 		
@@ -238,14 +233,14 @@ public:
 		return colour;
 	}
 
+	virtual ShaderType getType() override {
+		return ShaderType::GOURAD;
+	}
+
 };
 
 
 
-
-
-
-#endif
 
 
 
@@ -425,22 +420,12 @@ public:
 	Vec3f normals[3], view_dir[3];
 	Vec2f uv_values[3];
 
-
+	/*
 	PhongShader(const Mat4f MV, const Mat4f MVP, const Mat4f V, const Mat4f N, const SceneLights* sceneLights, const Material* material)
 		: MVPmat(MVP), MVmat(MV), Vmat(V), Nmat(N), texture(nullptr), Ia(material->m_Ia), Il(material->m_Il), ka(material->m_ka), kd(material->m_kd), ks(material->m_ks), spec_n(material->m_spec_n)
 	{
-		auto lights = sceneLights->dirLights;
-		light_dir.reserve(lights.size());
-		light_colour.reserve(lights.size());
-		for (int i = 0; i < lights.size(); i++)
-		{
-			light_dir.push_back(Vmat.convertDirToViewSpace(lights[i].m_direction));  
-			light_dir[i].normalize();
-
-
-			light_colour.push_back(lights[i].m_colour);
-		}
-	};
+		
+	};*/
 
 
 
@@ -448,11 +433,13 @@ public:
 	{
 		//Load vertex
 		Vec3f vertex;
+		verts_idx = model.getFaceVertices(face_idx);
 		vertex = model.getVertex(verts_idx[nth_vert]);
 
 		//If texture, load uv values
 		if (texture != nullptr)
 		{
+			uv_idx = model.getUVidx(face_idx);
 			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
 		}
 
@@ -492,7 +479,8 @@ public:
 
 		if (texture != nullptr)//If model has texture
 		{
-			Il, Ia = texture->getTexel(u, v);
+			Ia = texture->getTexel(u, v);
+			Il = texture->getTexel(u, v);
 		}
 		
 
@@ -506,11 +494,14 @@ public:
 
 		
 
-		
-
 
 		interp_normal.normalize();
 		interp_viewdir.normalize();
+
+
+		/*if (frament_number % 20 == 0) {
+			Rasterizer::drawNormal(position, &interp_normal, px_buff);
+		}*/
 
 
 		//FOR EACH LIGHT:
@@ -549,6 +540,10 @@ public:
 
 
 		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::PHONG;
 	}
 
 };

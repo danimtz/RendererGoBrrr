@@ -16,7 +16,7 @@ Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(null
 
 	m_renderer->setRenderCam(m_scene->getCam());//THIS MIGHT GO AGAINST RAII idk
 	
-	m_input_handler = new InputHandler(m_scene->getCam());
+	m_input_handler = new InputHandler(m_scene->getCam(), m_renderer);
 
 }
 
@@ -51,6 +51,7 @@ void Application::run()
 
 		m_window->onUpdate();//Swap buffers
 
+		//printf("newframe\n");
 	}
 
 }

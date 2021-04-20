@@ -16,11 +16,11 @@ Scene::Scene()
 	
 	
 
-
+	
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
 	trs = Mat4f::createTranslation(Vec3f(1, 0, -1));
-	transf = trs*rot*sc;
+	transf = trs*(rot*sc);
 	//m_models_in_scene.push_back(Model("assets\\head.obj", "assets\\african_head_diffuse.tga", &m_material_list[0], transf));
 
 
@@ -28,7 +28,7 @@ Scene::Scene()
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(4, 4, 4));
 	trs = Mat4f::createTranslation(Vec3f(-1, -0.5, 0));
-	transf = trs * rot * sc;
+	transf = trs * (rot * sc);
 	//m_models_in_scene.push_back(Model("assets\\bunnyHD.obj", &m_material_list[0], transf));
 	
 
@@ -36,21 +36,21 @@ Scene::Scene()
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(0.2, 0.2, 0.2));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
-	transf = trs * rot * sc;
+	transf = trs * (rot * sc);
 	//m_models_in_scene.push_back(Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", &m_material_list[0], transf));
 	
+	
 
-
-	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	rot = Mat4f::createRotAxis(Vec3f(0, 0, 45));
 	sc = Mat4f::createScale(Vec3f(1, 1, 1));
 	trs = Mat4f::createTranslation(Vec3f(0, -2, 0));
-	transf = trs * rot * sc;
+	transf = trs * (rot * sc);
 	
 	m_models_in_scene.push_back(Model("assets\\cube2.obj", "assets\\uv_mapper.jpg", &m_material_list[1], transf));
 	//m_models_in_scene.push_back(Model("assets\\cube2.obj",  &m_material_list[1], transf));
-
-	m_models_in_scene.back().setDrawNormal(true);
-
+	
+	//m_models_in_scene.back().setDrawNormal(true);
+	
 	m_camera = Camera(Vec3f(0, 0.1, 2), -30.0f, -90.0f);
 
 
@@ -65,7 +65,7 @@ Scene::Scene()
 	
 	//m_lights_in_scene.dirLights.push_back( DirLight(Vec3f(0, 0.3, -1), Vec3f(0.4, 0.5, 0.9), Vec3f(0, 0, 0)) ); //BACK
 
-	Vec3f lightpos = Vec3f(0, 1, -2); //(1,3,-6)
+	Vec3f lightpos = Vec3f(0, 1, -2); //(1,3,-6) Vec3f(0, 1, -2)
 	m_lights_in_scene.dirLights.push_back( DirLight(lightpos, Vec3f(1, 1, 1), Vec3f(0, 0, 0)) ); //FRONT
 
 
@@ -74,9 +74,9 @@ Scene::Scene()
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(0.1, 0.1, 0.1));
 	trs = Mat4f::createTranslation(lightpos);
-	transf = trs * rot * sc;
+	transf = trs * (rot * sc);
 
-	//m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));/LIGHTCUBE
+	m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));//LIGHTCUBE
 
 
 	std::cout<< "Finished scene setup."<<std::endl;

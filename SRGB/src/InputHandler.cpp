@@ -2,7 +2,7 @@
 
 
 
-InputHandler::InputHandler(Camera *cam) : m_sceneCam(cam) 
+InputHandler::InputHandler(Camera *cam, Renderer *renderer) : m_sceneCam(cam), m_renderer(renderer)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE); 
 };
@@ -98,6 +98,27 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 
 		//Update camera
 		m_sceneCam->updateCam();
+
+
+
+
+		//Change shader in renderer
+		if (event.key.keysym.sym == SDLK_1)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<FlatShader>(new FlatShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_2)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<GouradShader>(new GouradShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_3)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<PhongShader>(new PhongShader());
+			m_renderer->loadShader(shader);
+		}
+
 
 	}
 	else if ((event.motion.state & SDL_BUTTON_LMASK) || (event.motion.state & SDL_BUTTON_RMASK))

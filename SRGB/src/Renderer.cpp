@@ -7,6 +7,8 @@ Renderer::Renderer(int buff_width, int buff_height) : m_px_buff(nullptr), m_z_bu
 	m_px_buff = new Buffer<uint32_t>(buff_width, buff_height);
 	m_z_buff = new Buffer<float>(buff_width, buff_height);
 
+	std::unique_ptr<IShader> shader = std::unique_ptr<PhongShader>(new PhongShader());
+	loadShader(shader);
 }
 
 //Destructor
@@ -86,16 +88,17 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 {
 
 	
-	//Load shader matrices
+	//Load shader uniforms
 	Mat4f MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
 	Mat4f MVPmat = m_camera->getProjectionMat() * MVmat;
 	Mat4f Vmat = m_camera->getViewMat();
-	Mat4f Nmat = Vmat.normalMatrix();
+	Mat4f Nmat = MVmat.normalMatrix();
 	
+	setShaderUniforms(MVmat, MVPmat, Vmat, Nmat, lights,  model);
 	
 	//FlatShader shader(MVmat, MVPmat, Vmat, Nmat, lights);
 	
-	PhongShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
+	//PhongShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
 	
 	//GouradShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
 
@@ -107,13 +110,14 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	//Iterate each face
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
 	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
+	//CURRENTLY NOT WORKING: would need to make shader a variable created in this scope not a member of Renderer. But that makes it difficult to swap shaders on the fly since not a pointer
 	
 	
-	#pragma omp parallel for firstprivate(shader) schedule(dynamic)
+	//#pragma omp parallel for firstprivate(m_shader) schedule(dynamic)
 	for (int i = 0; i < model->getFaceCount(); i++) //i = faceid
 	{ 
 		//DEBUG ONLY DRAW TRIANGLE 1 FOR NOW
-		if (i == 2 || i == 3)
+		//if (i == 2 || i == 3)
 		{
 
 			/*if(i==2){
@@ -124,20 +128,21 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 			}*/
 			
 			//vertex shader per face members
-			shader.verts_idx = model->getFaceVertices(i);
-			shader.uv_idx = model->getUVidx(i);
-			shader.texture = model->getTexture();
+			//m_shader.verts_idx = model->getFaceVertices(i); //THIS SHOULD/COULD BE AN INPUT TO THE VERTEX SHADER
+			//m_shader.uv_idx = model->getUVidx(i);
+
+			//m_shader.texture = model->getTexture();
 		
 
 
 			//Front-end perspective correct backface culling
 			Vec3f faceNormal = model->getFaceNormal(i);
-			Vec3f viewVec = model->getVertex(shader.verts_idx[0]) - (invModel * m_camera->m_pos); //A BIT DODGY TO USE SHADER MEMBER FOR THIS. MAYBE REFACTOR VERTEX SHADER ARGUMENTS
+			Vec3f viewVec = model->getVertex(model->getFaceVertices(i).x) - (invModel * m_camera->m_pos); //A BIT DODGY TO USE SHADER MEMBER FOR THIS. MAYBE REFACTOR VERTEX SHADER ARGUMENTS  m_shader.verts_idx[0]
 			viewVec.normalize();
 			float normLimit = cos(((90.0f - m_camera->m_fov/2.0f) + 90.0f) * (M_PI / 180.0f));
 			float bfc_intentsity1 = faceNormal.dot(-viewVec);
 			if (bfc_intentsity1 <= normLimit) continue;
-		
+			
 
 			//Vertex shader
 			Vec3f face_verts[3];
@@ -145,7 +150,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 
 			for (int j = 0; j < 3; j++)
 			{
-				face_verts[j] = shader.vertex(*model, i, j);
+				face_verts[j] = m_shader->vertex(*model, i, j);
 
 			}
 
@@ -165,7 +170,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 				}
 			
 			}
-			//if(isClipped) continue;//Next triangle CLIPPING DISABLED FOR NOW
+			if(isClipped) continue;//Next triangle CLIPPING DISABLED FOR NOW
 
 
 			//Perform perspetive divide on vertices
@@ -175,22 +180,131 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 				face_verts[j].perspecDiv();
 			}
 
+		
+			Rasterizer::drawTriangle(face_verts, m_shader.get(), m_px_buff, m_z_buff);
+		
+
+		
 			
-			Rasterizer::drawTriangle(face_verts, shader, m_px_buff, m_z_buff);
-		
-
-		
-
 			//DEBUG FUNCTION DRAW NORMAL
 #if 1
 			//Vec3i vid = model->getFaceVertices(i);
 			//Vec3f vertices = model->getVertex(vid.x);
-			Vec3f shiftedNormal = Nmat * faceNormal;;//MVmat * vertices;//
+			//Vec3f shiftedNormal = Nmat * faceNormal;;//MVmat * vertices;//
 
 			//if (model->getDrawNormal()) {
-				Rasterizer::drawNormal(face_verts, &shiftedNormal, m_px_buff, m_z_buff);
+				//Rasterizer::drawNormal(face_verts, &shiftedNormal, m_px_buff, m_z_buff);//MUST NOT BE IN POST MVP
 			//}
 #endif
 		}; //when face id = 1 breakpoint
 	}
+}
+
+
+void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V, const Mat4f N, const SceneLights* sceneLights, const Model* model) {
+
+	assert(m_shader != nullptr);
+
+	auto lights = sceneLights->dirLights;
+	const Material* temp_mat = model->getMaterial();
+	switch (m_shader->getType()) {
+
+		case ShaderType::PHONG:
+		{
+			PhongShader *temp = dynamic_cast<PhongShader*>(m_shader.get());
+			temp->MVmat = MV;
+			temp->MVPmat = MVP;
+			temp->Vmat = V;
+			temp->Nmat = N;
+			temp->Ia = temp_mat->m_Ia;
+			temp->Il = temp_mat->m_Il;
+			temp->ka = temp_mat->m_ka;
+			temp->ks = temp_mat->m_ks;
+			temp->kd = temp_mat->m_kd;
+			temp->spec_n = temp_mat->m_spec_n;
+			temp->texture = model->getTexture();
+
+			//Calculate and set light direction
+			if (temp->light_dir.size() < lights.size()) {
+				temp->light_dir.resize(lights.size());
+				temp->light_colour.resize(lights.size());
+			}
+			for (int i = 0; i < lights.size(); i++)
+			{
+				
+				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
+				temp->light_dir[i].normalize();
+				temp->light_colour[i]=(lights[i].m_colour);
+			}
+		}
+		break;
+
+		case ShaderType::GOURAD:
+		{
+			GouradShader* temp = dynamic_cast<GouradShader*>(m_shader.get());
+			temp->MVmat = MV;
+			temp->MVPmat = MVP;
+			temp->Vmat = V;
+			temp->Nmat = N;
+			temp->Ia = temp_mat->m_Ia;
+			temp->Il = temp_mat->m_Il;
+			temp->ka = temp_mat->m_ka;
+			temp->ks = temp_mat->m_ks;
+			temp->kd = temp_mat->m_kd;
+			temp->spec_n = temp_mat->m_spec_n;
+			temp->texture = model->getTexture();
+
+			//Calculate and set light direction
+			if (temp->light_dir.size() < lights.size()) {
+				temp->light_dir.resize(lights.size());
+				//temp->light_colour.resize(lights.size());
+			}
+			for (int i = 0; i < lights.size(); i++)
+			{
+
+				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
+				temp->light_dir[i].normalize();
+				//temp->light_colour[i] = (lights[i].m_colour);
+			}
+		}
+		break;
+
+		case ShaderType::FLAT:
+		{
+			FlatShader* temp = dynamic_cast<FlatShader*>(m_shader.get());
+			temp->MVmat = MV;
+			temp->MVPmat = MVP;
+			temp->Vmat = V;
+			temp->Nmat = N;
+			//temp->Ia = temp_mat->m_Ia;
+			//temp->Il = temp_mat->m_Il;
+			temp->ka = temp_mat->m_ka;
+			//temp->ks = temp_mat->m_ks;
+			//temp->kd = temp_mat->m_kd;
+			//temp->spec_n = temp_mat->m_spec_n;
+			temp->texture = model->getTexture();
+
+			//Calculate and set light direction
+			if (temp->light_dir.size() < lights.size()) {
+				temp->light_dir.resize(lights.size());
+				//temp->light_colour.resize(lights.size());
+			}
+			for (int i = 0; i < lights.size(); i++)
+			{
+
+				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
+				temp->light_dir[i].normalize();
+				//temp->light_colour[i] = (lights[i].m_colour);
+			}
+		}
+		break;
+
+		default:
+			assert("Setting uniforms failed.");
+		break;
+	}
+
+
+
+
 }
