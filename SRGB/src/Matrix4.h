@@ -636,9 +636,9 @@ public:
 
 	Mat4<T> normalMatrix()
 	{
-		
-		setTranslation(0,0,0);
-		Mat4<T> ret = inverse(); //inverse().transpose() or transpose().inverse()
+		Mat4<T> ret = *this;
+		ret.setTranslation(0,0,0);
+		ret = ret.inverse(); //inverse().transpose() or transpose().inverse()
 		//printMatToConsole(ret);
 		ret = ret.transpose();
 		return ret;

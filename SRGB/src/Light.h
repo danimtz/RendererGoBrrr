@@ -22,7 +22,7 @@ public:
 	DirLight(Vec3f pos = Vec3f(0.0f, 0.0f, 1.0f), 
 		Vec3f colour = Vec3f(1.0f, 1.0f, 1.0f), 
 		Vec3f target = Vec3f(0.0f, 0.0f, 0.0f)) : Light(pos, colour), m_target(target), m_direction(m_pos - m_target) { m_direction.normalize(); };
-
+		//Light direction vector is from target to the light position
 };
 
 

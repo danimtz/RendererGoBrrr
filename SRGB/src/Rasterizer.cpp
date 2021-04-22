@@ -398,7 +398,7 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *p
 					persp_bary = baryW * persp_area;
 
 
-					/*
+					/*h
 					Vec3f baryW2 = Vec3f(w0, w1, w2);
 					float persp_area2 = 1 / (baryW2.x + baryW2.y + baryW2.z);
 					Vec3f persp_bary2 = baryW2 * persp_area2;
@@ -409,6 +409,13 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *p
 					rgb = shader->fragment(persp_bary);
 
 					colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
+
+					//if (p.x == (int)((max.x+min.x)/2) || p.y == (int)((max.y + min.y) / 2))
+					//if(persp_bary.x<0.4 && persp_bary.y < 0.4 && persp_bary.z < 0.4)
+					//{
+						//colour = red;
+					//} 
+
 
 					drawPixel(px_buff, p.x, p.y, colour);
 					fragment_number++;//debug

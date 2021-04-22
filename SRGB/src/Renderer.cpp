@@ -92,10 +92,17 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	Mat4f MVmat = (m_camera->getViewMat()) * (model->getModelMat()); 
 	Mat4f MVPmat = m_camera->getProjectionMat() * MVmat;
 	Mat4f Vmat = m_camera->getViewMat();
-	Mat4f Nmat = MVmat.normalMatrix();
+	Mat4f Nmat = MVmat.normalMatrix();  
 	
+	/*
+	Mat4f::printMatToConsole(model->getModelMat());
+	Mat4f::printMatToConsole(Vmat);
+	Mat4f::printMatToConsole(MVmat);
+	Mat4f::printMatToConsole(Nmat);
+	printf("newframe\n");
+	*/
 	setShaderUniforms(MVmat, MVPmat, Vmat, Nmat, lights,  model);
-	
+
 	//FlatShader shader(MVmat, MVPmat, Vmat, Nmat, lights);
 	
 	//PhongShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
@@ -208,7 +215,38 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 	auto lights = sceneLights->dirLights;
 	const Material* temp_mat = model->getMaterial();
 	switch (m_shader->getType()) {
+		
+	/*case ShaderType::DEBUG:
+	{
+		DebugShader* temp = dynamic_cast<DebugShader*>(m_shader.get());
+		temp->MVmat = MV;
+		temp->MVPmat = MVP;
+		temp->Vmat = V;
+		temp->Nmat = N;
+		temp->Mmat = M;
+		temp->Ia = temp_mat->m_Ia;
+		temp->Il = temp_mat->m_Il;
+		temp->ka = temp_mat->m_ka;
+		temp->ks = temp_mat->m_ks;
+		temp->kd = temp_mat->m_kd;
+		temp->spec_n = temp_mat->m_spec_n;
+		temp->texture = model->getTexture();
+		temp->camera_pos = m_camera->m_pos;
 
+		//Calculate and set light direction
+		if (temp->light_dir.size() < lights.size()) {
+			temp->light_dir.resize(lights.size());
+			temp->light_colour.resize(lights.size());
+		}
+		for (int i = 0; i < lights.size(); i++)
+		{
+
+			temp->light_dir[i] = (lights[i].m_direction); //
+			temp->light_dir[i].normalize();
+			temp->light_colour[i] = (lights[i].m_colour);
+		}
+	}
+	break;*/
 		case ShaderType::PHONG:
 		{
 			PhongShader *temp = dynamic_cast<PhongShader*>(m_shader.get());
@@ -257,14 +295,14 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
 				temp->light_dir.resize(lights.size());
-				//temp->light_colour.resize(lights.size());
+				temp->light_colour.resize(lights.size());
 			}
 			for (int i = 0; i < lights.size(); i++)
 			{
 
 				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
 				temp->light_dir[i].normalize();
-				//temp->light_colour[i] = (lights[i].m_colour);
+				temp->light_colour[i] = (lights[i].m_colour);
 			}
 		}
 		break;
@@ -276,25 +314,25 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->MVPmat = MVP;
 			temp->Vmat = V;
 			temp->Nmat = N;
-			//temp->Ia = temp_mat->m_Ia;
-			//temp->Il = temp_mat->m_Il;
+			temp->Ia = temp_mat->m_Ia;
+			temp->Il = temp_mat->m_Il;
 			temp->ka = temp_mat->m_ka;
 			//temp->ks = temp_mat->m_ks;
-			//temp->kd = temp_mat->m_kd;
+			temp->kd = temp_mat->m_kd;
 			//temp->spec_n = temp_mat->m_spec_n;
 			temp->texture = model->getTexture();
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
 				temp->light_dir.resize(lights.size());
-				//temp->light_colour.resize(lights.size());
+				temp->light_colour.resize(lights.size());
 			}
 			for (int i = 0; i < lights.size(); i++)
 			{
 
 				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
 				temp->light_dir[i].normalize();
-				//temp->light_colour[i] = (lights[i].m_colour);
+				temp->light_colour[i] = (lights[i].m_colour);
 			}
 		}
 		break;
