@@ -28,7 +28,7 @@ Writing a software renderer to get an understanding of how 3D computer graphics 
 - [x]  Expand rasterizer to have flat shading. aka face normal lighting.
 - [x]  Implement z buffer
 - [x]  Model matrix/View matrix/Projection matrix implementations
-- [ ]  Fix projection matrix clipping
+- [x]  Fix projection matrix clipping. (Problem was using comparator operators like this in an if statement (max >= x >= min) and expecting it to work.)
 - [x]  Reverse z buffer in projection matrix working
 - [x]  Correctly transform scene lights
 - [x]  Get texture UV map to map correctly to model
@@ -38,7 +38,7 @@ Writing a software renderer to get an understanding of how 3D computer graphics 
 - [x]  Phong Shading
 - [x]  Optimize rasterizer
 - [x]  Camera movement and input handling
-- [ ]  Fixed point arithmetic/subpixel precision rasterizer
+- [ ]  Fixed point arithmetic/subpixel precision rasterizer: UNLIKELY TO BE ADDED FOR NOW
 - [x]  Fix projection matrix appearing as orthographic not perspective
 - [x]  Fix renderer looking extremely skewed after perspective divide. Might have to do with lookat matrix
 - [x]  OMP parallelization of renderer
@@ -47,4 +47,7 @@ Writing a software renderer to get an understanding of how 3D computer graphics 
 - [x]  Added materials
 - [x]  Fix normals for flat shader being wrong way around buildFaceNormals()
 - [ ]  Texture bilinear interpolation
-- [ ]  Fix specular light reflections not being correctly interpolated I THINK!!!!
+- [x]  Fix specular light reflections not being correctly interpolated(It was the view vectors being normalized before interpolating them. F)
+- [ ]  Split model into mesh and model and make obj file parser for the mesh create a vertex buffer with interleaved position, normal and texture data and an index buffer to avoid repeated vertices.
+-[ ] Add a loadScene() function to Scene class that can read JSON file with scene data to load a scene's models, lights etc...
+-[ ] Add a scene swapper/manager class that handles swapping between scenes
