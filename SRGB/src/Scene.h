@@ -33,7 +33,7 @@ private:
 
 
 	std::vector<Model> m_models_in_scene;//owner
-	std::queue<Model*> m_render_queue;
+	std::queue<Model*> m_render_queue; //This should be in renderer i think
 	SceneLights m_lights_in_scene;
 
 	// INSTEAD OF A VECTOR TO STORE THE MATERIALS A MAP OR SOMETHING WITH NAME WOULD BE BETTER

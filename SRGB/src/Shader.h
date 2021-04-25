@@ -12,7 +12,7 @@ enum class ShaderType : int {
 	FLAT,
 	GOURAD,
 	PHONG,
-	DEBUG
+	BLINNPHONG
 };
 class IShader {
 public:
@@ -444,7 +444,7 @@ public:
 
 		//Calculate specular intensity
 		view_dir[nth_vert] = (MVmat * vertex);  
-		
+		//view_dir[nth_vert].normalize();EVIL
 
 		
 
@@ -531,6 +531,143 @@ public:
 
 
 
+class BlinnPhongShader : public IShader {
+public:
+
+	//Per Model
+	Mat4f  MVmat, MVPmat, Vmat, Nmat; // Matrices
+	Texture* texture;
+	std::vector<Vec3f> light_dir;
+	std::vector<Vec3f> light_colour;
+
+
+	//Phong illumination variables
+	Vec3f Ia, Il; // Ambient and light intensity (defult colour)
+
+	float ka, kd, ks; // Ambient, diffuse, specular coefficients
+
+	float spec_n; // Specular shininess coefficient    32
+
+	//Per triangle
+	Vec3i verts_idx, uv_idx; // Triangle indexes
+
+
+
+	//Written by vertex shader
+	Vec3f normals[3], view_dir[3];
+	Vec2f uv_values[3];
+
+
+
+
+	Vec3f vertex(const Model& model, int face_idx, int nth_vert) override
+	{
+		//Load vertex
+		Vec3f vertex;
+		verts_idx = model.getFaceVertices(face_idx);
+		vertex = model.getVertex(verts_idx[nth_vert]);
+
+		//If texture, load uv values
+		if (texture != nullptr)
+		{
+			uv_idx = model.getUVidx(face_idx);
+			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
+		}
+
+
+
+		//Get vertex normal 
+		Vec3f vertex_normal = model.getVertexNormal(face_idx, nth_vert);
+
+		//Calculate diffuse intensity
+		normals[nth_vert] = Nmat * vertex_normal;
+		normals[nth_vert].normalize();
+
+		//Calculate specular intensity
+		view_dir[nth_vert] = (MVmat * vertex);
+		//view_dir[nth_vert].normalize();EVIL
+
+
+
+		return MVPmat * vertex;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary) override
+	{
+		//Calculate texture uv values
+		Vec3f u_vals{ uv_values[0].u, uv_values[1].u, uv_values[2].u };
+		Vec3f v_vals{ uv_values[0].v, uv_values[1].v, uv_values[2].v };
+
+		float u = bary.dot(u_vals);
+		float v = bary.dot(v_vals);
+
+
+		if (texture != nullptr)//If model has texture
+		{
+			Ia = texture->getTexel(u, v);
+			Il = texture->getTexel(u, v);
+		}
+
+
+
+
+		//Fragment illumination
+
+		//Interpolate normals and view direction   THE BARYCENTRIC COORDINATES ARE CURRENTLY IN SCREEN SPACE?
+		Vec3f interp_normal = normals[0] + (normals[1] - normals[0]) * bary.y + (normals[2] - normals[0]) * bary.z;
+		Vec3f interp_viewdir = view_dir[0] + (view_dir[1] - view_dir[0]) * bary.y + (view_dir[2] - view_dir[0]) * bary.z;
+		interp_normal.normalize();
+		interp_viewdir.normalize();
+
+
+
+		//FOR EACH LIGHT:
+		Vec3f colour;
+		for (int i = 0; i < light_dir.size(); i++)
+		{
+
+
+			//Calculate diffuse component
+			float diff_NL = std::max(0.0f, interp_normal.dot(light_dir[i]));
+
+
+			//Calculate specular component
+			Vec3f halfwayDir = -interp_viewdir + light_dir[i]; //HalfwayDir is lightDir + viewDir but viewDir needs to be negated first to aim from the fragment to eye
+			halfwayDir.normalize();
+
+		
+
+			float spec_RVn = 0.0f;
+			if (diff_NL > 0.0f) {//Test for negative reflection
+				spec_RVn = std::pow(std::max(0.0f, interp_normal.dot(halfwayDir)), spec_n); //spec_n can be obtained from model file
+			}
+
+			
+
+			//Illumination equation
+
+			for (int j = 0; j < 3; j++)
+			{
+				colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia[j] + Il[j] * (diff_NL * kd + spec_RVn * ks)));//only specular and ambient for now
+			}
+		}
+
+		//Cap intensity values
+		for (int i = 0; i < 3; i++)
+		{
+			colour[i] = std::min<float>(255, colour[i]);
+		}
+
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::BLINNPHONG;
+	}
+
+};
 
 
 /*

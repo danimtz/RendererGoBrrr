@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 #include<vector>
 #include "Vector3.h"
@@ -6,6 +6,8 @@
 #include "Matrix4.h"
 #include "Material.h"
 
+
+//TODO: split into model and mesh(add Vertex Buffers and Index Buffers) Then change Render loop  to render from renderer and not from the scene class.
 class Model {
 
 
