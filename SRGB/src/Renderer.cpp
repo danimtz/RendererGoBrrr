@@ -29,7 +29,7 @@ Buffer<float>* Renderer::getDepthBuffer() const
 	return m_z_buff;
 }
 
-
+/*
 void Renderer::renderWireFrame(const Model *model, uint32_t colour)
 {
 	//Currently assumes that OBJ file is in NDC of -1 to 1
@@ -54,7 +54,7 @@ void Renderer::renderWireFrame(const Model *model, uint32_t colour)
 		Rasterizer::drawWireFrame(face_verts, m_px_buff, colour);
 	}
 }
-
+*/
 
 
 void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC ETC. FOR NOW JUST OBJECT
@@ -94,117 +94,126 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	Mat4f Vmat = m_camera->getViewMat();
 	Mat4f Nmat = MVmat.normalMatrix();  
 	
-	/*
-	Mat4f::printMatToConsole(model->getModelMat());
-	Mat4f::printMatToConsole(Vmat);
-	Mat4f::printMatToConsole(MVmat);
-	Mat4f::printMatToConsole(Nmat);
-	printf("newframe\n");
-	*/
 	setShaderUniforms(MVmat, MVPmat, Vmat, Nmat, lights,  model);
 
-	//FlatShader shader(MVmat, MVPmat, Vmat, Nmat, lights);
 	
-	//PhongShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
 	
-	//GouradShader shader(MVmat, MVPmat, Vmat, Nmat, lights, model->getMaterial());
+	///////////////////////////////////////////////////////////////
+	/////Vertex shader and buffer setups///////////////////////////
+	///////////////////////////////////////////////////////////////
+	
+	
+	//Reserve memory for post vertex shader output buffers
+	m_vbuffer_out.clear();
+	m_idxbuffer_out.clear();
+
+	std::vector<Vertex> vertex_buffer = model->getMesh()->getVBuffer();
+	std::vector<int> index_buffer = model->getMesh()->getIdxBuffer();
+
+	m_vbuffer_out.resize(vertex_buffer.size()); //DYNAMIC ALLOCATION WITHIN MAIN LOOP EVIL BAD NO
+	m_idxbuffer_out.resize(index_buffer.size());
+	
+	//Copy mesh index buffer
+	m_idxbuffer_out = index_buffer;
 
 
-	//For backface culling
-	Mat4f invModel = model->getModelMat().inverse();
+	//Run vertex shader on all vertices in vertex buffer first. (Could iterate index buffer instead, would only change performance if parallellism is added and then it would depend on implementation)
+	//#pragma omp parallel for schedule(dynamic)
+	for (int i = 0; i < vertex_buffer.size(); i++) 
+	{
+		m_vbuffer_out[i] = m_shader->vertex(vertex_buffer[i]);
+	}
+	
+
+	///////////////////////////////////////////////////////////////
+	/////Clip primitives///////////////////////////////////////////
+	///////////////////////////////////////////////////////////////
+
+	m_clipping_mask.clear();
+	m_clipping_mask.resize(m_vbuffer_out.size());
+
+	for (int i = 0; i < m_vbuffer_out.size(); i++) 
+	{
+		//Build clipping mask for each vertex
+		int mask = 0;
+		Vec3f vert = m_vbuffer_out[i].position;
+
+		if (vert.x + vert.w > 0) { mask |= ClippingMask::NegX; };
+		if (vert.w - vert.x > 0) { mask |= ClippingMask::PosX; };
+		if (vert.y + vert.w > 0) { mask |= ClippingMask::NegY; };
+		if (vert.w - vert.y > 0) { mask |= ClippingMask::PosY; };
+		if (		 vert.z > 0) { mask |= ClippingMask::NegZ; };
+		if (vert.w - vert.z > 0) { mask |= ClippingMask::PosZ; };
+		
+		m_clipping_mask[i] = mask;
+		
+	}
+
+	for (int i = 0; i < m_idxbuffer_out.size(); i += 3) 
+	{
+		
+		//Clip triangles outside mask
+		bool isClipped = false;
+		int combined_mask = m_clipping_mask[m_idxbuffer_out[i]] | m_clipping_mask[m_idxbuffer_out[i+1]] | m_clipping_mask[m_idxbuffer_out[i+2]];
+		if (combined_mask & ClippingMask::NegX) { isClipped = true; };
+		if (combined_mask & ClippingMask::PosX) { isClipped = true; };
+		if (combined_mask & ClippingMask::NegY) { isClipped = true; };
+		if (combined_mask & ClippingMask::PosY) { isClipped = true; };
+		if (combined_mask & ClippingMask::NegZ) { isClipped = true; };
+		if (combined_mask & ClippingMask::PosZ) { isClipped = true; };
+
+		/*if(isClipped) FIX THIS IT DOENST CURRENTLY WORK
+		{
+			m_idxbuffer_out[i]   = -1;
+			m_idxbuffer_out[i+1] = -1;
+			m_idxbuffer_out[i+2] = -1;
+		};*/ 
+
+	}
+
+	///////////////////////////////////////////////////////////////
+	/////Transform vertices from NDC to Screen space///////////////
+    ///////////////////////////////////////////////////////////////
+
+	m_processedFlag.clear();
+	m_processedFlag.resize(vertex_buffer.size());
+	for (int i = 0; i < m_idxbuffer_out.size(); i++) 
+	{
+		int idx = m_idxbuffer_out[i];
+
+		if (idx == -1) {continue;}//Data race, cant easily parallelize with omp
+		if (m_processedFlag[idx]) {continue;}
+		
+		
+		Vec3f& vout = m_vbuffer_out[idx].position;
+
+		//Perpective divide
+		vout.perspecDiv();
+
+		//Viewport transform. Vertex from NDC to SSC
+		vout.x = vout.x * ((m_px_buff->m_width - 1 ) / 2) + (m_px_buff->m_width / 2);
+		vout.y = -vout.y * ((m_px_buff->m_height - 1) / 2) + (m_px_buff->m_height / 2);
+		//no need for z since NDC cube already between 0 and 1
+
+		m_processedFlag[idx] = true;
+	}
+	
+
+	//Draw primitives (aka draw triangle with 3 indices as input)
+	Rasterizer::drawTriangle(m_vbuffer_out, m_idxbuffer_out, m_shader.get(), m_px_buff, m_z_buff);
+
+
+
+
+
 
 
 	//Iterate each face
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
 	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
-	//CURRENTLY NOT WORKING: would need to make shader a variable created in this scope not a member of Renderer. But that makes it difficult to swap shaders on the fly since not a pointer
-	
 	
 	//#pragma omp parallel for firstprivate(m_shader) schedule(dynamic)
-	for (int i = 0; i < model->getFaceCount(); i++) //i = faceid
-	{ 
-		//DEBUG ONLY DRAW TRIANGLE 1 FOR NOW
-		//if (i == 2 || i == 3)
-		{
-
-			/*if(i==2){
-				printf("tri1");
-			}
-			else {
-				printf("tri2");
-			}*/
-			
-			//vertex shader per face members
-			//m_shader.verts_idx = model->getFaceVertices(i); //THIS SHOULD/COULD BE AN INPUT TO THE VERTEX SHADER
-			//m_shader.uv_idx = model->getUVidx(i);
-
-			//m_shader.texture = model->getTexture();
-		
-
-
-			//Front-end perspective correct backface culling
-			Vec3f faceNormal = model->getFaceNormal(i);
-			Vec3f viewVec = model->getVertex(model->getFaceVertices(i).x) - (invModel * m_camera->m_pos); //A BIT DODGY TO USE SHADER MEMBER FOR THIS. MAYBE REFACTOR VERTEX SHADER ARGUMENTS  m_shader.verts_idx[0]
-			viewVec.normalize();
-			float normLimit = cos(((90.0f - m_camera->m_fov/2.0f) + 90.0f) * (M_PI / 180.0f));
-			float bfc_intentsity1 = faceNormal.dot(-viewVec);
-			if (bfc_intentsity1 <= normLimit) continue;
-			
-
-			//Vertex shader
-			Vec3f face_verts[3];
-
-
-			for (int j = 0; j < 3; j++)
-			{
-				face_verts[j] = m_shader->vertex(*model, i, j);
-
-			}
-
-
-			//Clip triangles (doenst reconstruct partly out ones)
-			bool isClipped = false;
-			for (int j = 0; j < 3; j++)
-			{
-				// CHECK THIS IDK IF Z IS FROM 0 1 or -1 0 etc etc
-				//If x and y are within -w and w (-1 and 1 pre perspective divide) and z is within 0 and w (0 and 1 pre perspec div)
-				bool in_bounds = (( -face_verts[j].w <= face_verts[j].x && face_verts[j].x <= face_verts[j].w) &&
-									(-face_verts[j].w <= face_verts[j].y && face_verts[j].y <= face_verts[j].w) &&
-													( 0 <= face_verts[j].z && face_verts[j].z <= face_verts[j].w));
-
-				if(!in_bounds){
-					isClipped = true;
-				}
-			
-			}
-			if(isClipped) continue;//Next triangle CLIPPING DISABLED FOR NOW
-
-
-			//Perform perspetive divide on vertices
-			for (int j = 0; j < 3; j++)
-			{
-				//Transform vertices
-				face_verts[j].perspecDiv();
-			}
-
-		
-			Rasterizer::drawTriangle(face_verts, m_shader.get(), m_px_buff, m_z_buff);
-		
-
-		
-			
-			//DEBUG FUNCTION DRAW NORMAL
-#if 1
-			//Vec3i vid = model->getFaceVertices(i);
-			//Vec3f vertices = model->getVertex(vid.x);
-			//Vec3f shiftedNormal = Nmat * faceNormal;;//MVmat * vertices;//
-
-			//if (model->getDrawNormal()) {
-				//Rasterizer::drawNormal(face_verts, &shiftedNormal, m_px_buff, m_z_buff);//MUST NOT BE IN POST MVP
-			//}
-#endif
-		}; //when face id = 1 breakpoint
-	}
+	
 }
 
 
@@ -216,7 +225,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 	const Material* temp_mat = model->getMaterial();
 	switch (m_shader->getType()) {
 		
-		case ShaderType::BLINNPHONG:
+		/*case ShaderType::BLINNPHONG:
 		{
 			BlinnPhongShader* temp = dynamic_cast<BlinnPhongShader*>(m_shader.get());
 			temp->MVmat = MV;
@@ -244,7 +253,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 				temp->light_colour[i] = (lights[i].m_colour);
 			}
 		}
-		break;
+		break;*/
 
 		case ShaderType::PHONG:
 		{
@@ -275,7 +284,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			}
 		}
 		break;
-
+		/*
 		case ShaderType::GOURAD:
 		{
 			GouradShader* temp = dynamic_cast<GouradShader*>(m_shader.get());
@@ -335,7 +344,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			}
 		}
 		break;
-
+		*/
 		default:
 			assert("Setting uniforms failed.");
 		break;

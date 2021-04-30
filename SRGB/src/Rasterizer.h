@@ -27,7 +27,7 @@ public:
 	static void simpleRasterizeTri( Vec3f *verts, IShader *shader, Buffer<uint32_t> *px_buff,  Buffer<float> *z_buff);
 
 	//Optimized rasterizer function with subpixel precision 8x8 tile rejection
-	static void drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff);
+	static void drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const std::vector<int>& idx_buff, IShader *shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff);
 
 
 	//Draws given normal of a face for debugging

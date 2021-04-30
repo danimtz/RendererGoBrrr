@@ -5,10 +5,37 @@
 #include "Texture.h"
 #include "Matrix4.h"
 #include "Material.h"
-
+#include "Mesh.h"
+#include "OBJLoader.h"
 
 //TODO: split into model and mesh(add Vertex Buffers and Index Buffers) Then change Render loop  to render from renderer and not from the scene class.
+
 class Model {
+
+public:
+	Model(const char* filename, const Material* material, const Mat4f transform = Mat4f());
+	Model(const char* filename, const char* texture_fname, const Material* material, const Mat4f transform = Mat4f());
+	
+	Model(const Model& other);
+	Model& operator = (const Model& other) = delete;
+	~Model();
+
+	Mat4f getModelMat() const;
+	Texture* getTexture() const;
+	const Material* getMaterial() const;
+	Mesh* getMesh() const;
+
+private:
+
+	Mesh* m_mesh;
+	Texture* m_texture;
+	const Material* m_material;
+	Mat4f m_model_mat;
+	V_Data v_data; //IF THIS GIVES ERROR THEN IT WORKED
+};
+/*
+class Model {
+
 
 
 public:
@@ -22,7 +49,7 @@ public:
 	Model& operator = (const Model &other) = delete;
 	~Model();
 
-	
+	 
 
 
 
@@ -50,8 +77,7 @@ public:
 	Texture* getTexture() const;
 	const Material* getMaterial() const;
 
-	void setDrawNormal(bool isdrawn);
-	bool getDrawNormal() const;
+	
 
 private:
 	
@@ -76,15 +102,14 @@ private:
 	//Model material
 	const Material *m_material;
 
-	//Debug boolean for normals
-	bool m_draw_normal;
+	
 
-	//OBJ file parsing funcitons //THIS FUNCTION COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
+	//OBJ file parsing funcitons //THESE FUNCTIONS COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
 	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);
 	void parseFaceData(std::string(&face_data)[MAXPOLY], int vCount);
-
 	void buildFaceNormals();
 	void buildVertexNormals();
 
 };
 
+*/

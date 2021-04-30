@@ -46,8 +46,8 @@ Scene::Scene()
 	trs = Mat4f::createTranslation(Vec3f(0, -0.5, 0));
 	transf = trs * (rot * sc);
 	
-	//m_models_in_scene.push_back(Model("assets\\cube2.obj", "assets\\uv_mapper.jpg", &m_material_list[1], transf));
-	m_models_in_scene.push_back(Model("assets\\cube2.obj",  &m_material_list[1], transf));
+	m_models_in_scene.push_back(Model("assets\\cube2.obj", "assets\\uv_mapper.jpg", &m_material_list[1], transf));
+	//.push_back(Model("assets\\cube2.obj",  &m_material_list[1], transf));
 	
 	//m_models_in_scene.back().setDrawNormal(true);
 	

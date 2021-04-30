@@ -103,7 +103,7 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 
 
 		//Change shader in renderer
-		if (event.key.keysym.sym == SDLK_1)
+		/*if (event.key.keysym.sym == SDLK_1)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<FlatShader>(new FlatShader());
 			m_renderer->loadShader(shader);
@@ -112,17 +112,17 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<GouradShader>(new GouradShader());
 			m_renderer->loadShader(shader);
-		}
+		}*/
 		if (event.key.keysym.sym == SDLK_3)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<PhongShader>(new PhongShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_4)
+		/*if (event.key.keysym.sym == SDLK_4)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<BlinnPhongShader>(new BlinnPhongShader());
 			m_renderer->loadShader(shader);
-		}
+		}*/
 
 
 

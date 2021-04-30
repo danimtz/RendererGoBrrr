@@ -1,6 +1,11 @@
 #pragma once
 #include "Vector3.h"
 
+
+//NOTE to future me: Material is currently being used as an input to the shader owned by the renderer. 
+// In reality the material should own a shader to which the different material values are uploaded to as uniforms 
+// then basically when you render an object with a material you are telling it which shader to use. 
+//(Some uniformsa should still be set by renderer like light dir and transform matrices)
 struct Material {
 
 	Vec3f m_Il; //Light/Diffuse/Specular intensity aka colour

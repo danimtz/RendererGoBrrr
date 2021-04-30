@@ -277,7 +277,7 @@ void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader *shader, Buffer<uint3
 }
 
 
-void Rasterizer::drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *px_buff, Buffer<float> *z_buff)
+void Rasterizer::drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const std::vector<int>& idx_buff, IShader* shader, Buffer<uint32_t>* px_buff, Buffer<float>* z_buff)
 {
 	//				v2
 	//				/\
@@ -293,145 +293,113 @@ void Rasterizer::drawTriangle(Vec3f *verts, IShader *shader, Buffer<uint32_t> *p
 	//
 	//transform to viewport coords 
 
-
-
-	//Triangle variables
-	float invArea;
-	Vec3f v[3];
-	Vec3f invW{ 1 / verts[0].w, 1 / verts[1].w, 1 / verts[2].w };
-	
-
-	//Fragment variables
-	float depth;
-	Vec3f rgb, persp_bary, baryW;
-	uint32_t colour;
-	float w0, w1, w2;
-	float z_w1, z_w2; //barycentric weights for Z buffer
-
-
-	Mat4f viewPrt_transform = Mat4f::createViewportTransform(px_buff->m_width, px_buff->m_height);
-	for (int i = 0; i < 3; i++)
-	{
-		//Reset hidden w
-		verts[i].w = 1;
-		//Transorm to viewport
-		v[i] = viewPrt_transform * verts[i];//MAYBE HERE
+	#pragma omp parallel for schedule(dynamic) //Wheres the data race?
+	for(int i = 0; i<idx_buff.size(); i+=3)
+	{ 
 		
-	}
-
-	//Save z values for depth buffer (POST TRANSFORM)
-	Vec3f z_values(v[0].z, v[1].z, v[2].z);
-
+		//If trtaingled clipped skip
+		if(idx_buff[i] == -1){ continue;};
+		
+		//Extract vertex positions
+		Vec3f v[3];
+		for (int k = 0; k < 3; k++) {
+			v[k] = vrtx_buff[idx_buff[i+k]].position;
+		}
 	
-	//DEBUG FUNCTION: Draw normal
+
+		//Winding order backface culling
+		float invArea;
+		float signedArea = edgeFunct(v[0], v[1], v[2]);
+		if (signedArea <= 0) {continue;};
+		invArea = 1 / signedArea;
 
 
+		//Rasterizer variables
+		float depth;
+		Vec3f rgb, persp_bary, baryW;
+		uint32_t colour;
+		
+		float z_w1, z_w2; //barycentric weights for Z buffer
+		Vec3f z_values(v[0].z, v[1].z, v[2].z);
 
-	float tempinvArea = edgeFunct(v[0], v[1], v[2]);
-	if (tempinvArea <= 0) return; //Winding order backface culling
-	invArea = 1 / tempinvArea;
+		float w0, w1, w2;
+		Vec3f invW{ 1 /v[0].w, 1 / v[1].w, 1 / v[2].w };
 
+		//Edge function deltas (x needs to be negative or subtracted in loop)
+		float Dx01 = -(v[0].x - v[1].x); 
+		float Dx12 = -(v[1].x - v[2].x); 
+		float Dx20 = -(v[2].x - v[0].x); 
 
-	//Edge function deltas (x needs to be negative or subtracted in loop)
-	float Dx01 = -(v[0].x - v[1].x); 
-	float Dx12 = -(v[1].x - v[2].x); 
-	float Dx20 = -(v[2].x - v[0].x); 
+		float Dy01 = -(v[0].y - v[1].y);
+		float Dy12 = -(v[1].y - v[2].y); 
+		float Dy20 = -(v[2].y - v[0].y); 
 
-	float Dy01 = -(v[0].y - v[1].y);
-	float Dy12 = -(v[1].y - v[2].y); 
-	float Dy20 = -(v[2].y - v[0].y); 
+		//Find triangle bounding box
+		Vec2i min, max;
+		setTriBBox(min, max, v, px_buff->m_width, px_buff->m_height);
 
-	//Find triangle bounding box
-	Vec2i min, max;
-	setTriBBox(min, max, v, px_buff->m_width, px_buff->m_height);
+		Vec3f p = Vec3f(min.x, min.y, 0);//point p
 
-
-	Vec3f p = Vec3f(min.x, min.y, 0);//point p
-
-	//Edge function at start of row (edge function constant+first delta)
-	float w0_row = edgeFunct(v[1], v[2], p);
-	float w1_row = edgeFunct(v[2], v[0], p);
-	float w2_row = edgeFunct(v[0], v[1], p);
-
-
-
-	// Fill convention(top left rule) bias (If edge going down) FIX WHEN FIXED POINTS COORDINATES ARE IMPLEMENTED and also CREATES SOME BLACK DOTS
-	//if (Dy12 < 0 || (Dy12 == 0 && Dy12 > 0)) w0_row++;
-
-	//if (Dy20 < 0 || (Dy20 == 0 && Dy20 > 0)) w1_row++;
-
-	//if (Dy01 < 0 || (Dy01 == 0 && Dy01 > 0)) w2_row++;
+		//Edge function at start of row (edge function constant+first delta)
+		float w0_row = edgeFunct(v[1], v[2], p);
+		float w1_row = edgeFunct(v[2], v[0], p);
+		float w2_row = edgeFunct(v[0], v[1], p);
 
 
-	int fragment_number = 0;//DEBUG
-	for (p.y = min.y; p.y <= max.y; p.y++)
-	{
-		//Update weights
-		w0 = w0_row;
-		w1 = w1_row;
-		w2 = w2_row;
-			
-		for (p.x = min.x; p.x <= max.x; p.x++)
+		for (p.y = min.y; p.y <= max.y; p.y++)
 		{
-
-			//If inside triangle render pixel
-			if ((w0 >= 0) && (w1 >= 0) && (w2 >= 0))
+			//Update weights
+			w0 = w0_row;
+			w1 = w1_row;
+			w2 = w2_row;
+			
+			for (p.x = min.x; p.x <= max.x; p.x++)
 			{
-				
-				//Calculate barycentric weights for Z-Buff and interpolate depth  THIS WEIGHTS MAY BE SLIGHTLY OVER 1 DUE TO PRECISION ERRORS CURRENTLY may be fied with fixed point precision
-				z_w1 = w1 * invArea;
-				z_w2 = w2 * invArea;
-				depth = z_values.x + z_w1 * (z_values.y - z_values.x) + z_w2 * (z_values.z - z_values.x);
 
-				//Depth buffer check
-				if ((*z_buff)(p.x, p.y) < depth) //Near plane 1, far plane 0
+				//If inside triangle render pixel
+				if ((w0 >= 0) && (w1 >= 0) && (w2 >= 0))
 				{
-					//Update z-buffer
-					(*z_buff)(p.x, p.y) = depth;//drawZbuff function
+				
+					//Calculate barycentric weights for Z-Buff and interpolate depth  THIS WEIGHTS MAY BE SLIGHTLY OVER 1 DUE TO PRECISION ERRORS CURRENTLY may be fied with fixed point precision
+					z_w1 = w1 * invArea;
+					z_w2 = w2 * invArea;
+					depth = z_values.x + z_w1 * (z_values.y - z_values.x) + z_w2 * (z_values.z - z_values.x);
+
+					//Depth buffer check
+					if ((*z_buff)(p.x, p.y) < depth) //Near plane 1, far plane 0
+					{
+						//Update z-buffer
+						(*z_buff)(p.x, p.y) = depth;//drawZbuff function
 
 
-					//Perspective divide barycentric weights
-					baryW = Vec3f(w0 * invW.x, w1 * invW.y, w2 * invW.z);
+						//Perspective divide barycentric weights
+						baryW = Vec3f(w0 * invW.x, w1 * invW.y, w2 * invW.z);
 
-					//Calculate barycentric coordinates from perpectiv div weights
-					float persp_area = 1/(baryW.x + baryW.y + baryW.z);
-					persp_bary = baryW * persp_area;
-
-
-					/*h
-					Vec3f baryW2 = Vec3f(w0, w1, w2);
-					float persp_area2 = 1 / (baryW2.x + baryW2.y + baryW2.z);
-					Vec3f persp_bary2 = baryW2 * persp_area2;
-					*/
+						//Calculate barycentric coordinates from perpectiv div weights
+						float persp_area = 1/(baryW.x + baryW.y + baryW.z);
+						persp_bary = baryW * persp_area;
 
 
-					//rgb = shader.fragment(persp_bary);
-					rgb = shader->fragment(persp_bary);
+						rgb = shader->fragment(persp_bary, vrtx_buff[idx_buff[i]], vrtx_buff[idx_buff[i+1]], vrtx_buff[idx_buff[i+2]]);
 
-					colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
+						colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
 
-					//if (p.x == (int)((max.x+min.x)/2) || p.y == (int)((max.y + min.y) / 2))
-					//if(persp_bary.x<0.4 && persp_bary.y < 0.4 && persp_bary.z < 0.4)
-					//{
-						//colour = red;
-					//} 
-
-
-					drawPixel(px_buff, p.x, p.y, colour);
-					fragment_number++;//debug
+						drawPixel(px_buff, p.x, p.y, colour);
+					
+					}
 				}
+
+				//Next col step
+				w0 += Dy12;
+				w1 += Dy20;
+				w2 += Dy01;
 			}
 
-			//Next col step
-			w0 += Dy12;
-			w1 += Dy20;
-			w2 += Dy01;
+			//Next row step
+			w0_row -= Dx12;
+			w1_row -= Dx20;
+			w2_row -= Dx01;
 		}
-
-		//Next row step
-		w0_row -= Dx12;
-		w1_row -= Dx20;
-		w2_row -= Dx01;
 	}
 }
 

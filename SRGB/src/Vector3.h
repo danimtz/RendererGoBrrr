@@ -24,7 +24,7 @@ public:
 		T z; T v; T b;
 	};
 	//For homogenous coordinates perspective divide
-	T w;
+	T w;// This should be removed and made into Vector4 in a real math library. as it produces memory waste when w is not needed. 
 
 	//=============Constructors====================
 	Vec3() : x(0), y(0), z(0), w(1) {}
@@ -62,8 +62,7 @@ public:
 
 	T& operator[](int n)
 	{
-		assert(n >= 0 && n <= 2);
-
+		
 		if (n == 0)
 		{
 			return x;
@@ -81,8 +80,7 @@ public:
 
 	const T& operator[](int n) const
 	{
-		assert(n >= 0 && n <= 2);
-
+		
 		if (n == 0)
 		{
 			return x;
@@ -172,6 +170,11 @@ public:
 		return Vec3<T>( (y * other.z - other.y * z), (z * other.x - other.z * x), (x * other.y - other.x * y) );
 	}
 
+	Vec3<T> mult(const Vec3<T>& other) const
+	{
+		return Vec3<T>(x * other.x, y * other.y, z * other.z);
+	}
+
 
 	Vec3<T>& operator+=(const Vec3<T> &other)
 	{
@@ -226,9 +229,10 @@ public:
 
 	void perspecDiv()
 	{
-		x /= w;
-		y /= w;
-		z /= w;
+		float invW = 1.0f/w;
+		x *= invW;
+		y *= invW;
+		z *= invW;
 		//w = 1; LEAVE W as is. This is only used in renderer->rasterizer part of pipeline
 	}
 
@@ -236,7 +240,7 @@ public:
 	{
 		Vec3<T> reflection;
 		
-		reflection = incident - (normal*2.0f*(incident.dot(normal)));
+		reflection = incident - (normal*(incident.dot(normal) * 2.0f));
 
 		return reflection;
 	}
