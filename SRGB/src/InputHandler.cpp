@@ -118,11 +118,11 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 			std::unique_ptr<IShader> shader = std::unique_ptr<PhongShader>(new PhongShader());
 			m_renderer->loadShader(shader);
 		}
-		/*if (event.key.keysym.sym == SDLK_4)
+		if (event.key.keysym.sym == SDLK_4)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<BlinnPhongShader>(new BlinnPhongShader());
 			m_renderer->loadShader(shader);
-		}*/
+		}
 
 
 

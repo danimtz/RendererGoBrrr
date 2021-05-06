@@ -8,108 +8,60 @@
 #include "Mesh.h"
 #include "OBJLoader.h"
 
-//TODO: split into model and mesh(add Vertex Buffers and Index Buffers) Then change Render loop  to render from renderer and not from the scene class.
+struct PBRTexture {
+	
+	PBRTexture(std::string texture_fname) {//Currently uses fixed file extension. all jpg and normal is png
+		
+		//albedo
+		std::string albedo = texture_fname;
+		m_albedo = Texture(albedo.append("_albedo.jpg").c_str());
+		
+		
+		//AO
+		std::string AO = texture_fname;
+		m_AO = Texture(AO.append("_AO.jpg").c_str());
+
+		//metallic
+		std::string metallic = texture_fname;
+		m_metallic = Texture(metallic.append("_metallic.jpg").c_str());
+
+		//normal
+		std::string normal = texture_fname;
+		m_normal = Texture(normal.append("_normal.jpg").c_str());
+
+		//roughness
+		std::string roughness = texture_fname;
+		m_roughness = Texture(roughness.append("_roughness.jpg").c_str());
+	};
+
+	Texture m_albedo;
+	Texture m_AO;
+	Texture m_metallic;
+	Texture m_normal;
+	Texture m_roughness;
+};
 
 class Model {
 
 public:
 	Model(const char* filename, const Material* material, const Mat4f transform = Mat4f());
-	Model(const char* filename, const char* texture_fname, const Material* material, const Mat4f transform = Mat4f());
+	Model(const char* filename, std::string texture_fname, const Material* material, const Mat4f transform = Mat4f());
 	
 	Model(const Model& other);
 	Model& operator = (const Model& other) = delete;
 	~Model();
 
 	Mat4f getModelMat() const;
-	Texture* getTexture() const;
+	PBRTexture* getTexture() const;
 	const Material* getMaterial() const;
 	Mesh* getMesh() const;
 
 private:
 
 	Mesh* m_mesh;
-	Texture* m_texture;
 	const Material* m_material;
 	Mat4f m_model_mat;
-	V_Data v_data; //IF THIS GIVES ERROR THEN IT WORKED
+
+	//PBR textures
+	PBRTexture* m_pbrtexture;
 };
-/*
-class Model {
-
-
-
-public:
-
-	//Constructor that will call OBJ loader function to fill model data
-	Model(const char* filename, const Material *material, const Mat4f transform = Mat4f());
-	Model(const char* filename, const char* texture_fname, const  Material *material, const Mat4f transform = Mat4f());
-	
-	//COPY CONSTRUCTOR AND ASSIGNMENT detruct
-	Model(const Model &other);
-	Model& operator = (const Model &other) = delete;
-	~Model();
-
-	 
-
-
-
-
-	//getters for normals, vertices and uv given the face number and vertex etc etc
-	
-	int getFaceCount() const;
-	int getVertCount() const;
-
-	Vec3f getVertex(int n) const;
-	Vec3f getVertex(int nface, int nth_vert) const;
-
-	Vec2f getUV(int n) const;
-
-	Vec3i getFaceVertices(int nface) const;
-
-	Vec3i getUVidx(int nface) const;//COULD PROBABLY COMBINE GETUV AND GETUVIDX. SAME FOR VERTEX (change in renderer/rasterizer/shader too)
-
-	Mat4f getModelMat() const;
-	//TODO:
-	Vec3f getFaceNormal(int nface) const;
-
-	Vec3f getVertexNormal(int nface, int nth_vert) const;
-
-	Texture* getTexture() const;
-	const Material* getMaterial() const;
-
-	
-
-private:
-	
-	//TEMP move this to mesh class later.
-
-	//Obtained from face command in OBJ file
-	std::vector<Vec3f> m_vertex;
-	std::vector<Vec3f> m_vnorms;
-	std::vector<Vec2f> m_uv;
-	Mat4f m_model_mat;
-	std::vector<Vec3f> m_fnorms;
-
-	static constexpr int MAXPOLY = 20;
-
-	//Faces defined by face command. 
-	//Vec3i of vertex/uv/vnormal points to the respective index in m_vertex/m_uv/m_norms
-	std::vector<std::vector<Vec3i>> m_faces;
-
-	//Model texture
-	Texture *m_texture;
-
-	//Model material
-	const Material *m_material;
-
-	
-
-	//OBJ file parsing funcitons //THESE FUNCTIONS COULD MAYBE BE DECOUPLED FROM THE MODEL CLASS
-	void loadOBJfile(const char* filename, const char* texture_fname = nullptr);
-	void parseFaceData(std::string(&face_data)[MAXPOLY], int vCount);
-	void buildFaceNormals();
-	void buildVertexNormals();
-
-};
-
-*/

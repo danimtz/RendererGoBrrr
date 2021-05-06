@@ -93,6 +93,8 @@ public:
 			}
 		}
 
+		calculateVertexTangents(new_mesh);
+
 		return new_mesh;
 	};
 
@@ -174,9 +176,71 @@ private:
 			new_mesh->m_index_buffer.push_back(face_indeces[i]);
 
 			//add third vertex 
-			new_mesh->m_index_buffer.push_back(face_indeces[i + 1]);
+			new_mesh->m_index_buffer.push_back(face_indeces[i+1]);
 
-			
+			//Build tangents for that face
+		}
+	}
+
+	static void calculateVertexTangents(Mesh* mesh) 
+	{
+		std::vector<Vec3f> vert_tangents;
+		std::vector<Vec3f> vert_bitangents;
+		vert_tangents.resize(mesh->m_vertex_buffer.size());
+		vert_bitangents.resize(mesh->m_vertex_buffer.size());
+
+		for (int i = 0; i < mesh->m_index_buffer.size(); i+=3) 
+		{
+			//Calculate tangents for each triangle
+			Vec3f vert0 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+0]].position;
+			Vec3f vert1 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+1]].position;
+			Vec3f vert2 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+2]].position;
+
+			Vec2f texcoord0 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+0]].texcoord;
+			Vec2f texcoord1 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+1]].texcoord;
+			Vec2f texcoord2 = mesh->m_vertex_buffer[mesh->m_index_buffer[i+2]].texcoord;
+
+			Vec3f edge1 = vert1 - vert0;
+			Vec3f edge2 = vert2 - vert0;
+
+			Vec2f deltaUV1 = texcoord1 - texcoord0;
+			Vec2f deltaUV2 = texcoord2 - texcoord0;
+
+			//TODO tenagent space tangenst etc
+			float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x); //1 over determinant
+
+			Vec3f tangent = (edge1 * deltaUV2.y - edge2 * deltaUV1.y) * r;
+			Vec3f bitangent = (edge2 * deltaUV1.x - edge1 * deltaUV2.x) * r;
+
+			//Add tangent and bitangents to array at the indexed slot
+			vert_tangents[mesh->m_index_buffer[i + 0]] += tangent;
+			vert_tangents[mesh->m_index_buffer[i + 1]] += tangent;
+			vert_tangents[mesh->m_index_buffer[i + 2]] += tangent;
+
+			vert_bitangents[mesh->m_index_buffer[i + 0]] += bitangent;
+			vert_bitangents[mesh->m_index_buffer[i + 1]] += bitangent;
+			vert_bitangents[mesh->m_index_buffer[i + 2]] += bitangent;
+		}
+
+
+		for (int i = 0; i < mesh->m_vertex_buffer.size(); i++) 
+		{
+			//Gram-Schmidt orthogonalisation
+			Vec3f n = mesh->m_vertex_buffer[i].normal;
+			Vec3f t0 = vert_tangents[i];
+			Vec3f b = vert_tangents[i];
+
+			Vec3f t = t0 - (n * n.dot(t0));
+			t.normalize();
+
+			//Correct handedness
+			Vec3f c = n.cross(t);
+			if ( b.dot(c) < 0.0f) {
+				t = t * -1.0f;
+			}
+
+			//Add tangent to vertex
+			mesh->m_vertex_buffer[i].tangent = t;
 		}
 	}
 };

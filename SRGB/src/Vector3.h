@@ -15,13 +15,13 @@ public:
 
 	
 	union {
-		T x; T s; T r;
+		T x; T s; 
 	};
 	union {
-		T y; T u; T g;
+		T y; T u; 
 	};
 	union {
-		T z; T v; T b;
+		T z; T v; 
 	};
 	//For homogenous coordinates perspective divide
 	T w;// This should be removed and made into Vector4 in a real math library. as it produces memory waste when w is not needed. 

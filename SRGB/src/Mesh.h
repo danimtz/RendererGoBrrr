@@ -6,6 +6,7 @@
 struct Vertex { //Note Vec3f is actually 4 floats due to hidden w component
 	Vec3f position;
 	Vec3f normal;
+	Vec3f tangent;
 	Vec2f texcoord;
 };
 

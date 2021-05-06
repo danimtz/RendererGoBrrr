@@ -118,7 +118,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 
 
 	//Run vertex shader on all vertices in vertex buffer first. (Could iterate index buffer instead, would only change performance if parallellism is added and then it would depend on implementation)
-	//#pragma omp parallel for schedule(dynamic)
+//#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < vertex_buffer.size(); i++) 
 	{
 		m_vbuffer_out[i] = m_shader->vertex(vertex_buffer[i]);
@@ -132,23 +132,24 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	m_clipping_mask.clear();
 	m_clipping_mask.resize(m_vbuffer_out.size());
 
+//#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < m_vbuffer_out.size(); i++) 
 	{
 		//Build clipping mask for each vertex
 		int mask = 0;
 		Vec3f vert = m_vbuffer_out[i].position;
 
-		if (vert.x + vert.w > 0) { mask |= ClippingMask::NegX; };
-		if (vert.w - vert.x > 0) { mask |= ClippingMask::PosX; };
-		if (vert.y + vert.w > 0) { mask |= ClippingMask::NegY; };
-		if (vert.w - vert.y > 0) { mask |= ClippingMask::PosY; };
-		if (		 vert.z > 0) { mask |= ClippingMask::NegZ; };
-		if (vert.w - vert.z > 0) { mask |= ClippingMask::PosZ; };
+		if (vert.x + vert.w < 0) { mask |= ClippingMask::NegX; };
+		if (vert.w - vert.x < 0) { mask |= ClippingMask::PosX; };
+		if (vert.y + vert.w < 0) { mask |= ClippingMask::NegY; };
+		if (vert.w - vert.y < 0) { mask |= ClippingMask::PosY; };
+		if (		 vert.z < 0) { mask |= ClippingMask::NegZ; };
+		if (vert.w - vert.z < 0) { mask |= ClippingMask::PosZ; };
 		
 		m_clipping_mask[i] = mask;
 		
 	}
-
+//#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < m_idxbuffer_out.size(); i += 3) 
 	{
 		
@@ -162,12 +163,12 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 		if (combined_mask & ClippingMask::NegZ) { isClipped = true; };
 		if (combined_mask & ClippingMask::PosZ) { isClipped = true; };
 
-		/*if(isClipped) FIX THIS IT DOENST CURRENTLY WORK
+		if(isClipped) //TEMPORARILY TURNED OFF
 		{
-			m_idxbuffer_out[i]   = -1;
-			m_idxbuffer_out[i+1] = -1;
-			m_idxbuffer_out[i+2] = -1;
-		};*/ 
+			//m_idxbuffer_out[i]   = -1;
+			//m_idxbuffer_out[i+1] = -1;
+			//m_idxbuffer_out[i+2] = -1;
+		};
 
 	}
 
@@ -225,7 +226,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 	const Material* temp_mat = model->getMaterial();
 	switch (m_shader->getType()) {
 		
-		/*case ShaderType::BLINNPHONG:
+		case ShaderType::BLINNPHONG:
 		{
 			BlinnPhongShader* temp = dynamic_cast<BlinnPhongShader*>(m_shader.get());
 			temp->MVmat = MV;
@@ -238,7 +239,8 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->ks = temp_mat->m_ks;
 			temp->kd = temp_mat->m_kd;
 			temp->spec_n = temp_mat->m_spec_n;
-			temp->texture = model->getTexture();
+			temp->texture = &model->getTexture()->m_albedo;
+			temp->normalmap = &model->getTexture()->m_normal;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
@@ -253,7 +255,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 				temp->light_colour[i] = (lights[i].m_colour);
 			}
 		}
-		break;*/
+		break;
 
 		case ShaderType::PHONG:
 		{
@@ -268,7 +270,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->ks = temp_mat->m_ks;
 			temp->kd = temp_mat->m_kd;
 			temp->spec_n = temp_mat->m_spec_n;
-			temp->texture = model->getTexture();
+			temp->texture = &model->getTexture()->m_albedo;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {

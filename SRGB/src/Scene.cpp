@@ -17,41 +17,27 @@ Scene::Scene()
 	
 
 	
-	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
-	sc = Mat4f::createScale(Vec3f(0.4, 0.4, 0.4));
-	trs = Mat4f::createTranslation(Vec3f(1, 0, -1));
-	transf = trs*(rot*sc);
-	//m_models_in_scene.push_back(Model("assets\\head.obj", "assets\\african_head_diffuse.tga", &m_material_list[0], transf));
 
 
-	
-	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
-	sc = Mat4f::createScale(Vec3f(4, 4, 4));
-	trs = Mat4f::createTranslation(Vec3f(-1, -0.5, 0));
-	transf = trs * (rot * sc);
-	//m_models_in_scene.push_back(Model("assets\\bunnyHD.obj", &m_material_list[0], transf));
-	
-
-
-	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	rot = Mat4f::createRotAxis(Vec3f(0, 185, 0));
 	sc = Mat4f::createScale(Vec3f(0.3, 0.3, 0.3));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * (rot * sc);
-	//m_models_in_scene.push_back(Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001_albedo.jpg", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\survival_guitar\\source\\guitar.obj", "assets\\survival_guitar\\source\\1001", &m_material_list[0], transf));
 	
 	
-
+	
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(1, 1, 1));
 	trs = Mat4f::createTranslation(Vec3f(0, -0.5, 0));
 	transf = trs * (rot * sc);
 	
-	m_models_in_scene.push_back(Model("assets\\cube2.obj", "assets\\uv_mapper.jpg", &m_material_list[1], transf));
-	//.push_back(Model("assets\\cube2.obj",  &m_material_list[1], transf));
+	m_models_in_scene.push_back(Model("assets\\cube2.obj", "assets\\normalCube\\brickwall", &m_material_list[1], transf));
 	
-	//m_models_in_scene.back().setDrawNormal(true);
 	
 	m_camera = Camera(Vec3f(0, 2, 2), 0.0f, -90.0f);
+
+
 
 
 	//Lights

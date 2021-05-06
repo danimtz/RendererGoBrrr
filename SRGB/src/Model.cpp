@@ -10,7 +10,7 @@
 
 
 
-Model::Model(const char* filename, const Material* material, const Mat4f transform) :  m_texture(nullptr), m_material(material), m_model_mat(transform)
+Model::Model(const char* filename, const Material* material, const Mat4f transform) : m_pbrtexture(nullptr), m_material(material), m_model_mat(transform)
 {
 	
 	m_mesh = OBJLoader::loadMesh(filename);//maybe assrt if funciton returns nullptr
@@ -18,32 +18,34 @@ Model::Model(const char* filename, const Material* material, const Mat4f transfo
 }
 
 
-Model::Model(const char* filename, const char* texture_fname, const  Material* material, const Mat4f transform) : m_texture(nullptr), m_material(material), m_model_mat(transform)
+Model::Model(const char* filename, std::string texture_fname, const  Material* material, const Mat4f transform) : m_pbrtexture(nullptr), m_material(material), m_model_mat(transform)
 {
 	//Load texture
-	if (texture_fname != nullptr) {m_texture = new Texture(texture_fname);};
+	m_pbrtexture = new PBRTexture(texture_fname);
 	
 	m_mesh = OBJLoader::loadMesh(filename);//maybe assrt if funciton returns nullptr
 
 }
 
-Model::Model(const Model& other) : m_model_mat(other.m_model_mat), m_texture(nullptr), m_material(other.m_material)
+Model::Model(const Model& other) : m_mesh(nullptr), m_model_mat(other.m_model_mat), m_pbrtexture(nullptr), m_material(other.m_material)
 {
-	if (other.m_texture != nullptr)
+	if (other.m_pbrtexture != nullptr)
 	{
-		m_texture = new Texture(*other.m_texture);
+		m_pbrtexture = new PBRTexture(*other.m_pbrtexture);
 		
 	}
 	if (other.m_mesh != nullptr)
 	{
 		m_mesh = new Mesh(*other.m_mesh);
 	}
+
+	assert(m_mesh != nullptr);
 }
 
 
 Model::~Model()
 {
-	delete m_texture;
+	delete m_pbrtexture;
 	delete m_mesh;
 }
 
@@ -52,9 +54,9 @@ Mat4f Model::getModelMat() const
 	return m_model_mat;
 }
 
-Texture* Model::getTexture() const
+PBRTexture* Model::getTexture() const
 {
-	return m_texture;
+	return m_pbrtexture;
 }
 
 const Material* Model::getMaterial() const

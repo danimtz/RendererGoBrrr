@@ -259,7 +259,7 @@ void Rasterizer::simpleRasterizeTri( Vec3f *verts, IShader *shader, Buffer<uint3
 					Vec3f rgb;
 					//Vec3f rgb = shader->fragment(baryC_w);
 
-					uint32_t colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
+					uint32_t colour = SDL_MapRGB(px_format, rgb.x, rgb.y, rgb.z);
 
 
 
@@ -293,7 +293,7 @@ void Rasterizer::drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const st
 	//
 	//transform to viewport coords 
 
-	#pragma omp parallel for schedule(dynamic) //Wheres the data race?
+//#pragma omp parallel for schedule(dynamic) 
 	for(int i = 0; i<idx_buff.size(); i+=3)
 	{ 
 		
@@ -310,7 +310,8 @@ void Rasterizer::drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const st
 		//Winding order backface culling
 		float invArea;
 		float signedArea = edgeFunct(v[0], v[1], v[2]);
-		if (signedArea <= 0) {continue;};
+		if (signedArea <= 0) {
+		continue;};
 		invArea = 1 / signedArea;
 
 
@@ -379,11 +380,12 @@ void Rasterizer::drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const st
 						float persp_area = 1/(baryW.x + baryW.y + baryW.z);
 						persp_bary = baryW * persp_area;
 
-
+						
 						rgb = shader->fragment(persp_bary, vrtx_buff[idx_buff[i]], vrtx_buff[idx_buff[i+1]], vrtx_buff[idx_buff[i+2]]);
+						
 
-						colour = SDL_MapRGB(px_format, rgb.r, rgb.g, rgb.b);
-
+						colour = SDL_MapRGB(px_format, rgb.x, rgb.y, rgb.z);
+						
 						drawPixel(px_buff, p.x, p.y, colour);
 					
 					}

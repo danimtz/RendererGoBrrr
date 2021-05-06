@@ -12,7 +12,8 @@ enum class ShaderType : int {
 	FLAT,
 	GOURAD,
 	PHONG,
-	BLINNPHONG
+	BLINNPHONG,
+	PBR
 };
 
 //Output of vertex shader. These would be out variables in GLSL etc.
@@ -22,6 +23,7 @@ struct VShaderOut {
 	Vec3f normal;
 	Vec2f texcoord;
 	Vec3f viewdir;
+	Mat4f TBN;
 };
 
 
@@ -269,15 +271,6 @@ public:
 
 
 
-	/*
-	//Per triangle
-	Vec3i verts_idx, uv_idx; // Triangle indexes
-	//Written by vertex shader
-	Vec3f normals[3], view_dir[3];
-	Vec2f uv_values[3];
-	*/
-
-
 	VShaderOut vertex(const Vertex &input_vertex) override
 	{
 		
@@ -306,26 +299,33 @@ public:
 
 	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
 	{
-		//Calculate texture uv values
-	
+		//Interpolate texture uv values
 		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
 		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
 
+		//Prevent data race
+		Vec3f Ia_ = Ia;
+		Vec3f Il_ = Il;
 		if (texture != nullptr)//If model has texture
 		{
-			Ia = texture->getTexel(u, v);
-			Il = texture->getTexel(u, v);
+			Ia_ = texture->getTexel(u, v);
+			Il_ = Ia_;
 		}
-		
-
 		
 
 		//Fragment illumination
 
-		//Interpolate normals and view direction   THE BARYCENTRIC COORDINATES ARE CURRENTLY IN SCREEN SPACE?
-		Vec3f interp_normal  = v0.normal  + (v1.normal - v0.normal) * bary.y + (v2.normal - v0.normal) * bary.z;
-		Vec3f interp_viewdir = v0.viewdir + (v1.viewdir - v0.viewdir) * bary.y + (v2.viewdir - v0.viewdir) * bary.z;
+		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
+		float interp_norm_x = v0.normal.x + (v1.normal.x - v0.normal.x) * bary.y + (v2.normal.x - v0.normal.x) * bary.z;
+		float interp_norm_y = v0.normal.y + (v1.normal.y - v0.normal.y) * bary.y + (v2.normal.y - v0.normal.y) * bary.z;
+		float interp_norm_z = v0.normal.z + (v1.normal.z - v0.normal.z) * bary.y + (v2.normal.z - v0.normal.z) * bary.z;
+		Vec3f interp_normal(interp_norm_x, interp_norm_y, interp_norm_z);
 		interp_normal.normalize();
+
+		float interp_view_x = v0.viewdir.x + (v1.viewdir.x - v0.viewdir.x) * bary.y + (v2.viewdir.x - v0.viewdir.x) * bary.z;
+		float interp_view_y = v0.viewdir.y + (v1.viewdir.y - v0.viewdir.y) * bary.y + (v2.viewdir.y - v0.viewdir.y) * bary.z;
+		float interp_view_z = v0.viewdir.z + (v1.viewdir.z - v0.viewdir.z) * bary.y + (v2.viewdir.z - v0.viewdir.z) * bary.z;
+		Vec3f interp_viewdir(interp_view_x, interp_view_y, interp_view_z);
 		interp_viewdir.normalize();
 
 
@@ -345,15 +345,15 @@ public:
 
 			float spec_RVn = 0.0f;
 			if (diff_NL > 0.0f){//Test for negative reflection
-				spec_RVn = std::pow(std::max(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
+				spec_RVn = std::pow<float>(std::max<float>(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
 			}
 
 		
 			//Illumination equation
-			
+			float spec_diff_component = diff_NL * kd + spec_RVn * ks;
 			for (int j = 0; j < 3; j++)
 			{
-				colour[j] += light_colour[i][j] * (ka * Ia[j] + Il[j] * (diff_NL * kd + spec_RVn * ks));//only specular and ambient for now
+				colour[j] += light_colour[i][j] * (ka * Ia_[j] + Il_[j] * (spec_diff_component));//only specular and ambient for now
 			}
 		}
 		
@@ -373,96 +373,101 @@ public:
 };
 
 
-/*
+
 
 class BlinnPhongShader : public IShader {
 public:
 
-	//Per Model
+	
+	//UNIFORMS
 	Mat4f  MVmat, MVPmat, Vmat, Nmat; // Matrices
-	Texture* texture;
+	Texture *texture;
+	Texture *normalmap;
 	std::vector<Vec3f> light_dir;
 	std::vector<Vec3f> light_colour;
 
-
 	//Phong illumination variables
 	Vec3f Ia, Il; // Ambient and light intensity (defult colour)
-
 	float ka, kd, ks; // Ambient, diffuse, specular coefficients
-
 	float spec_n; // Specular shininess coefficient    32
 
-	//Per triangle
-	Vec3i verts_idx, uv_idx; // Triangle indexes
 
 
 
-	//Written by vertex shader
-	Vec3f normals[3], view_dir[3];
-	Vec2f uv_values[3];
-
-
-
-
-	Vec3f vertex(const Model& model, int face_idx, int nth_vert) override
+	VShaderOut vertex(const Vertex &input_vertex) override
 	{
-		//Load vertex
-		Vec3f vertex;
-		verts_idx = model.getFaceVertices(face_idx);
-		vertex = model.getVertex(verts_idx[nth_vert]);
-
+		
+		VShaderOut vout;
 		//If texture, load uv values
 		if (texture != nullptr)
 		{
-			uv_idx = model.getUVidx(face_idx);
-			uv_values[nth_vert] = model.getUV(uv_idx[nth_vert]);
+			vout.texcoord = input_vertex.texcoord;
 		}
 
+	
 
+		//Calculate normal
+		vout.normal =  Nmat * input_vertex.normal;
+		vout.normal.normalize();
 
-		//Get vertex normal 
-		Vec3f vertex_normal = model.getVertexNormal(face_idx, nth_vert);
+		//Calculate TBN matrix
+		Vec3f T = MVmat * input_vertex.tangent;
+		Vec3f B = MVmat * input_vertex.normal.cross(input_vertex.tangent);
+		Vec3f N = MVmat * input_vertex.normal;
+		vout.TBN = Mat4f::createTBNmat(T,B,N);
+		
 
-		//Calculate diffuse intensity
-		normals[nth_vert] = Nmat * vertex_normal;
-		normals[nth_vert].normalize();
+		//Calculate view direction
+		vout.viewdir = (MVmat * input_vertex.position);
 
-		//Calculate specular intensity
-		view_dir[nth_vert] = (MVmat * vertex);
-		//view_dir[nth_vert].normalize();EVIL
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
 
-
-
-		return MVPmat * vertex;
+		return vout;
 
 	}
 
-	Vec3f fragment(const Vec3f& bary) override
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
 	{
-		//Calculate texture uv values
-		Vec3f u_vals{ uv_values[0].u, uv_values[1].u, uv_values[2].u };
-		Vec3f v_vals{ uv_values[0].v, uv_values[1].v, uv_values[2].v };
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
 
-		float u = bary.dot(u_vals);
-		float v = bary.dot(v_vals);
-
-
-		if (texture != nullptr)//If model has texture
-		{
-			Ia = texture->getTexel(u, v);
-			Il = texture->getTexel(u, v);
-		}
-
-
+		
 
 
 		//Fragment illumination
 
-		//Interpolate normals and view direction   THE BARYCENTRIC COORDINATES ARE CURRENTLY IN SCREEN SPACE?
-		Vec3f interp_normal = normals[0] + (normals[1] - normals[0]) * bary.y + (normals[2] - normals[0]) * bary.z;
-		Vec3f interp_viewdir = view_dir[0] + (view_dir[1] - view_dir[0]) * bary.y + (view_dir[2] - view_dir[0]) * bary.z;
+		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
+		float interp_norm_x = v0.normal.x + (v1.normal.x - v0.normal.x) * bary.y + (v2.normal.x - v0.normal.x) * bary.z;
+		float interp_norm_y = v0.normal.y + (v1.normal.y - v0.normal.y) * bary.y + (v2.normal.y - v0.normal.y) * bary.z;
+		float interp_norm_z = v0.normal.z + (v1.normal.z - v0.normal.z) * bary.y + (v2.normal.z - v0.normal.z) * bary.z;
+		Vec3f interp_normal(interp_norm_x, interp_norm_y, interp_norm_z);
 		interp_normal.normalize();
+
+		float interp_view_x = v0.viewdir.x + (v1.viewdir.x - v0.viewdir.x) * bary.y + (v2.viewdir.x - v0.viewdir.x) * bary.z;
+		float interp_view_y = v0.viewdir.y + (v1.viewdir.y - v0.viewdir.y) * bary.y + (v2.viewdir.y - v0.viewdir.y) * bary.z;
+		float interp_view_z = v0.viewdir.z + (v1.viewdir.z - v0.viewdir.z) * bary.y + (v2.viewdir.z - v0.viewdir.z) * bary.z;
+		Vec3f interp_viewdir(interp_view_x, interp_view_y, interp_view_z);
 		interp_viewdir.normalize();
+		
+
+
+		//Prevent data race
+		Vec3f Ia_ = Ia;
+		Vec3f Il_ = Il;
+		if (texture != nullptr)//If model has texture
+		{
+			Ia_ = texture->getTexel(u, v);
+			Il_ = Ia_;
+			
+			Vec3f normal = normalmap->getTexel(u, v); //NEEDS TBN MAT ETC
+			interp_normal = normal*2.0f - 1.0f;
+			interp_normal.normalize();
+
+
+		}
+
 
 
 
@@ -493,16 +498,9 @@ public:
 
 			for (int j = 0; j < 3; j++)
 			{
-				colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia[j] + Il[j] * (diff_NL * kd + spec_RVn * ks)));//only specular and ambient for now
+				colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia_[j] + Il_[j] * (diff_NL * kd + spec_RVn * ks)));//only specular and ambient for now
 			}
 		}
-
-		//Cap intensity values
-		for (int i = 0; i < 3; i++)
-		{
-			colour[i] = std::min<float>(255, colour[i]);
-		}
-
 
 		return colour;
 	}
@@ -512,4 +510,52 @@ public:
 	}
 
 };
-*/
+
+
+class PBRShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVmat, MVPmat, Vmat, Nmat; // Matrices
+	Texture& albedo;
+	Texture& metallic;
+	Texture& AO;
+	Texture& normal;
+	Texture& roughness;
+
+	std::vector<Vec3f> light_dir;
+	std::vector<Vec3f> light_colour;
+
+
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+		VShaderOut vout;
+
+		vout.texcoord = input_vertex.texcoord;
+
+		vout.normal = Nmat * input_vertex.normal;//Might not be needed since normal obtained form normalmap
+		vout.normal.normalize();
+
+		//Calculate view direction
+		vout.viewdir = (MVmat * input_vertex.position);
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+		Vec3f colour;
+		return colour;
+	}
+
+	virtual ShaderType getType() override 
+	{
+		return ShaderType::PBR;
+	}
+
+};
