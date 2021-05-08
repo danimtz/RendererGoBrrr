@@ -14,24 +14,24 @@ struct PBRTexture {
 		
 		//albedo
 		std::string albedo = texture_fname;
-		m_albedo = Texture(albedo.append("_albedo.jpg").c_str());
+		m_albedo = Texture(albedo.append("_albedo.png").c_str());
 		
 		
 		//AO
 		std::string AO = texture_fname;
-		m_AO = Texture(AO.append("_AO.jpg").c_str());
+		m_AO = Texture(AO.append("_AO.png").c_str());
 
 		//metallic
 		std::string metallic = texture_fname;
-		m_metallic = Texture(metallic.append("_metallic.jpg").c_str());
+		m_metallic = Texture(metallic.append("_metallic.png").c_str());
 
 		//normal
 		std::string normal = texture_fname;
-		m_normal = Texture(normal.append("_normal.jpg").c_str());
+		m_normal = Texture(normal.append("_normal.png").c_str());
 
 		//roughness
 		std::string roughness = texture_fname;
-		m_roughness = Texture(roughness.append("_roughness.jpg").c_str());
+		m_roughness = Texture(roughness.append("_roughness.png").c_str());
 	};
 
 	Texture m_albedo;

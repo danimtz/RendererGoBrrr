@@ -71,7 +71,7 @@ Vec3f Texture::getTexel(float u, float v) const
 
 	int index = ((x + y * m_width) * m_nchannels);
 
-	Vec3f rgb{m_data[index]*255,  m_data[index+1]*255, m_data[index+2]*255};
+	Vec3f rgb{m_data[index],  m_data[index+1], m_data[index+2]};
 
 	return rgb;
 }

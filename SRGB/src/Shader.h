@@ -20,10 +20,13 @@ enum class ShaderType : int {
 //Some or redundant for flat/ gourad shading
 struct VShaderOut {
 	Vec3f position;
-	Vec3f normal;
-	Vec2f texcoord;
 	Vec3f viewdir;
-	Mat4f TBN;
+	Vec3f normal;
+	Vec3f tangent;
+	Vec3f bitangent;
+	Vec2f texcoord;
+	
+	
 };
 
 
@@ -34,6 +37,18 @@ public:
 	virtual VShaderOut vertex(const Vertex &input_vertex) = 0;
 	virtual Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) = 0;
 	virtual ShaderType getType() = 0;
+
+protected:
+	//Helper function that performs barycentric interpolation
+	static Vec3f baryInterp(const Vec3f &v0, const Vec3f &v1, const Vec3f &v2, const Vec3f &bary)
+	{
+		float interp_x = v0.x + (v1.x - v0.x) * bary.y + (v2.x - v0.x) * bary.z;
+		float interp_y = v0.y + (v1.y - v0.y) * bary.y + (v2.y - v0.y) * bary.z;
+		float interp_z = v0.z + (v1.z - v0.z) * bary.y + (v2.z - v0.z) * bary.z;
+		Vec3f interp_value(interp_x, interp_y, interp_z);
+		interp_value.normalize();
+		return interp_value;
+	};
 };
 
 
@@ -303,32 +318,20 @@ public:
 		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
 		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
 
-		//Prevent data race
-		Vec3f Ia_ = Ia;
+
+		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
+		Vec3f interp_normal = IShader::baryInterp(v0.normal, v1.normal, v2.normal, bary);
+		Vec3f interp_viewdir = IShader::baryInterp(v0.viewdir, v1.viewdir, v2.viewdir, bary);
+
+
+		//Fragment illumination
+		Vec3f Ia_ = Ia; //Prevent data race
 		Vec3f Il_ = Il;
 		if (texture != nullptr)//If model has texture
 		{
 			Ia_ = texture->getTexel(u, v);
 			Il_ = Ia_;
 		}
-		
-
-		//Fragment illumination
-
-		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
-		float interp_norm_x = v0.normal.x + (v1.normal.x - v0.normal.x) * bary.y + (v2.normal.x - v0.normal.x) * bary.z;
-		float interp_norm_y = v0.normal.y + (v1.normal.y - v0.normal.y) * bary.y + (v2.normal.y - v0.normal.y) * bary.z;
-		float interp_norm_z = v0.normal.z + (v1.normal.z - v0.normal.z) * bary.y + (v2.normal.z - v0.normal.z) * bary.z;
-		Vec3f interp_normal(interp_norm_x, interp_norm_y, interp_norm_z);
-		interp_normal.normalize();
-
-		float interp_view_x = v0.viewdir.x + (v1.viewdir.x - v0.viewdir.x) * bary.y + (v2.viewdir.x - v0.viewdir.x) * bary.z;
-		float interp_view_y = v0.viewdir.y + (v1.viewdir.y - v0.viewdir.y) * bary.y + (v2.viewdir.y - v0.viewdir.y) * bary.z;
-		float interp_view_z = v0.viewdir.z + (v1.viewdir.z - v0.viewdir.z) * bary.y + (v2.viewdir.z - v0.viewdir.z) * bary.z;
-		Vec3f interp_viewdir(interp_view_x, interp_view_y, interp_view_z);
-		interp_viewdir.normalize();
-
-
 
 		//FOR EACH LIGHT:
 		Vec3f colour;
@@ -337,7 +340,7 @@ public:
 			
 
 			//Calculate diffuse component
-			float diff_NL = std::max(0.0f, interp_normal.dot(light_dir[i]));
+			float diff_NL = std::fmax(0.0f, interp_normal.dot(light_dir[i]));
 
 
 			//Calculate specular component
@@ -345,7 +348,7 @@ public:
 
 			float spec_RVn = 0.0f;
 			if (diff_NL > 0.0f){//Test for negative reflection
-				spec_RVn = std::pow<float>(std::max<float>(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
+				spec_RVn = std::pow<float>(std::fmax<float>(0.0f, -interp_viewdir.dot(reflect_dir)), spec_n); //spec_n can be obtained from mod`el file
 			}
 
 		
@@ -360,7 +363,7 @@ public:
 		//Cap intensity values
 		for (int i = 0; i < 3; i++)
 		{
-			colour[i] = std::min<float>(255.0f, colour[i]);
+			colour[i] = std::fmin(1.0f, colour[i]);
 		}
 
 		return colour;
@@ -382,7 +385,7 @@ public:
 	//UNIFORMS
 	Mat4f  MVmat, MVPmat, Vmat, Nmat; // Matrices
 	Texture *texture;
-	Texture *normalmap;
+	Texture *normal_map;
 	std::vector<Vec3f> light_dir;
 	std::vector<Vec3f> light_colour;
 
@@ -392,7 +395,16 @@ public:
 	float spec_n; // Specular shininess coefficient    32
 
 
-
+	Vec3f getNormalMappedNormal(const Vec3f& t, const Vec3f& b, const Vec3f& n, const Vec2f& uv)
+	{
+		Vec3f normal = normal_map->getTexel(uv.u, uv.v);
+		normal = normal * 2.0f - 1.0f;
+		normal.normalize();
+		Mat4f TBN = Mat4f::createTBN(t, b, n);
+		normal = TBN * normal;
+		normal.normalize();
+		return normal;
+	}
 
 	VShaderOut vertex(const Vertex &input_vertex) override
 	{
@@ -404,18 +416,16 @@ public:
 			vout.texcoord = input_vertex.texcoord;
 		}
 
-	
+		//Calculate TBN vectors
+		vout.tangent = Nmat * input_vertex.tangent; //MULTIPLY BY NMAT or MVMAT????
+		vout.bitangent = Nmat * (input_vertex.normal.cross(input_vertex.tangent));
+		vout.normal = Nmat * input_vertex.normal;
+		
 
-		//Calculate normal
-		vout.normal =  Nmat * input_vertex.normal;
+		vout.tangent.normalize();
+		vout.bitangent.normalize();
 		vout.normal.normalize();
 
-		//Calculate TBN matrix
-		Vec3f T = MVmat * input_vertex.tangent;
-		Vec3f B = MVmat * input_vertex.normal.cross(input_vertex.tangent);
-		Vec3f N = MVmat * input_vertex.normal;
-		vout.TBN = Mat4f::createTBNmat(T,B,N);
-		
 
 		//Calculate view direction
 		vout.viewdir = (MVmat * input_vertex.position);
@@ -429,47 +439,33 @@ public:
 
 	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
 	{
+
+		//This part is usually taken care of in GLSL by setting in and out varaibles from vertex shadew to fragment shader and are already interpolated when used in fragment shader
+
 		//Interpolate texture uv values
 		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
 		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
 
-		
-
-
-		//Fragment illumination
-
 		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
-		float interp_norm_x = v0.normal.x + (v1.normal.x - v0.normal.x) * bary.y + (v2.normal.x - v0.normal.x) * bary.z;
-		float interp_norm_y = v0.normal.y + (v1.normal.y - v0.normal.y) * bary.y + (v2.normal.y - v0.normal.y) * bary.z;
-		float interp_norm_z = v0.normal.z + (v1.normal.z - v0.normal.z) * bary.y + (v2.normal.z - v0.normal.z) * bary.z;
-		Vec3f interp_normal(interp_norm_x, interp_norm_y, interp_norm_z);
-		interp_normal.normalize();
+		Vec3f interp_normal = IShader::baryInterp(v0.normal, v1.normal, v2.normal, bary);
+		Vec3f interp_tangent = IShader::baryInterp(v0.tangent, v1.tangent, v2.tangent, bary);
+		Vec3f interp_bitangent = IShader::baryInterp(v0.bitangent, v1.bitangent, v2.bitangent, bary);
+		Vec3f interp_viewdir = -IShader::baryInterp(v0.viewdir, v1.viewdir, v2.viewdir, bary);
 
-		float interp_view_x = v0.viewdir.x + (v1.viewdir.x - v0.viewdir.x) * bary.y + (v2.viewdir.x - v0.viewdir.x) * bary.z;
-		float interp_view_y = v0.viewdir.y + (v1.viewdir.y - v0.viewdir.y) * bary.y + (v2.viewdir.y - v0.viewdir.y) * bary.z;
-		float interp_view_z = v0.viewdir.z + (v1.viewdir.z - v0.viewdir.z) * bary.y + (v2.viewdir.z - v0.viewdir.z) * bary.z;
-		Vec3f interp_viewdir(interp_view_x, interp_view_y, interp_view_z);
-		interp_viewdir.normalize();
+
 		
-
-
-		//Prevent data race
-		Vec3f Ia_ = Ia;
+		Vec3f Ia_ = Ia;//Prevent data race
 		Vec3f Il_ = Il;
 		if (texture != nullptr)//If model has texture
 		{
 			Ia_ = texture->getTexel(u, v);
 			Il_ = Ia_;
+			interp_normal = getNormalMappedNormal(interp_tangent, interp_bitangent, interp_normal, Vec2f(u,v));
 			
-			Vec3f normal = normalmap->getTexel(u, v); //NEEDS TBN MAT ETC
-			interp_normal = normal*2.0f - 1.0f;
-			interp_normal.normalize();
-
-
 		}
 
 
-
+		//Fragment illumination
 
 		//FOR EACH LIGHT:
 		Vec3f colour;
@@ -478,28 +474,32 @@ public:
 
 
 			//Calculate diffuse component
-			float diff_NL = std::max(0.0f, interp_normal.dot(light_dir[i]));
+			float diff_NL = std::fmax(0.0f, interp_normal.dot(light_dir[i]));
 
 
 			//Calculate specular component
-			Vec3f halfwayDir = -interp_viewdir + light_dir[i]; //HalfwayDir is lightDir + viewDir but viewDir needs to be negated first to aim from the fragment to eye
+			Vec3f halfwayDir = interp_viewdir + light_dir[i]; //HalfwayDir is lightDir + viewDir but viewDir needs to be negated first to aim from the fragment to eye
 			halfwayDir.normalize();
 
 		
 
 			float spec_RVn = 0.0f;
 			if (diff_NL > 0.0f) {//Test for negative reflection
-				spec_RVn = std::pow(std::max(0.0f, interp_normal.dot(halfwayDir)), spec_n); //spec_n can be obtained from model file
+				spec_RVn = std::pow(std::fmax(0.0f, interp_normal.dot(halfwayDir)), spec_n); //spec_n can be obtained from model file
 			}
 
 			
-
 			//Illumination equation
-
 			for (int j = 0; j < 3; j++)
 			{
-				colour[j] += std::min<float>(255, light_colour[i][j] * (ka * Ia_[j] + Il_[j] * (diff_NL * kd + spec_RVn * ks)));//only specular and ambient for now
+				colour[j] +=  light_colour[i][j] * (ka * Ia_[j] + Il_[j] * (diff_NL * kd + spec_RVn * ks));//only specular and ambient for now
 			}
+		}
+
+		//Cap intensity values
+		for (int i = 0; i < 3; i++)
+		{
+			colour[i] = std::fmin(1.0f, colour[i]);
 		}
 
 		return colour;
@@ -518,16 +518,71 @@ public:
 
 	//UNIFORMS
 	Mat4f  MVmat, MVPmat, Vmat, Nmat; // Matrices
-	Texture& albedo;
-	Texture& metallic;
-	Texture& AO;
-	Texture& normal;
-	Texture& roughness;
+	float Ka; //Ambient coefficient
+	Texture* albedo_map;
+	Texture* normal_map;
+	Texture* roughness_map;
+	Texture* metallic_map;
+	Texture* AO_map;
 
-	std::vector<Vec3f> light_dir;
+	std::vector<Vec3f> light_dir; //Can be placed here as a uniform because they are all directional lights, so direction is constant regardless of fragment position
 	std::vector<Vec3f> light_colour;
 
 
+	
+
+	Vec3f getNormalMappedNormal(const Vec3f& t, const Vec3f& b, const Vec3f& n, const Vec2f& uv) 
+	{
+		Vec3f normal = normal_map->getTexel(uv.u, uv.v);
+		normal = normal * 2.0f - 1.0f;
+		normal.normalize();
+		Mat4f TBN = Mat4f::createTBN(t, b, n);
+		normal = TBN * normal;
+		normal.normalize();
+		return normal;
+	}
+
+	float distributionGGX(const Vec3f &N, const Vec3f &H, float roughness)//Trowbridge-Reitz GGX normal distribution function 
+	{
+		float a = roughness * roughness;//alpha
+		float a2 = a*a;
+		float NdotH = std::fmax(N.dot(H), 0.0f);
+		float NdotH2 = NdotH*NdotH;
+
+		float num = a2;
+		float denom = (NdotH2 * (a2 - 1.0f) + 1.0f);
+		float inv_denom = 1.0f/(M_PI* denom * denom);
+
+		return num * inv_denom;
+	}
+
+
+	Vec3f fresnelSchlick(const float cos_theta, const Vec3f &F0) //Fresnel Schlick approximation function
+	{
+		float neg_cos_theta = 1.0f - cos_theta;
+		return F0 + (Vec3f(1.0f)-F0) * (neg_cos_theta * neg_cos_theta * neg_cos_theta * neg_cos_theta * neg_cos_theta);//std::pow is expensive
+	}
+
+	float geometrySmith(const Vec3f &N, const Vec3f &V, const Vec3f &L, const float &roughness)//Geometry function
+	{
+		float r_1 = roughness + 1.0f;
+		float k = (r_1 * r_1) / 8.0f;
+
+		float NdotV = std::fmax(N.dot(V), 0.0f);
+		float NdotL = std::fmax(N.dot(L), 0.0f);
+		float obstGGX = geometrySchlickGGX(NdotV, k); //Geometry obstruction
+		float shdwGGX = geometrySchlickGGX(NdotL, k); //Geometry shadowing
+
+		return obstGGX * shdwGGX;
+	}
+
+	float geometrySchlickGGX(const float &Ndotx, const float &k)//Geometry obstruction/shadowing calculator using SchlickGGX approx.
+	{
+		float num = Ndotx;
+		float inv_denom = 1.0f/(Ndotx*(1.0f-k)+k);
+		
+		return num * inv_denom;
+	}
 
 	VShaderOut vertex(const Vertex& input_vertex) override
 	{
@@ -535,8 +590,10 @@ public:
 
 		vout.texcoord = input_vertex.texcoord;
 
-		vout.normal = Nmat * input_vertex.normal;//Might not be needed since normal obtained form normalmap
-		vout.normal.normalize();
+		//Calculate TBN vectors
+		vout.tangent = Nmat * input_vertex.tangent; 
+		vout.bitangent = Nmat * (input_vertex.normal.cross(input_vertex.tangent));
+		vout.normal = Nmat * input_vertex.normal;
 
 		//Calculate view direction
 		vout.viewdir = (MVmat * input_vertex.position);
@@ -549,7 +606,87 @@ public:
 
 	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
 	{
-		Vec3f colour;
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
+		Vec3f interp_normal = IShader::baryInterp(v0.normal, v1.normal, v2.normal, bary);
+		Vec3f interp_tangent = IShader::baryInterp(v0.tangent, v1.tangent, v2.tangent, bary);
+		Vec3f interp_bitangent = IShader::baryInterp(v0.bitangent, v1.bitangent, v2.bitangent, bary);
+		Vec3f V = -IShader::baryInterp(v0.viewdir, v1.viewdir, v2.viewdir, bary);
+		//INTERPOLATE LIGHT DIRECTIONS HERE IF POINT LIGHTS ADDDED
+		
+
+		//Get interpolated fragment values
+		Vec3f albedo;// = albedo_map->getTexel(u,v); //NEEDS GAMMA CORRECTION
+		albedo.x = std::pow(albedo_map->getTexel(u, v).x, 2.2f);
+		albedo.y = std::pow(albedo_map->getTexel(u, v).y, 2.2f);
+		albedo.z = std::pow(albedo_map->getTexel(u, v).z, 2.2f);
+		Vec3f N = getNormalMappedNormal(interp_tangent, interp_bitangent, interp_normal, Vec2f(u, v));
+		float roughness = roughness_map->getTexel(u, v).x;
+		float metallic = metallic_map->getTexel(u, v).x;
+		float AO = AO_map->getTexel(u,v).x;
+		
+		//Calculate F0 (Used in fresnel)
+		Vec3f F0 = Vec3f(0.04);
+		F0 = F0*(1 - metallic) + albedo*(metallic); //Lerp using metallic as t between albedo and F0
+
+
+
+
+
+		float NdotV = std::fmax(N.dot(V), 0.0f); //Can be calculated once outside loop
+		Vec3f Lo = Vec3f(0.0f); //Output radiance
+
+		//This loop can be vectorized with omp simd but needs investigating how to do it
+		for (int i = 0; i < light_dir.size(); i++)
+		{
+			//Per light radiance and costheta calculation(dot product)
+			Vec3f H = V + light_dir[i];
+			H.normalize();
+			Vec3f radiance = light_colour[i]; //Could be light colour * attenuation but using directional lights atm
+			float NdotL = std::fmax(N.dot(light_dir[i]), 0.0f);
+
+			//////////Cook Torrance BRDF calculation//////////////
+			
+			float NDF = distributionGGX(N, H, roughness);//Normal distribution function
+			Vec3f F = fresnelSchlick(std::fmax(H.dot(light_dir[i]), 0.0f), F0);//Fresnel
+			float G = geometrySmith(N, V, light_dir[i], roughness);//Geometry
+
+			//Calcualte diffuse coefficient
+			Vec3f Kd = (Vec3f(1.0f) - F)*(1.0f-metallic); //Fully metallic materials dont have diffuse
+
+			Vec3f numerator = F * NDF * G;
+			Vec3f inv_denominator = 1.0f / std::fmax( 4.0f * (NdotL * NdotV), 0.001); //Account for cases where dot product is 0
+
+			Vec3f specular = numerator * inv_denominator;
+			Vec3f diffuse = albedo/M_PI;
+
+			//Add up radiance
+			Lo += (Kd * diffuse + specular) * radiance * NdotL;
+
+		}
+		
+		//Ambient light
+		Vec3f ambient = albedo * Ka * AO;
+
+		//Final colour, HDR tone mapping???? and gamma correction
+		Vec3f colour = (ambient + Lo);
+		
+		//Cap intensity values and gamma correct
+		float gamma = 1.0f / 2.2f;
+		for (int i = 0; i < 3; i++)
+		{
+			colour[i] = std::pow(colour[i], gamma);
+			colour[i] = std::fmin(1.0f, colour[i]);
+		}
+		
+		//colour = colour / (colour + Vec3f(1.0f));
+		//colour.x = std::pow(colour.x, Vec3f(1.0f / 2.2f).x);
+		//colour.y = std::pow(colour.y, Vec3f(1.0f / 2.2f).y);
+		//colour.z = std::pow(colour.z, Vec3f(1.0f / 2.2f).z);
+		
 		return colour;
 	}
 

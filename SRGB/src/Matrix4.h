@@ -385,7 +385,7 @@ public:
 
 
 	//Create symmetric projection matrix
-	static Mat4<T> createProjectionMat(T fov = 45.0f, T AR = 16.0f/9.0f, T z_near = 0.1f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
+	static Mat4<T> createProjectionMat(T fov = 45.0f, T AR = 16.0f/9.0f, T z_near = 1.0f, T z_far = 100.0f) //default values for fustrum NEAR AND FAR PLANES ARE FLIPPED?
 	{
 		/*
 		
@@ -433,6 +433,48 @@ public:
 		return proj_mat;
 
 	}
+
+	static Mat4<T> createTBN(const Vec3<T>& t, const Vec3<T>& b, const Vec3<T>& n)
+	{
+		/*
+				
+
+
+
+						 Tx			    Bx            Nx           0
+
+
+						 Ty             By            Ny		    0
+
+
+						 Tz             Bz            Nz		    0
+
+
+						 0              0             0            1
+
+
+
+				 */
+		
+		Mat4<T> TBN;
+
+		TBN.at(0, 0) = t.x;
+		TBN.at(1, 0) = t.y;
+		TBN.at(2, 0) = t.z;
+
+		TBN.at(0, 1) = b.x;
+		TBN.at(1, 1) = b.y;
+		TBN.at(2, 1) = b.z;
+
+		TBN.at(0, 2) = n.x;
+		TBN.at(1, 2) = n.y;
+		TBN.at(2, 2) = n.z;
+
+		return TBN;
+
+	}
+
+
 
 	//================ Scalar/Matrix addition/subtraction  =============================
 

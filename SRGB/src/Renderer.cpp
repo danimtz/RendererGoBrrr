@@ -118,7 +118,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 
 
 	//Run vertex shader on all vertices in vertex buffer first. (Could iterate index buffer instead, would only change performance if parallellism is added and then it would depend on implementation)
-//#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < vertex_buffer.size(); i++) 
 	{
 		m_vbuffer_out[i] = m_shader->vertex(vertex_buffer[i]);
@@ -132,7 +132,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 	m_clipping_mask.clear();
 	m_clipping_mask.resize(m_vbuffer_out.size());
 
-//#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < m_vbuffer_out.size(); i++) 
 	{
 		//Build clipping mask for each vertex
@@ -149,7 +149,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 		m_clipping_mask[i] = mask;
 		
 	}
-//#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < m_idxbuffer_out.size(); i += 3) 
 	{
 		
@@ -165,9 +165,9 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 
 		if(isClipped) //TEMPORARILY TURNED OFF
 		{
-			//m_idxbuffer_out[i]   = -1;
-			//m_idxbuffer_out[i+1] = -1;
-			//m_idxbuffer_out[i+2] = -1;
+			m_idxbuffer_out[i]   = -1;
+			m_idxbuffer_out[i+1] = -1;
+			m_idxbuffer_out[i+2] = -1;
 		};
 
 	}
@@ -226,6 +226,35 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 	const Material* temp_mat = model->getMaterial();
 	switch (m_shader->getType()) {
 		
+		case ShaderType::PBR:
+		{
+			PBRShader* temp = dynamic_cast<PBRShader*>(m_shader.get());
+			temp->MVmat = MV;
+			temp->MVPmat = MVP;
+			temp->Vmat = V;
+			temp->Nmat = N;
+
+			temp->Ka = 0.03f;
+			temp->albedo_map = &model->getTexture()->m_albedo;
+			temp->normal_map = &model->getTexture()->m_normal;
+			temp->roughness_map = &model->getTexture()->m_roughness;
+			temp->metallic_map = &model->getTexture()->m_metallic;
+			temp->AO_map = &model->getTexture()->m_AO;
+
+			//Calculate and set light direction
+			if (temp->light_dir.size() < lights.size()) {
+				temp->light_dir.resize(lights.size());
+				temp->light_colour.resize(lights.size());
+			}
+			for (int i = 0; i < lights.size(); i++)
+			{
+				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
+				temp->light_dir[i].normalize();
+				temp->light_colour[i] = (lights[i].m_colour);//HDR value idk
+			}
+		}
+		break;
+
 		case ShaderType::BLINNPHONG:
 		{
 			BlinnPhongShader* temp = dynamic_cast<BlinnPhongShader*>(m_shader.get());
@@ -240,7 +269,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->kd = temp_mat->m_kd;
 			temp->spec_n = temp_mat->m_spec_n;
 			temp->texture = &model->getTexture()->m_albedo;
-			temp->normalmap = &model->getTexture()->m_normal;
+			temp->normal_map = &model->getTexture()->m_normal;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {

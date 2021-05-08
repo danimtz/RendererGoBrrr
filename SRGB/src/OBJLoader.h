@@ -186,8 +186,10 @@ private:
 	{
 		std::vector<Vec3f> vert_tangents;
 		std::vector<Vec3f> vert_bitangents;
+		std::vector<int> tangent_count; //used for averaging
 		vert_tangents.resize(mesh->m_vertex_buffer.size());
 		vert_bitangents.resize(mesh->m_vertex_buffer.size());
+		tangent_count.resize(mesh->m_vertex_buffer.size());
 
 		for (int i = 0; i < mesh->m_index_buffer.size(); i+=3) 
 		{
@@ -220,8 +222,18 @@ private:
 			vert_bitangents[mesh->m_index_buffer[i + 0]] += bitangent;
 			vert_bitangents[mesh->m_index_buffer[i + 1]] += bitangent;
 			vert_bitangents[mesh->m_index_buffer[i + 2]] += bitangent;
+
+			tangent_count[mesh->m_index_buffer[i + 0]] += 1;
+			tangent_count[mesh->m_index_buffer[i + 1]] += 1;
+			tangent_count[mesh->m_index_buffer[i + 2]] += 1;
 		}
 
+
+		for (int i = 0; i < mesh->m_vertex_buffer.size(); i++) //TANGENT AND BITANGENT AVERAGING
+		{
+			vert_tangents[i] = vert_tangents[i] * (1.0f / tangent_count[i]);
+			vert_bitangents[i] = vert_bitangents[i] * (1.0f / tangent_count[i]);
+		}
 
 		for (int i = 0; i < mesh->m_vertex_buffer.size(); i++) 
 		{

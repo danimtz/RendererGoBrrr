@@ -29,6 +29,8 @@ public:
 	//=============Constructors====================
 	Vec3() : x(0), y(0), z(0), w(1) {}
 
+	Vec3(T n) : x(n), y(n), z(n), w(1) {}
+
 	Vec3(T nX, T nY, T nZ) : x(nX), y(nY), z(nZ), w(1) {}
 
 	Vec3(T nX, T nY, T nZ, T nw) : x(nX), y(nY), z(nZ), w(nw) {} //Used in Mat4 multiplication operator overload
@@ -160,6 +162,11 @@ public:
 		return Vec3<T>(x * other.x, y * other.y, z * other.z);
 	}	
 	
+	Vec3<T> operator/(const Vec3<T>& other) const
+	{
+		return Vec3<T>(x / other.x, y / other.y, z / other.z);
+	}
+
 	T dot(const Vec3<T> &other) const
 	{
 		return x * other.x + y * other.y + z * other.z;
@@ -220,11 +227,14 @@ public:
 		z = z/len;
 	}
 
-	void negate()
+	Vec3<T> negate()
 	{
-		x = -x;
-		y = -y;
-		z = -z;
+		Vec3<T> negated;
+		negated.x = -x;
+		negated.y = -y;
+		negated.z = -z;
+
+		return negated;
 	}
 
 	void perspecDiv()
