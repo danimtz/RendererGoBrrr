@@ -502,6 +502,9 @@ public:
 			colour[i] = std::fmin(1.0f, colour[i]);
 		}
 
+		//Debug
+		if(bary.x <0.01 || bary.y <0.01 || bary.z<0.01){colour = Vec3f(1.0f, 0.0f, 0.0f);}
+
 		return colour;
 	}
 
@@ -687,6 +690,13 @@ public:
 		//colour.y = std::pow(colour.y, Vec3f(1.0f / 2.2f).y);
 		//colour.z = std::pow(colour.z, Vec3f(1.0f / 2.2f).z);
 		
+
+
+
+		//Mat4f TBN = Mat4f::createTBN(interp_tangent, interp_bitangent, interp_normal);
+		//TBN.transpose();
+		
+
 		return colour;
 	}
 

@@ -382,9 +382,10 @@ void Rasterizer::drawTriangle(const std::vector<VShaderOut>& vrtx_buff, const st
 
 						
 						rgb = shader->fragment(persp_bary, vrtx_buff[idx_buff[i]], vrtx_buff[idx_buff[i+1]], vrtx_buff[idx_buff[i+2]]);
-						
+				
 
 						colour = SDL_MapRGB(px_format, 255*rgb.x, 255*rgb.y, 255*rgb.z);
+						
 						
 						drawPixel(px_buff, p.x, p.y, colour);
 					
