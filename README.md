@@ -1,5 +1,5 @@
 # SoftwareRendererGoBrrr
-Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and VUlkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
+Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
 -Build system using premake soon to be added
 
 ## **CURRENT FEATURES**
@@ -9,6 +9,7 @@ Writing a software renderer to get an understanding of how 3D computer graphics 
 - Working flat shading renderer
 - Working Gourad and Phong shading renderer
 - Texture loading through stb image lib
+- Simple PBR shader using directional lighting
 - more to come...
 
 ### **TODO:**
