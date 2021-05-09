@@ -1,7 +1,7 @@
 # SoftwareRendererGoBrrr
 Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
 
-Most of the renderer including the main features such as flat/gourad/phon shading and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and add physically based rendering.
+Most of the renderer including the main features such as flat/gourad/phong shading and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and add physically based rendering.
 
 -Cmake build system will be added soon.
 
