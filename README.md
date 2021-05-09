@@ -1,18 +1,43 @@
 # SoftwareRendererGoBrrr
 Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
--Build system using premake soon to be added
 
-## **CURRENT FEATURES**
+Most of the renderer including the main features such as flat/gourad/phon shading and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and add physically based rendering.
 
-- Working SDL2 window with capability to swap between buffers.
-- Working templated vector math library
-- Working flat shading renderer
-- Working Gourad and Phong shading renderer
-- Texture loading through stb image lib
-- Simple PBR shader using directional lighting
-- more to come...
+-Cmake build system will be added soon.
 
-### **TODO:**
+(The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time.)
+
+## **Renderer features**
+
+- Vertex data loaded into vertex and index buffers processed in parallel using OMP
+- Programmable vertex and fragment shaders
+- Flat, gourad and phong shaders
+- Perspective correct texture interpolation
+- Blinn-Phong shaders
+- Tangent space normal mapping
+- Metallic-Roughness workflow
+- Multiple directional lights
+- Physically Based Rendering shader using Cook Torrance BRDF
+- Fustrum culling
+- Winding order backface culling
+- Reverse depth buffer
+- View/Camera space lighting
+
+
+## **Other features**
+- SDL2 backend for window display
+- Templated vector math and matrix library
+- .obj file loader
+- Texture loading through stb image
+- Movable camera system
+- Toggle through different shaders w/numkeys
+
+## Renderer examples
+
+
+
+
+##### **Todo list:**
 
 
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
