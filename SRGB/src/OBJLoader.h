@@ -31,7 +31,10 @@ public:
 		//Open file
 		std::ifstream ifs;
 		ifs.open(filepath, std::ifstream::in);
-		if (ifs.fail()) {assert("OBJ filepath invalid");};
+		if (ifs.fail()) {
+			assert("OBJ filepath invalid");
+			exit;
+		};
 	
 		while (!ifs.eof())
 		{

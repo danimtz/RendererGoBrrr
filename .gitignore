@@ -2,7 +2,7 @@
 
 #CUSTOM IGNORES ()
 bin/
-
+CMake/
 
 
 # Visual Studio files and folder
