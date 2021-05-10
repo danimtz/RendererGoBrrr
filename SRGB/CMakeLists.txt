@@ -30,7 +30,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # Include directories
 ################################################################################
 target_include_directories(${PROJECT_NAME} PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL2/include;"
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL2/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stbimage"
 )
 
@@ -84,7 +84,7 @@ endif()
 # Dependencies
 ################################################################################
 set(ADDITIONAL_LIBRARY_DEPENDENCIES
-    "SDL2;"
+    "SDL2"
     "SDL2main"
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
