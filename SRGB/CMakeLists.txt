@@ -10,7 +10,7 @@ file(GLOB ALL_FILES "*.h" "*.cpp" "src/*.cpp" "src/*.h" "vendor/stbimage/*.h")
 ################################################################################
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
+#user_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE SRGB)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
