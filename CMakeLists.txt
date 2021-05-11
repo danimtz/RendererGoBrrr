@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.15.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
-project(SRGB CXX)
+project(SRGB)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.

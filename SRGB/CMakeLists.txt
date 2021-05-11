@@ -1,8 +1,26 @@
 set(PROJECT_NAME SRGB)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/modules")
+
 ################################################################################
 # Source groups
 ################################################################################
+
+if(WIN32)
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        set(SDL2_PATH "${CMAKE_SOURCE_DIR}/SRGB/vendor/SDL2")
+    endif()
+endif()
+
+find_package(OpenMP REQUIRED)
+find_package(SDL2 REQUIRED)
+
+include_directories(
+    ${SDL2_INCLUDE_DIR} 
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stbimage"
+)
+
+
 file(GLOB ALL_FILES "*.h" "*.cpp" "src/*.cpp" "src/*.h" "vendor/stbimage/*.h")
 
 ################################################################################
@@ -10,12 +28,15 @@ file(GLOB ALL_FILES "*.h" "*.cpp" "src/*.cpp" "src/*.h" "vendor/stbimage/*.h")
 ################################################################################
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-#user_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE SRGB)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
 )
+
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
+
+
 ################################################################################
 # Output directory
 ################################################################################
@@ -26,13 +47,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set_target_properties(${PROJECT_NAME} PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
 )
-################################################################################
-# Include directories
-################################################################################
-target_include_directories(${PROJECT_NAME} PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/SDL2/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/vendor/stbimage"
-)
+
 
 ################################################################################
 # Compile definitions
@@ -80,16 +95,7 @@ if(MSVC)
     )
 endif()
 
-################################################################################
-# Dependencies
-################################################################################
-set(ADDITIONAL_LIBRARY_DEPENDENCIES
-    "SDL2"
-    "SDL2main"
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 
-target_link_directories(${PROJECT_NAME} PRIVATE
-    "${CMAKE_SOURCE_DIR}/SRGB/vendor/SDL2/lib/x64"
-)
+
+
 
