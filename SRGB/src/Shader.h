@@ -503,7 +503,9 @@ public:
 		}
 
 		//Debug
-		if(bary.x <0.01 || bary.y <0.01 || bary.z<0.01){colour = Vec3f(1.0f, 0.0f, 0.0f);}
+		//if(bary.x <0.01 || bary.y <0.01 || bary.z<0.01){colour = Vec3f(1.0f, 0.0f, 0.0f);}
+
+		colour = interp_normal*0.5 + 0.5;
 
 		return colour;
 	}
