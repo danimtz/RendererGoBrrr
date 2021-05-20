@@ -28,11 +28,7 @@ file(GLOB ALL_FILES "*.h" "*.cpp" "src/*.cpp" "src/*.h" "vendor/stbimage/*.h")
 ################################################################################
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-set(ROOT_NAMESPACE SRGB)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
-)
+#set(ROOT_NAMESPACE SRGB)
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
 
@@ -40,13 +36,22 @@ target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
 ################################################################################
 # Output directory
 ################################################################################
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/bin/$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}/${PROJECT_NAME}/"
-    OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}/${PROJECT_NAME}/"
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
+if(WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}/${PROJECT_NAME}/"
+    )
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+    )
+    
+    #Copy sdl2 dll file
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different
+    ${SDL2_DLL}
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+
+endif()
 
 
 ################################################################################
