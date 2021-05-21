@@ -350,20 +350,20 @@ public:
 	//Lookat
 	static Mat4<T> createLookAt(const Vec3<T> &cam_pos, const Vec3<T> &cam_target, const Vec3<T> &cam_up)
 	{
-		Vec3<T> front, right, up;
+		Vec3<T> dir, right, up;
 		Mat4<T> lookat;
 
-		front = cam_pos - cam_target; //From target to camera
+		dir = cam_pos - cam_target; //From target to camera
 		up = cam_up;
 
-		front.normalize();
+		dir.normalize();
 
 		//right = forward x up
-		right = up.cross(front);
+		right = up.cross(dir);
 		right.normalize();
 
 		//recalculate up = side x forward
-		up = front.cross(right);
+		up = dir.cross(right);
 
 		lookat(0, 0) = right.x;
 		lookat(0, 1) = right.y;
@@ -373,9 +373,9 @@ public:
 		lookat(1, 1) = up.y;
 		lookat(1, 2) = up.z;
 
-		lookat(2, 0) = front.x;
-		lookat(2, 1) = front.y;
-		lookat(2, 2) = front.z;
+		lookat(2, 0) = dir.x;
+		lookat(2, 1) = dir.y;
+		lookat(2, 2) = dir.z;
 
 
 		lookat = lookat * Mat4<T>::createTranslation(Vec3f(-cam_pos.x, -cam_pos.y, -cam_pos.z));

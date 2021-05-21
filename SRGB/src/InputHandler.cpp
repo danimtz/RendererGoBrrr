@@ -41,35 +41,54 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 	//Handling keyboard input 
 	if (event.type == SDL_KEYDOWN)
 	{
-
+		
 		if (event.key.keysym.sym == SDLK_w)
 		{
-			m_sceneCam->m_pos += m_sceneCam->m_front * speed;
+			if (m_sceneCam->m_cam_type == 1)
+			{
+				m_sceneCam->m_sph_coords.x -= speed;
+			}
+			else if(m_sceneCam->m_cam_type == 0)
+			{
+				m_sceneCam->m_pos += m_sceneCam->m_front * speed;
+			}
 		}
 
 		if (event.key.keysym.sym == SDLK_s)
 		{
-			m_sceneCam->m_pos -= m_sceneCam->m_front * speed;
+			if (m_sceneCam->m_cam_type == 1)
+			{
+				m_sceneCam->m_sph_coords.x += speed;
+			}
+			else if(m_sceneCam->m_cam_type == 0)
+			{
+				m_sceneCam->m_pos -= m_sceneCam->m_front * speed;
+			}
 		}
 
+		//pan
 		if (event.key.keysym.sym == SDLK_a)
 		{
 			m_sceneCam->m_pos -= m_sceneCam->m_right * speed;
+			m_sceneCam->m_origin -= m_sceneCam->m_right * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_d)
 		{
 			m_sceneCam->m_pos += m_sceneCam->m_right * speed;
+			m_sceneCam->m_origin += m_sceneCam->m_right * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_SPACE)
 		{
 			m_sceneCam->m_pos += m_sceneCam->m_world_up * speed;
+			m_sceneCam->m_origin += m_sceneCam->m_world_up * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_LSHIFT)
 		{
 			m_sceneCam->m_pos -= m_sceneCam->m_world_up * speed;
+			m_sceneCam->m_origin -= m_sceneCam->m_world_up * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_LALT) 
@@ -87,7 +106,12 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 			
 		if (event.key.keysym.sym == SDLK_r)
 		{
-			//RESET CAMERA FUNCTION
+			m_sceneCam->resetCam();
+		}
+
+		if (event.key.keysym.sym == SDLK_t)
+		{
+			m_sceneCam->changeCamType();
 		}
 
 		if (event.key.keysym.sym == SDLK_ESCAPE)
@@ -98,6 +122,8 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 
 		//Update camera
 		m_sceneCam->updateCam(); //Maybe in scene update
+		
+		
 
 
 
@@ -136,10 +162,12 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 	{
 		if (event.type == SDL_MOUSEMOTION)
 		{ 
-
+			
 			float sens = 0.05f;
 			float xOffset = (float)event.motion.xrel * sens;
 			float yOffset = -(float)event.motion.yrel * sens;
+
+			
 
 			m_sceneCam->m_yaw += xOffset;
 			m_sceneCam->m_pitch += yOffset;
@@ -155,6 +183,7 @@ void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
 			}
 
 			m_sceneCam->updateCam();
+	
 		}
 	}
 	else if (event.type == SDL_MOUSEWHEEL)

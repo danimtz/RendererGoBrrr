@@ -255,6 +255,14 @@ public:
 		return reflection;
 	}
 
+	static float distance(const Vec3<T> &p1, const Vec3<T> &p2)
+	{
+		float dx = p1.x - p2.x;
+		float dy = p1.y - p2.y;
+		float dz = p1.z - p2.z;
+		return std::sqrt( dx*dx + dy*dy + dz*dz );
+	}
+
 	static void printVec3ToConsole(const Vec3<T>& vec) 
 	{
 		printf("[%f] [%f] [%f]\n", vec.x, vec.y, vec.z);

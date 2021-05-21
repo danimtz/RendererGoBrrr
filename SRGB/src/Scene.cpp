@@ -23,18 +23,18 @@ Scene::Scene()
 	sc = Mat4f::createScale(Vec3f(10, 10, 10));
 	trs = Mat4f::createTranslation(Vec3f(0, -10, 0));
 	transf = trs * (rot * sc);
-	//m_models_in_scene.push_back(Model("assets\\hydrant\\firehydrant_mesh.obj", "assets\\hydrant\\firehydrant", &m_material_list[0], transf));
+	m_models_in_scene.push_back(Model("assets\\hydrant\\firehydrant_mesh.obj", "assets\\hydrant\\firehydrant", &m_material_list[0], transf));
 
 	
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(10, 10, 10));
 	trs = Mat4f::createTranslation(Vec3f(0, -5, 0));
 	transf = trs * (rot * sc);
-	m_models_in_scene.push_back(Model("assets\\chest\\chest_mesh.obj", "assets\\chest\\chest", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\chest\\chest_mesh.obj", "assets\\chest\\chest", &m_material_list[0], transf));
 
 	
 	
-	m_camera = Camera(Vec3f(0, 1, 20), -5.0f, -90.0f);
+	m_camera = Camera(Vec3f(0, 1, 20), 0.0f, -90.0f);
 
 
 
