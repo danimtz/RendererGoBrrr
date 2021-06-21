@@ -9,10 +9,87 @@
 
 
 
+static bool texture_exists(std::string texture_fname) {
+	std::ifstream ifile;
+	ifile.open(texture_fname);
+
+	return ifile ? true : false;
+};
+
+PBRTexture::PBRTexture() : m_albedo(nullptr), m_AO(nullptr), m_metallic(nullptr), m_normal(nullptr), m_roughness(nullptr){}
+
+PBRTexture::PBRTexture(std::string texture_fname) : m_albedo(nullptr), m_AO(nullptr), m_metallic(nullptr), m_normal(nullptr), m_roughness(nullptr) {//Currently uses fixed file extension. all jpg and normal is png
+
+	//albedo
+	std::string albedo = texture_fname;
+	if (texture_exists(albedo.append("_albedo.png"))){
+		m_albedo = new Texture(albedo.c_str());
+	}
+
+	//AO
+	std::string AO = texture_fname;
+	if (texture_exists(AO.append("_AO.png"))) {
+		m_AO = new Texture(AO.c_str());
+	}
+
+	//metallic
+	std::string metallic = texture_fname;
+	if (texture_exists(metallic.append("_metallic.png"))) {
+		m_metallic = new Texture(metallic.c_str());
+	}
+
+	//normal
+	std::string normal = texture_fname;
+	if (texture_exists(normal.append("_normal.png"))) {
+		m_normal = new Texture(normal.c_str());
+	}
+
+	//roughness
+	std::string roughness = texture_fname;
+	if (texture_exists(roughness.append("_roughness.png"))) {
+		m_roughness = new Texture(roughness.c_str());
+	}
+}
+
+PBRTexture::PBRTexture(const PBRTexture& other) : m_albedo(nullptr), m_AO(nullptr), m_metallic(nullptr), m_normal(nullptr), m_roughness(nullptr) {
+
+	if (other.m_albedo != nullptr)
+	{
+		m_albedo = new Texture(*other.m_albedo);
+	}
+	if (other.m_AO != nullptr)
+	{
+		m_AO = new Texture(*other.m_AO);
+	}
+	if (other.m_metallic != nullptr)
+	{
+		m_metallic = new Texture(*other.m_metallic);
+	}
+	if (other.m_normal != nullptr)
+	{
+		m_normal = new Texture(*other.m_normal);
+	}
+	if (other.m_roughness != nullptr)
+	{
+		m_roughness = new Texture(*other.m_roughness);
+	}
+
+}
+
+PBRTexture::~PBRTexture() {
+	delete m_albedo;
+	delete m_AO;
+	delete m_metallic;
+	delete m_normal;
+	delete m_roughness;
+}
+
+
+
 
 Model::Model(const char* filename, const Material* material, const Mat4f transform) : m_pbrtexture(nullptr), m_material(material), m_model_mat(transform)
 {
-	
+	m_pbrtexture = new PBRTexture();
 	m_mesh = OBJLoader::loadMesh(filename);//maybe assrt if funciton returns nullptr
 
 }

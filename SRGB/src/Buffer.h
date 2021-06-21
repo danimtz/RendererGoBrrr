@@ -60,6 +60,7 @@ public:
 		}	
 	}
 
+	
 	/*
 private:
 	inline static const uint32_t PX_FORMAT = SDL_PIXELFORMAT_RGB888;

@@ -353,7 +353,7 @@ public:
 
 		
 			//Illumination equation
-			float spec_diff_component = diff_NL * kd + spec_RVn * ks;
+			float spec_diff_component = diff_NL * kd;// + spec_RVn * ks;
 			for (int j = 0; j < 3; j++)
 			{
 				colour[j] += light_colour[i][j] * (ka * Ia_[j] + Il_[j] * (spec_diff_component));//only specular and ambient for now
@@ -397,13 +397,19 @@ public:
 
 	Vec3f getNormalMappedNormal(const Vec3f& t, const Vec3f& b, const Vec3f& n, const Vec2f& uv)
 	{
-		Vec3f normal = normal_map->getTexel(uv.u, uv.v);
-		normal = normal * 2.0f - 1.0f;
-		normal.normalize();
-		Mat4f TBN = Mat4f::createTBN(t, b, n);
-		normal = TBN * normal;
-		normal.normalize();
-		return normal;
+		if (normal_map != nullptr) {
+			Vec3f normal = normal_map->getTexel(uv.u, uv.v);
+			normal = normal * 2.0f - 1.0f;
+			normal.normalize();
+			Mat4f TBN = Mat4f::createTBN(t, b, n);
+			normal = TBN * normal;
+			normal.normalize();
+			return normal;
+		}
+		else
+		{
+			return n;
+		};
 	}
 
 	VShaderOut vertex(const Vertex &input_vertex) override
@@ -538,13 +544,19 @@ public:
 
 	Vec3f getNormalMappedNormal(const Vec3f& t, const Vec3f& b, const Vec3f& n, const Vec2f& uv) 
 	{
-		Vec3f normal = normal_map->getTexel(uv.u, uv.v);
-		normal = normal * 2.0f - 1.0f;
-		normal.normalize();
-		Mat4f TBN = Mat4f::createTBN(t, b, n);
-		normal = TBN * normal;
-		normal.normalize();
-		return normal;
+		if (normal_map != nullptr){
+			Vec3f normal = normal_map->getTexel(uv.u, uv.v);
+			normal = normal * 2.0f - 1.0f;
+			normal.normalize();
+			Mat4f TBN = Mat4f::createTBN(t, b, n);
+			normal = TBN * normal;
+			normal.normalize();
+			return normal;
+		}
+		else
+		{
+			return n;
+		};
 	}
 
 	float distributionGGX(const Vec3f &N, const Vec3f &H, float roughness)//Trowbridge-Reitz GGX normal distribution function 
@@ -623,26 +635,55 @@ public:
 		//INTERPOLATE LIGHT DIRECTIONS HERE IF POINT LIGHTS ADDDED
 		
 
-		//Get interpolated fragment values
-		Vec3f albedo;// = albedo_map->getTexel(u,v); //NEEDS GAMMA CORRECTION
-		albedo.x = std::pow(albedo_map->getTexel(u, v).x, 2.2f);
-		albedo.y = std::pow(albedo_map->getTexel(u, v).y, 2.2f);
-		albedo.z = std::pow(albedo_map->getTexel(u, v).z, 2.2f);
-		Vec3f N = getNormalMappedNormal(interp_tangent, interp_bitangent, interp_normal, Vec2f(u, v));
-		float roughness = roughness_map->getTexel(u, v).x;
-		float metallic = metallic_map->getTexel(u, v).x;
-		float AO = AO_map->getTexel(u,v).x;
+		//Sample textures===========
 		
+		//albedo
+		Vec3f albedo = Vec3f(0.2f);
+		if (albedo_map != nullptr) 
+		{
+			//NEEDS GAMMA CORRECTION
+			float gamma = 2.2f;
+			albedo.x = std::pow(albedo_map->getTexel(u, v).x, gamma);
+			albedo.y = std::pow(albedo_map->getTexel(u, v).y, gamma);
+			albedo.z = std::pow(albedo_map->getTexel(u, v).z, gamma);
+		}
+		
+		Vec3f N = getNormalMappedNormal(interp_tangent, interp_bitangent, interp_normal, Vec2f(u, v));
+
+		//roughness
+		float roughness = 1.0f;
+		if (roughness_map != nullptr)
+		{
+			roughness = roughness_map->getTexel(u, v).x;
+		}
+		//metallic
+		float metallic = 0.2f;
+		if (metallic_map != nullptr)
+		{
+			metallic = metallic_map->getTexel(u, v).x;
+		}
+		//AO
+		float AO = 1.0;
+		if (AO_map != nullptr)
+		{
+			AO = AO_map->getTexel(u, v).x;
+		}
+
+
+		
+		
+		
+		
+
+
 		//Calculate F0 (Used in fresnel)
 		Vec3f F0 = Vec3f(0.04);
 		F0 = F0*(1 - metallic) + albedo*(metallic); //Lerp using metallic as t between albedo and F0
 
 
-
-
-
 		float NdotV = std::fmax(N.dot(V), 0.0f); //Can be calculated once outside loop
 		Vec3f Lo = Vec3f(0.0f); //Output radiance
+
 
 		//This loop can be vectorized with omp simd but needs investigating how to do it
 		for (int i = 0; i < light_dir.size(); i++)
@@ -680,10 +721,10 @@ public:
 		Vec3f colour = (ambient + Lo);
 		
 		//Cap intensity values and gamma correct
-		float gamma = 1.0f / 2.2f;
+		float invgamma = 0.4545;
 		for (int i = 0; i < 3; i++)
 		{
-			colour[i] = std::pow(colour[i], gamma);
+			colour[i] = std::pow(colour[i], invgamma);
 			colour[i] = std::fmin(1.0f, colour[i]);
 		}
 		

@@ -33,9 +33,9 @@ void Application::run()
 {
 
 	bool running = true;
-	//main loop
-
 	
+	
+	//main loop
 	while (running)
 	{
 
@@ -45,7 +45,8 @@ void Application::run()
 		//scene->onUpdate(deltatime)
 		Camera *cam = m_scene->getCam();
 
-		//cam->updateCam(); Done in input handler
+		
+		//m_scene->onUpdate();//update scene //TODO
 
 		m_renderer->renderScene(m_scene);
 

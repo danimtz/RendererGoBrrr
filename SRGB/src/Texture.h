@@ -22,7 +22,6 @@ private:
 	int m_width;
 	int m_height;
 	int m_nchannels;
-	// owner
 	float *m_data;
 
 };

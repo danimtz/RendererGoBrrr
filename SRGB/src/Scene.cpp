@@ -16,9 +16,6 @@ Scene::Scene()
 	
 	
 
-	
-
-
 	rot = Mat4f::createRotAxis(Vec3f(0, 245, 0));
 	sc = Mat4f::createScale(Vec3f(10, 10, 10));
 	trs = Mat4f::createTranslation(Vec3f(0, -10, 0));
@@ -28,9 +25,24 @@ Scene::Scene()
 	
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
 	sc = Mat4f::createScale(Vec3f(10, 10, 10));
-	trs = Mat4f::createTranslation(Vec3f(0, -5, 0));
+	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * (rot * sc);
 	//m_models_in_scene.push_back(Model("assets\\chest\\chest_mesh.obj", "assets\\chest\\chest", &m_material_list[0], transf));
+	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(0.0, 0.0, -1.0), Vec3f(0.4, 0.7, 1.0), Vec3f(0, 0, 0)));
+	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(1.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), Vec3f(0, 0, 0)));
+	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(1.0, 1.0, 1.0), Vec3f(1.0, 1.0, 1.0), Vec3f(0, 0, 0)));
+
+	rot = Mat4f::createRotAxis(Vec3f(90, 0, 0));
+	sc = Mat4f::createScale(Vec3f(10, 10, 10));
+	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
+	transf = trs * (rot * sc);
+	//m_models_in_scene.push_back(Model("assets\\normaltest\\NormalTangentTest_mesh.obj", "assets\\normaltest\\NormalTangentTest", &m_material_list[0], transf));
+
+	rot = Mat4f::createRotAxis(Vec3f(0, 90, 0));
+	sc = Mat4f::createScale(Vec3f(10, 10, 10));
+	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
+	transf = trs * (rot * sc);
+	//m_models_in_scene.push_back(Model("assets\\cerberus\\meshes\\cerberus_mesh.obj", "assets\\cerberus\\materials\\cerberus", &m_material_list[0], transf));
 
 	
 	
@@ -41,24 +53,26 @@ Scene::Scene()
 
 	//Lights
 
-	//Vec3f lightpos =  Vec3f(-0.5, 0.5, 0.6);
-	Vec3f lightpos1 = Vec3f(0.2, 0.1, 0.8);
-	Vec3f lightpos2 = Vec3f(0, -1, 1);
-	//Vec3f lightpos3 = Vec3f(0, 0, -1);
+	Vec3f lightpos =  Vec3f(0.5, -0.3, -0.6);
+	
+	//Vec3f lightpos3 = Vec3f(0, 0, 10);
 	//m_lights_in_scene.dirLights.push_back(DirLight(lightpos, Vec3f(0.2, 0.8, 0.9), Vec3f(0, 0, 0)));
-	m_lights_in_scene.dirLights.push_back(DirLight(lightpos1, Vec3f(1.0f, 1.0f, 1.0f), Vec3f(0, 0, 0)));
-	//m_lights_in_scene.dirLights.push_back(DirLight(lightpos2, Vec3f(1.0f, 1.0f, 1.0f), Vec3f(0, 0, 0)));
-	//m_lights_in_scene.dirLights.push_back(DirLight(lightpos3, Vec3f(0.7, 0.4, 0.15), Vec3f(0, 0, 0)));
+	
+	
 
 
+	Vec3f lightpos1 = Vec3f(0.5, 0.6, 0.8);
+	Vec3f lightpos2 = Vec3f(0, 1, 0);
+	m_lights_in_scene.dirLights.push_back(DirLight(lightpos1, Vec3f(1.0f, 0.82f, 0.71f), Vec3f(0, 0, 0)));//sun
+	m_lights_in_scene.dirLights.push_back(DirLight(lightpos2, Vec3f(0.5f, 0.8f, 0.6f), Vec3f(0, 0, 0)));//sky
 
 	//LIGHT OBJECT
-	//rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
-	//sc = Mat4f::createScale(Vec3f(0.1, 0.1, 0.1));
-	//trs = Mat4f::createTranslation(lightpos);
-	//transf = trs * (rot * sc);
+	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
+	sc = Mat4f::createScale(Vec3f(0.5, 0.5, 0.5));
+	trs = Mat4f::createTranslation(lightpos1*20);
+	transf = trs * (rot * sc);
 
-	//m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));//LIGHTCUBE
+	m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));//LIGHTCUBE
 
 
 	std::cout<< "Finished scene setup."<<std::endl;
@@ -72,8 +86,6 @@ Scene::Scene()
 std::queue<Model*>* Scene::createRenderQueue()//Put models to be rendered from scene in queue.
 {
 	//CURRENLY JUST PLACES ALL MODELS IN SCENE IN THE QUEUE. CHANGE THIS LATER
-
-
 	for (int i = 0; i < m_models_in_scene.size(); i++)
 	{
 		

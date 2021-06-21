@@ -8,38 +8,25 @@
 #include "Mesh.h"
 #include "OBJLoader.h"
 
-struct PBRTexture {
-	
-	PBRTexture(std::string texture_fname) {//Currently uses fixed file extension. all jpg and normal is png
-		
-		//albedo
-		std::string albedo = texture_fname;
-		m_albedo = Texture(albedo.append("_albedo.png").c_str());
-		
-		
-		//AO
-		std::string AO = texture_fname;
-		m_AO = Texture(AO.append("_AO.png").c_str());
 
-		//metallic
-		std::string metallic = texture_fname;
-		m_metallic = Texture(metallic.append("_metallic.png").c_str());
+class PBRTexture {
+public:
+	PBRTexture();
+	PBRTexture(std::string texture_fname);
+	PBRTexture(const PBRTexture& other);
 
-		//normal
-		std::string normal = texture_fname;
-		m_normal = Texture(normal.append("_normal.png").c_str());
+	PBRTexture& operator = (const PBRTexture& other) = delete;
 
-		//roughness
-		std::string roughness = texture_fname;
-		m_roughness = Texture(roughness.append("_roughness.png").c_str());
-	};
+	~PBRTexture();
 
-	Texture m_albedo;
-	Texture m_AO;
-	Texture m_metallic;
-	Texture m_normal;
-	Texture m_roughness;
+
+	Texture* m_albedo;
+	Texture* m_AO;
+	Texture* m_metallic;
+	Texture* m_normal;
+	Texture* m_roughness;
 };
+
 
 class Model {
 
@@ -64,4 +51,7 @@ private:
 
 	//PBR textures
 	PBRTexture* m_pbrtexture;
+
+
 };
+

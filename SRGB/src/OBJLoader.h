@@ -10,7 +10,7 @@
 #include<string>
 #include<unordered_map>
 
-static struct V_Data //Making this static might not work for a header file 
+struct V_Data //Making this static might not work for a header file 
 {
 	std::vector<Vec3f> v_array;
 	std::vector<Vec3f> vn_array;
@@ -243,12 +243,13 @@ private:
 			//Gram-Schmidt orthogonalisation
 			Vec3f n = mesh->m_vertex_buffer[i].normal;
 			Vec3f t0 = vert_tangents[i];
-			Vec3f b = vert_tangents[i];
+			
 
 			Vec3f t = t0 - (n * n.dot(t0));
 			t.normalize();
 
 			//Correct handedness
+			Vec3f b = vert_bitangents[i];
 			Vec3f c = n.cross(t);
 			if ( b.dot(c) < 0.0f) {
 				t = t * -1.0f;

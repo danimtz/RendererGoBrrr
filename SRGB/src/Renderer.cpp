@@ -29,33 +29,6 @@ Buffer<float>* Renderer::getDepthBuffer() const
 	return m_z_buff;
 }
 
-/*
-void Renderer::renderWireFrame(const Model *model, uint32_t colour)
-{
-	//Currently assumes that OBJ file is in NDC of -1 to 1
-	Mat4f viewPrt_transform = Mat4f::createViewportTransform(m_px_buff->m_width, m_px_buff->m_height);
-
-	//Iterate faces
-	for (int i = 0; i < model->getFaceCount(); i++)
-	{
-
-		Vec3i face_verts_idx = model->getFaceVertices(i);
-
-		Vec3f face_verts[3];
-
-		for (int j = 0; j < 3; j++)
-		{
-			Vec3f v = model->getVertex(face_verts_idx[j]);
-
-			face_verts[j] = viewPrt_transform * v;//MAYBE THE VIEWPORT TRANSFORM SHOULD BE IN RASTERIZER FOR PERSPECTIVE CAMERA VIEW CALCULATIONS
-
-		}
-
-		Rasterizer::drawWireFrame(face_verts, m_px_buff, colour);
-	}
-}
-*/
-
 
 void Renderer::renderScene(Scene* scene)//WILL NEED TO GET LIGHTS FROM SCENE ETC ETC. FOR NOW JUST OBJECT
 {
@@ -80,9 +53,6 @@ void Renderer::setRenderCam(Camera *cam)
 {
 	m_camera = cam;
 }
-
-
-
 
 void Renderer::renderModel(const Model *model, const SceneLights* lights)
 {
@@ -235,11 +205,11 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->Nmat = N;
 
 			temp->Ka = 0.03f;
-			temp->albedo_map = &model->getTexture()->m_albedo;
-			temp->normal_map = &model->getTexture()->m_normal;
-			temp->roughness_map = &model->getTexture()->m_roughness;
-			temp->metallic_map = &model->getTexture()->m_metallic;
-			temp->AO_map = &model->getTexture()->m_AO;
+			temp->albedo_map = model->getTexture()->m_albedo;
+			temp->normal_map = model->getTexture()->m_normal;
+			temp->roughness_map = model->getTexture()->m_roughness;
+			temp->metallic_map = model->getTexture()->m_metallic;
+			temp->AO_map = model->getTexture()->m_AO;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
@@ -268,8 +238,8 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->ks = temp_mat->m_ks;
 			temp->kd = temp_mat->m_kd;
 			temp->spec_n = temp_mat->m_spec_n;
-			temp->texture = &model->getTexture()->m_albedo;
-			temp->normal_map = &model->getTexture()->m_normal;
+			temp->texture = model->getTexture()->m_albedo;
+			temp->normal_map = model->getTexture()->m_normal;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
@@ -299,7 +269,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->ks = temp_mat->m_ks;
 			temp->kd = temp_mat->m_kd;
 			temp->spec_n = temp_mat->m_spec_n;
-			temp->texture = &model->getTexture()->m_albedo;
+			temp->texture = model->getTexture()->m_albedo;
 
 			//Calculate and set light direction
 			if (temp->light_dir.size() < lights.size()) {
