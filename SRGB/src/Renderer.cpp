@@ -133,7 +133,7 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 		if (combined_mask & ClippingMask::NegZ) { isClipped = true; };
 		if (combined_mask & ClippingMask::PosZ) { isClipped = true; };
 
-		if(isClipped) //TEMPORARILY TURNED OFF
+		if(isClipped) //TEMPORARILY TURNED OFF not sure if this comment is right
 		{
 			m_idxbuffer_out[i]   = -1;
 			m_idxbuffer_out[i+1] = -1;

@@ -11,6 +11,9 @@ public:
 	Light(Vec3f pos = Vec3f( 0.0f, 0.0f, 1.0f ), 
 			Vec3f colour = Vec3f( 1.0f, 1.0f, 1.0f )) : m_pos(pos), m_colour(colour){};
 
+	virtual void onUpdate(float delta_t) {
+
+	}
 };
 
 
@@ -19,10 +22,16 @@ public:
 
 	Vec3f m_target;
 	Vec3f m_direction;
+	bool orbiting;
 	DirLight(Vec3f pos = Vec3f(0.0f, 0.0f, 1.0f), 
 		Vec3f colour = Vec3f(1.0f, 1.0f, 1.0f), 
-		Vec3f target = Vec3f(0.0f, 0.0f, 0.0f)) : Light(pos, colour), m_target(target), m_direction(m_pos - m_target) { m_direction.normalize(); };
+		Vec3f target = Vec3f(0.0f, 0.0f, 0.0f), bool isOrbiting = false) : Light(pos, colour), m_target(target), m_direction(m_pos - m_target), orbiting(isOrbiting) { m_direction.normalize(); };
 		//Light direction vector is from target to the light position
+
+	void onUpdate(float delta_t) override
+	{
+		
+	}
 };
 
 
@@ -38,4 +47,5 @@ public:
 		Vec3f colour = Vec3f(1.0f, 1.0f, 1.0f), 
 		 float linear = 0.09f, float quadratic = 0.032f, float constant = 1.0f) : Light(pos, colour), m_constant(constant), m_linear(linear), m_quadratic(quadratic) {};
 
+	
 };

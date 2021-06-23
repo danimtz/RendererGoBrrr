@@ -32,7 +32,7 @@ public:
 	Vec3f m_sph_coords; //r, theta, phi
 	Vec3f m_origin; //Spherical coordinate origin
 
-	float camSpeed{0.5f};
+	float camSpeed{0.1f};
 
 	Mat4f m_projection_mat;//CREATE THIS
 

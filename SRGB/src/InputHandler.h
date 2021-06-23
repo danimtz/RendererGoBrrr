@@ -10,13 +10,13 @@ public:
 	InputHandler(Camera *cam, Renderer* m_renderer);
 	~InputHandler();
 
-	void onUpdate(bool &running);
+	void onUpdate(bool &running, float delta_t);
 
 private:
 
 	Camera *m_sceneCam;
 	Renderer* m_renderer;
-	void handleSDLevent(bool &running, SDL_Event &event);
+	void handleSDLevent(bool &running, float delta_t, SDL_Event &event);
 
 };
 

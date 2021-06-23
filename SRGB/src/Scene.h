@@ -23,6 +23,8 @@ public:
 
 	std::queue<Model*>* createRenderQueue();//Camera culling etc etc
 	
+	void onUpdate(float delta_t);
+
 	//LIGHTS
 	SceneLights* getLights();
 

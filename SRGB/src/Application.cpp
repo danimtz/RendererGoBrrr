@@ -36,17 +36,25 @@ void Application::run()
 	
 	
 	//main loop
+	Uint64 ticks = 0;
+	Uint64 last_frame_ticks = 0;
+	float delta_t = 0.0f;
 	while (running)
 	{
+		ticks = SDL_GetPerformanceCounter();
+		delta_t = (float)(ticks - last_frame_ticks)/(float)SDL_GetPerformanceFrequency();
+		last_frame_ticks = ticks;
 
+		std::cout << "Current frametime: "<< delta_t << " s"<< std::endl;
 		//Timer fpstimer;
-		m_input_handler->onUpdate(running);
-		
+		m_input_handler->onUpdate(running, delta_t);
+		m_scene->onUpdate(delta_t);
+
 		//scene->onUpdate(deltatime)
 		Camera *cam = m_scene->getCam();
 
 		
-		//m_scene->onUpdate();//update scene //TODO
+		
 
 		m_renderer->renderScene(m_scene);
 

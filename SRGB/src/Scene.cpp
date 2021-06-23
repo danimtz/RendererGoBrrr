@@ -17,36 +17,36 @@ Scene::Scene()
 	
 
 	rot = Mat4f::createRotAxis(Vec3f(0, 245, 0));
-	sc = Mat4f::createScale(Vec3f(10, 10, 10));
-	trs = Mat4f::createTranslation(Vec3f(0, -10, 0));
+	sc = Mat4f::createScale(Vec3f(1, 1, 1));
+	trs = Mat4f::createTranslation(Vec3f(0, -1, 0));
 	transf = trs * (rot * sc);
-	m_models_in_scene.push_back(Model("assets\\hydrant\\firehydrant_mesh.obj", "assets\\hydrant\\firehydrant", &m_material_list[0], transf));
+	//m_models_in_scene.push_back(Model("assets\\hydrant\\firehydrant_mesh.obj", "assets\\hydrant\\firehydrant", &m_material_list[0], transf));
 
 	
 	rot = Mat4f::createRotAxis(Vec3f(0, 0, 0));
-	sc = Mat4f::createScale(Vec3f(10, 10, 10));
+	sc = Mat4f::createScale(Vec3f(1, 1, 1));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * (rot * sc);
-	//m_models_in_scene.push_back(Model("assets\\chest\\chest_mesh.obj", "assets\\chest\\chest", &m_material_list[0], transf));
+	m_models_in_scene.push_back(Model("assets\\chest\\chest_mesh.obj", "assets\\chest\\chest", &m_material_list[0], transf));
 	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(0.0, 0.0, -1.0), Vec3f(0.4, 0.7, 1.0), Vec3f(0, 0, 0)));
 	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(1.0, 0.0, 0.0), Vec3f(1.0, 1.0, 1.0), Vec3f(0, 0, 0)));
 	//m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(1.0, 1.0, 1.0), Vec3f(1.0, 1.0, 1.0), Vec3f(0, 0, 0)));
 
 	rot = Mat4f::createRotAxis(Vec3f(90, 0, 0));
-	sc = Mat4f::createScale(Vec3f(10, 10, 10));
+	sc = Mat4f::createScale(Vec3f(1, 1, 1));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * (rot * sc);
 	//m_models_in_scene.push_back(Model("assets\\normaltest\\NormalTangentTest_mesh.obj", "assets\\normaltest\\NormalTangentTest", &m_material_list[0], transf));
 
 	rot = Mat4f::createRotAxis(Vec3f(0, 90, 0));
-	sc = Mat4f::createScale(Vec3f(10, 10, 10));
+	sc = Mat4f::createScale(Vec3f(1, 1, 1));
 	trs = Mat4f::createTranslation(Vec3f(0, 0, 0));
 	transf = trs * (rot * sc);
 	//m_models_in_scene.push_back(Model("assets\\cerberus\\meshes\\cerberus_mesh.obj", "assets\\cerberus\\materials\\cerberus", &m_material_list[0], transf));
 
 	
 	
-	m_camera = Camera(Vec3f(0, 1, 20), 0.0f, -90.0f);
+	m_camera = Camera(Vec3f(0, 1, 2), 0.0f, -90.0f);
 
 
 
@@ -93,6 +93,19 @@ std::queue<Model*>* Scene::createRenderQueue()//Put models to be rendered from s
 	}
 
 	return &m_render_queue;
+}
+
+
+void Scene::onUpdate(float delta_t) 
+{
+	//update directional lights
+	for (Light light : m_lights_in_scene.dirLights) {
+		light.onUpdate(delta_t);
+	}
+	//update point lights
+	for (Light light : m_lights_in_scene.pointLights) {
+		light.onUpdate(delta_t);
+	}
 }
 
 SceneLights* Scene::getLights()

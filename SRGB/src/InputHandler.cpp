@@ -11,7 +11,7 @@ InputHandler::InputHandler(Camera *cam, Renderer *renderer) : m_sceneCam(cam), m
 InputHandler::~InputHandler() {};
 
 
-void InputHandler::onUpdate(bool &running)
+void InputHandler::onUpdate(bool &running, float delta_t)
 {
 	SDL_Event event;
 	
@@ -24,7 +24,7 @@ void InputHandler::onUpdate(bool &running)
 				break;
 
 			default:
-				handleSDLevent(running, event);
+				handleSDLevent(running, delta_t, event);
 				break;
 		}
 	}
@@ -33,10 +33,10 @@ void InputHandler::onUpdate(bool &running)
 }
 
 
-void InputHandler::handleSDLevent(bool &running, SDL_Event &event)
+void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event)
 {
 
-	float speed = m_sceneCam->camSpeed;// * deltaT;
+	float speed = m_sceneCam->camSpeed ; //*delta_t ??? this breaks it more than fixes anything atm
 
 	//Handling keyboard input 
 	if (event.type == SDL_KEYDOWN)
