@@ -2,6 +2,7 @@
 
 #CUSTOM IGNORES ()
 bin/
+SRGB.dir/
 
 #Cmake 
 CMakeLists.txt.user
