@@ -141,7 +141,7 @@ public:
 
 	void resetCam() 
 	{
-		m_pos =	Vec3f(0, 0, 20);
+		m_pos =	Vec3f(0, 0, 2);
 		m_front = Vec3f(0, 0, -1);
 		m_right = m_front.cross(m_world_up);
 		m_right.normalize();
@@ -150,7 +150,7 @@ public:
 		m_yaw = D_YAW;
 		
 		//Reset spherical coordinates
-		m_sph_coords.x = 20; //some missing
+		m_sph_coords.x = 2; //some missing
 		m_origin = Vec3f(0);
 	}
 	

@@ -19,7 +19,7 @@ private:
 
 	Window* m_window;
 	Renderer* m_renderer;
-	Scene* m_scene;
+	Scene* m_scene;//should be scene utility/manager
 	InputHandler* m_input_handler;
 
 };

@@ -3,6 +3,7 @@
 #CUSTOM IGNORES ()
 bin/
 SRGB.dir/
+x64/
 
 #Cmake 
 CMakeLists.txt.user

@@ -2,7 +2,7 @@
 
 
 
-InputHandler::InputHandler(Camera *cam, Renderer *renderer) : m_sceneCam(cam), m_renderer(renderer)
+InputHandler::InputHandler(Scene *scene, Renderer *renderer) : m_scene(scene), m_renderer(renderer)
 {
 	SDL_SetRelativeMouseMode(SDL_TRUE); 
 };
@@ -35,8 +35,8 @@ void InputHandler::onUpdate(bool &running, float delta_t)
 
 void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event)
 {
-
-	float speed = m_sceneCam->camSpeed ; //*delta_t ??? this breaks it more than fixes anything atm
+	Camera *sceneCam = m_scene->getCam();
+	float speed = sceneCam->camSpeed ; //*delta_t ??? this breaks it more than fixes anything atm
 
 	//Handling keyboard input 
 	if (event.type == SDL_KEYDOWN)
@@ -44,51 +44,51 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 		
 		if (event.key.keysym.sym == SDLK_w)
 		{
-			if (m_sceneCam->m_cam_type == 1)
+			if (sceneCam->m_cam_type == 1)
 			{
-				m_sceneCam->m_sph_coords.x -= speed;
+				sceneCam->m_sph_coords.x -= speed;
 			}
-			else if(m_sceneCam->m_cam_type == 0)
+			else if(sceneCam->m_cam_type == 0)
 			{
-				m_sceneCam->m_pos += m_sceneCam->m_front * speed;
+				sceneCam->m_pos += sceneCam->m_front * speed;
 			}
 		}
 
 		if (event.key.keysym.sym == SDLK_s)
 		{
-			if (m_sceneCam->m_cam_type == 1)
+			if (sceneCam->m_cam_type == 1)
 			{
-				m_sceneCam->m_sph_coords.x += speed;
+				sceneCam->m_sph_coords.x += speed;
 			}
-			else if(m_sceneCam->m_cam_type == 0)
+			else if(sceneCam->m_cam_type == 0)
 			{
-				m_sceneCam->m_pos -= m_sceneCam->m_front * speed;
+				sceneCam->m_pos -= sceneCam->m_front * speed;
 			}
 		}
 
 		//pan
 		if (event.key.keysym.sym == SDLK_a)
 		{
-			m_sceneCam->m_pos -= m_sceneCam->m_right * speed;
-			m_sceneCam->m_origin -= m_sceneCam->m_right * speed;
+			sceneCam->m_pos -= sceneCam->m_right * speed;
+			sceneCam->m_origin -= sceneCam->m_right * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_d)
 		{
-			m_sceneCam->m_pos += m_sceneCam->m_right * speed;
-			m_sceneCam->m_origin += m_sceneCam->m_right * speed;
+			sceneCam->m_pos += sceneCam->m_right * speed;
+			sceneCam->m_origin += sceneCam->m_right * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_SPACE)
 		{
-			m_sceneCam->m_pos += m_sceneCam->m_world_up * speed;
-			m_sceneCam->m_origin += m_sceneCam->m_world_up * speed;
+			sceneCam->m_pos += sceneCam->m_world_up * speed;
+			sceneCam->m_origin += sceneCam->m_world_up * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_LSHIFT)
 		{
-			m_sceneCam->m_pos -= m_sceneCam->m_world_up * speed;
-			m_sceneCam->m_origin -= m_sceneCam->m_world_up * speed;
+			sceneCam->m_pos -= sceneCam->m_world_up * speed;
+			sceneCam->m_origin -= sceneCam->m_world_up * speed;
 		}
 
 		if (event.key.keysym.sym == SDLK_LALT) 
@@ -106,12 +106,12 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 			
 		if (event.key.keysym.sym == SDLK_r)
 		{
-			m_sceneCam->resetCam();
+			sceneCam->resetCam();
 		}
 
 		if (event.key.keysym.sym == SDLK_t)
 		{
-			m_sceneCam->changeCamType();
+			sceneCam->changeCamType();
 		}
 
 		if (event.key.keysym.sym == SDLK_ESCAPE)
@@ -121,7 +121,7 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 
 
 		//Update camera
-		m_sceneCam->updateCam(); //Maybe in scene update
+		sceneCam->updateCam(); //Maybe in scene update
 		
 		
 
@@ -155,7 +155,23 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 			m_renderer->loadShader(shader);
 		}
 
-
+		//Change scene
+		if (event.key.keysym.sym == SDLK_RIGHT)
+		{
+			m_scene->m_scene_ID += 1;
+			if (m_scene->m_scene_ID > m_scene->max_scenes) {
+				m_scene->m_scene_ID = 0;
+			}
+			m_scene->changeScene();
+		}
+		if (event.key.keysym.sym == SDLK_LEFT)
+		{
+			m_scene->m_scene_ID -= 1;
+			if (m_scene->m_scene_ID < 0) {
+				m_scene->m_scene_ID = m_scene->max_scenes;
+			}
+			m_scene->changeScene();
+		}
 
 	}
 	else if ((event.motion.state & SDL_BUTTON_LMASK) || (event.motion.state & SDL_BUTTON_RMASK))
@@ -169,20 +185,20 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 
 			
 
-			m_sceneCam->m_yaw += xOffset;
-			m_sceneCam->m_pitch += yOffset;
+			sceneCam->m_yaw += xOffset;
+			sceneCam->m_pitch += yOffset;
 
 			//Constraint camera
-			if (m_sceneCam->m_pitch > 89.0f)
+			if (sceneCam->m_pitch > 89.0f)
 			{
-				m_sceneCam->m_pitch = 89.0f;
+				sceneCam->m_pitch = 89.0f;
 			}
-			else if (m_sceneCam->m_pitch < -89.0f)
+			else if (sceneCam->m_pitch < -89.0f)
 			{
-				m_sceneCam->m_pitch = -89.0f;
+				sceneCam->m_pitch = -89.0f;
 			}
 
-			m_sceneCam->updateCam();
+			sceneCam->updateCam();
 	
 		}
 	}
@@ -190,7 +206,7 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 	{
 
 		float zoom = 5.0f;
-		float fov = m_sceneCam->m_fov;
+		float fov = sceneCam->m_fov;
 
 		if (event.wheel.y > 0)// scroll up
 		{ 
@@ -212,7 +228,7 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 		}
 
 		//Updating the camera
-		m_sceneCam->updateCamFOV(fov);
-		m_sceneCam->updateCam();
+		sceneCam->updateCamFOV(fov);
+		sceneCam->updateCam();
 	}
 }

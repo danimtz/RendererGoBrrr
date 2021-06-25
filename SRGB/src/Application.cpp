@@ -16,7 +16,7 @@ Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(null
 
 	m_renderer->setRenderCam(m_scene->getCam());//THIS MIGHT GO AGAINST RAII idk
 	
-	m_input_handler = new InputHandler(m_scene->getCam(), m_renderer);
+	m_input_handler = new InputHandler(m_scene, m_renderer);
 
 }
 
@@ -45,7 +45,7 @@ void Application::run()
 		delta_t = (float)(ticks - last_frame_ticks)/(float)SDL_GetPerformanceFrequency();
 		last_frame_ticks = ticks;
 
-		std::cout << "Current frametime: "<< delta_t << " s"<< std::endl;
+		//std::cout << "Current frametime: "<< delta_t << " s"<< std::endl;
 		//Timer fpstimer;
 		m_input_handler->onUpdate(running, delta_t);
 		m_scene->onUpdate(delta_t);
