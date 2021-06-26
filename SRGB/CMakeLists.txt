@@ -76,13 +76,16 @@ if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Release>:
             /Oi;
-            /Gy
+            /Gy;
+            /Zi
+        >
+        $<$<CONFIG:Debug>:
+            /ZI
         >
         /permissive-;
         /std:c++17;
         /sdl;
         /W3;
-        /Zi;
         ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
         ${DEFAULT_CXX_EXCEPTION_HANDLING};
         /openmp

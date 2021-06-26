@@ -13,7 +13,12 @@ enum class ShaderType : int {
 	GOURAD,
 	PHONG,
 	BLINNPHONG,
-	PBR
+	PBR,
+	ALBEDO,
+	NORMALMAP,
+	ROUGHNESS,
+	METALLIC,
+	AO
 };
 
 //Output of vertex shader. These would be out variables in GLSL etc.
@@ -25,8 +30,6 @@ struct VShaderOut {
 	Vec3f tangent;
 	Vec3f bitangent;
 	Vec2f texcoord;
-	
-	
 };
 
 
@@ -53,6 +56,289 @@ protected:
 
 
 
+
+
+class NormalMapShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVPmat, Nmat; // Matrices
+	Texture* normal_map;
+
+
+	Vec3f getNormalMappedNormal(const Vec3f& t, const Vec3f& b, const Vec3f& n, const Vec2f& uv)
+	{
+		if (normal_map != nullptr) {
+			Vec3f normal = normal_map->getTexel(uv.u, uv.v);
+			normal = normal * 2.0f - 1.0f;
+			normal.normalize();
+			Mat4f TBN = Mat4f::createTBN(t, b, n);
+			normal = TBN * normal;
+			normal.normalize();
+			return normal;
+		}
+		else
+		{
+			return n;
+		};
+	}
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+
+		VShaderOut vout;
+		//If texture, load uv values
+		if (normal_map != nullptr)
+		{
+			vout.texcoord = input_vertex.texcoord;
+		}
+
+		//Calculate TBN vectors
+		vout.tangent = Nmat * input_vertex.tangent;
+		vout.bitangent = Nmat * (input_vertex.normal.cross(input_vertex.tangent));
+		vout.normal = Nmat * input_vertex.normal;
+
+
+		vout.tangent.normalize();
+		vout.bitangent.normalize();
+		vout.normal.normalize();
+
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		//Interpolate normals and view direction. Vector split into individual components for optimization. (My own vector library is kinda slow unfortunately)
+		Vec3f interp_normal = IShader::baryInterp(v0.normal, v1.normal, v2.normal, bary);
+		Vec3f interp_tangent = IShader::baryInterp(v0.tangent, v1.tangent, v2.tangent, bary);
+		Vec3f interp_bitangent = IShader::baryInterp(v0.bitangent, v1.bitangent, v2.bitangent, bary);
+
+
+		if (normal_map != nullptr)//If model has texture
+		{
+			interp_normal = getNormalMappedNormal(interp_tangent, interp_bitangent, interp_normal, Vec2f(u, v));
+		}
+		
+		Vec3f colour = interp_normal*0.5 + 0.5;
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::NORMALMAP;
+	}
+
+};
+
+
+class AlbedoShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVPmat; // Matrices
+	Texture* albedo;
+
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+
+		VShaderOut vout;
+		//If texture, load uv values
+		if (albedo != nullptr)
+		{
+			vout.texcoord = input_vertex.texcoord;
+		}
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		Vec3f colour = Vec3f(1.0f, 0.2f, 0.2f);
+		if (albedo != nullptr){
+			colour = albedo->getTexel(u,v);
+		}
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::ALBEDO;
+	}
+
+};
+
+
+
+class MetallicShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVPmat; // Matrices
+	Texture* metallic;
+
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+
+		VShaderOut vout;
+		//If texture, load uv values
+		if (metallic != nullptr)
+		{
+			vout.texcoord = input_vertex.texcoord;
+		}
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		Vec3f colour = Vec3f(1.0f, 0.2f, 0.2f);
+		if (metallic != nullptr) {
+			float col = metallic->getTexel(u, v).x;
+			colour = Vec3f(col);
+		}
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::METALLIC;
+	}
+
+
+};
+
+
+class RoughnessShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVPmat; // Matrices
+	Texture* roughness;
+
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+
+		VShaderOut vout;
+		//If texture, load uv values
+		if (roughness != nullptr)
+		{
+			vout.texcoord = input_vertex.texcoord;
+		}
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		Vec3f colour = Vec3f(1.0f, 0.2f, 0.2f);
+		if (roughness != nullptr) {
+			float col = roughness->getTexel(u, v).x;
+			colour = Vec3f(col);
+		}
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::ROUGHNESS;
+	}
+
+
+};
+
+
+class AOShader : public IShader {
+public:
+
+
+	//UNIFORMS
+	Mat4f  MVPmat; // Matrices
+	Texture* AO;
+
+
+	VShaderOut vertex(const Vertex& input_vertex) override
+	{
+
+		VShaderOut vout;
+		//If texture, load uv values
+		if (AO != nullptr)
+		{
+			vout.texcoord = input_vertex.texcoord;
+		}
+
+		//Calculate vertex position post transform
+		vout.position = MVPmat * input_vertex.position;
+
+		return vout;
+
+	}
+
+	Vec3f fragment(const Vec3f& bary, const VShaderOut& v0, const VShaderOut& v1, const VShaderOut& v2) override
+	{
+
+		//Interpolate texture uv values
+		float u = v0.texcoord.u + (v1.texcoord.u - v0.texcoord.u) * bary.y + (v2.texcoord.u - v0.texcoord.u) * bary.z;
+		float v = v0.texcoord.v + (v1.texcoord.v - v0.texcoord.v) * bary.y + (v2.texcoord.v - v0.texcoord.v) * bary.z;
+
+		Vec3f colour = Vec3f(1.0f, 0.2f, 0.2f);
+		if (AO != nullptr) {
+			float col = AO->getTexel(u, v).x;
+			colour = Vec3f(col);
+		}
+
+		return colour;
+	}
+
+	virtual ShaderType getType() override {
+		return ShaderType::AO;
+	}
+
+
+};
 //Flat and Gourad 
 /*
 class FlatShader : public IShader {
@@ -423,7 +709,7 @@ public:
 		}
 
 		//Calculate TBN vectors
-		vout.tangent = Nmat * input_vertex.tangent; //MULTIPLY BY NMAT or MVMAT????
+		vout.tangent = Nmat * input_vertex.tangent; 
 		vout.bitangent = Nmat * (input_vertex.normal.cross(input_vertex.tangent));
 		vout.normal = Nmat * input_vertex.normal;
 		
@@ -511,7 +797,7 @@ public:
 		//Debug
 		//if(bary.x <0.01 || bary.y <0.01 || bary.z<0.01){colour = Vec3f(1.0f, 0.0f, 0.0f);}
 
-		colour = interp_normal*0.5 + 0.5;
+		//colour = interp_normal*0.5 + 0.5;
 
 		return colour;
 	}
@@ -718,7 +1004,7 @@ public:
 		Vec3f ambient = albedo * Ka * AO;
 
 		//Final colour, HDR tone mapping???? and gamma correction
-		Vec3f colour = (ambient + Lo);
+		Vec3f colour = (ambient + Lo *AO);
 		
 		//Cap intensity values and gamma correct
 		float invgamma = 0.4545;

@@ -14,7 +14,6 @@ InputHandler::~InputHandler() {};
 void InputHandler::onUpdate(bool &running, float delta_t)
 {
 	SDL_Event event;
-	
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
@@ -28,8 +27,6 @@ void InputHandler::onUpdate(bool &running, float delta_t)
 				break;
 		}
 	}
-	
-	
 }
 
 
@@ -152,6 +149,31 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 		if (event.key.keysym.sym == SDLK_5)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<PBRShader>(new PBRShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_6)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<AlbedoShader>(new AlbedoShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_7)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<NormalMapShader>(new NormalMapShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_8)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<MetallicShader>(new MetallicShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_9)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<RoughnessShader>(new RoughnessShader());
+			m_renderer->loadShader(shader);
+		}
+		if (event.key.keysym.sym == SDLK_0)
+		{
+			std::unique_ptr<IShader> shader = std::unique_ptr<AOShader>(new AOShader());
 			m_renderer->loadShader(shader);
 		}
 

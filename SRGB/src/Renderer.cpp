@@ -176,9 +176,6 @@ void Renderer::renderModel(const Model *model, const SceneLights* lights)
 
 
 
-
-
-
 	//Iterate each face
 	//Parallelize loop. shader is private to each thread and initialized as the original shader. 
 	//Schedule dynamic since many threads will finish early due to early rejection due to front end backface culling and clipping
@@ -212,7 +209,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->AO_map = model->getTexture()->m_AO;
 
 			//Calculate and set light direction
-			if (temp->light_dir.size() < lights.size()) {
+			if (temp->light_dir.size() != lights.size()) {
 				temp->light_dir.resize(lights.size());
 				temp->light_colour.resize(lights.size());
 			}
@@ -242,7 +239,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->normal_map = model->getTexture()->m_normal;
 
 			//Calculate and set light direction
-			if (temp->light_dir.size() < lights.size()) {
+			if (temp->light_dir.size() != lights.size()) {
 				temp->light_dir.resize(lights.size());
 				temp->light_colour.resize(lights.size());
 			}
@@ -272,7 +269,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 			temp->texture = model->getTexture()->m_albedo;
 
 			//Calculate and set light direction
-			if (temp->light_dir.size() < lights.size()) {
+			if (temp->light_dir.size() != lights.size()) {
 				temp->light_dir.resize(lights.size());
 				temp->light_colour.resize(lights.size());
 			}
@@ -283,6 +280,52 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 				temp->light_dir[i].normalize();
 				temp->light_colour[i]=(lights[i].m_colour);
 			}
+		}
+		break;
+
+		case ShaderType::NORMALMAP:
+		{
+			NormalMapShader* temp = dynamic_cast<NormalMapShader*>(m_shader.get());
+			temp->MVPmat = MVP;
+			temp->Nmat = N;
+			temp->normal_map = model->getTexture()->m_normal;
+
+		}
+		break;
+
+		case ShaderType::ALBEDO:
+		{
+			AlbedoShader* temp = dynamic_cast<AlbedoShader*>(m_shader.get());
+			temp->MVPmat = MVP;	
+			temp->albedo = model->getTexture()->m_albedo;
+
+		}
+		break;
+
+		case ShaderType::ROUGHNESS:
+		{
+			RoughnessShader* temp = dynamic_cast<RoughnessShader*>(m_shader.get());
+			temp->MVPmat = MVP;
+			temp->roughness = model->getTexture()->m_roughness;
+
+		}
+		break;
+
+		case ShaderType::METALLIC:
+		{
+			MetallicShader* temp = dynamic_cast<MetallicShader*>(m_shader.get());
+			temp->MVPmat = MVP;
+			temp->metallic = model->getTexture()->m_metallic;
+
+		}
+		break;
+
+		case ShaderType::AO:
+		{
+			AOShader* temp = dynamic_cast<AOShader*>(m_shader.get());
+			temp->MVPmat = MVP;
+			temp->AO = model->getTexture()->m_AO;
+
 		}
 		break;
 		/*
@@ -306,7 +349,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 				temp->light_dir.resize(lights.size());
 				temp->light_colour.resize(lights.size());
 			}
-			for (int i = 0; i < lights.size(); i++)
+			for (int i = 0; i != lights.size(); i++)
 			{
 
 				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //
@@ -336,7 +379,7 @@ void Renderer::setShaderUniforms(const Mat4f MV, const Mat4f MVP, const Mat4f V,
 				temp->light_dir.resize(lights.size());
 				temp->light_colour.resize(lights.size());
 			}
-			for (int i = 0; i < lights.size(); i++)
+			for (int i = 0; i != lights.size(); i++)
 			{
 
 				temp->light_dir[i] = (temp->Vmat.convertDirToViewSpace(lights[i].m_direction)); //

@@ -6,11 +6,7 @@ Scene::Scene()
 	
 	m_scene_ID = 0;
 	
-	
-
 	//m_material_list.push_back(Material(Vec3f(12, 134, 36), 256.0f, 1.0f)); //0.4 ks
-
-	//m_material_list.push_back(Material(Vec3f(255, 255, 255), 32.0f, 0, Vec3f(255,255,255),1,0));
 
 	//TEMPORARY MODEL CREATION LATER WILL BE DONE TRHOUGH READING A FILE OR SOMETHING. 
 
@@ -41,13 +37,12 @@ Scene::Scene()
 	//sc = Mat4f::createScale(Vec3f(0.5, 0.5, 0.5));
 	//trs = Mat4f::createTranslation(lightpos1*20);
 	//transf = trs * (rot * sc);
-
+	//m_material_list.push_back(Material(Vec3f(255, 255, 255), 32.0f, 0, Vec3f(255,255,255),1,0));
 	//m_models_in_scene.push_back(Model("assets\\cube.obj", &m_material_list[2], transf));//LIGHTCUBE
 
 
 	std::cout<< "Finished scene setup."<<std::endl;
 
-	
 }
 
 void Scene::changeScene() //THIS SHOULD READ NEW SCENE FROM FILE. (and the function should be in scene utility/manager class)
@@ -132,9 +127,6 @@ void Scene::changeScene() //THIS SHOULD READ NEW SCENE FROM FILE. (and the funct
 	}
 	std::cout << "Scene change!" << std::endl;
 }
-
-
-
 
 
 std::queue<Model*>* Scene::createRenderQueue()//Put models to be rendered from scene in queue.
