@@ -4,7 +4,7 @@
 Application::Application():m_window(nullptr) , m_renderer(nullptr), m_scene(nullptr){
 
 
-	WindowProps windProperties = WindowProps("WINDOOOOOOW", 1280, 720);
+	WindowProps windProperties = WindowProps("WINDOOOOOOW", 1920, 1080);
 
 	m_window = new Window(windProperties);
 
