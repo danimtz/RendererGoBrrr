@@ -37,8 +37,8 @@ CMake can be used to build the project
 
 ## Renderer examples
 **Chest render(3 directional lights):**     
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest1.PNG" alt="Chest render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest2.PNG" alt="Chest render 2" width="450" height=100%> 
-**Cerberus gun (3 directional lights):**     
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest1.PNG" alt="Chest render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest2.PNG" alt="Chest render 2" width="450" height=100%>       
+**Cerberus gun (3 directional lights):**       
 <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/3869458ee9792f3df46441cbd7445f0eddffea02/SRGB/assets/RenderImages/Gun/Gun1.PNG" alt="Cerberus gun render" width="900" height=100%>      
 **Fire hydrant render(2 directional lights) (The small triangles on the hydrant "handle" are like that in the textures provided):**     
 <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render 2" width="450" height=100%> 
