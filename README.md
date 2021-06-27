@@ -7,17 +7,20 @@ Most of the renderer including the main features such as flat/gourad/phong shadi
 
 (The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time.)
 
+## **Renderer Controls**
+-**Arrow keys:** Load next/preivious scene (takes a couple of seconds since objects are loaded/unloaded each time)
+
 ## **Renderer features**
 
 - Vertex data loaded into vertex and index buffers processed in parallel using OMP
 - Programmable vertex and fragment shaders
-- Flat, gourad and phong shaders
+- Phong/Blinn-Phong shaders
 - Perspective correct texture interpolation
-- Blinn-Phong shaders
 - Tangent space normal mapping
 - Metallic-Roughness workflow
 - Multiple directional lights
-- Physically Based Rendering shader using Cook Torrance BRDF
+- Physically Based Rendering shader using Cook Torrance BRDF shader
+- Swap between shaders at runtime using the numkeys
 - Fustrum culling
 - Winding order backface culling
 - Reverse depth buffer
@@ -31,6 +34,8 @@ Most of the renderer including the main features such as flat/gourad/phong shadi
 - Texture loading through stb image
 - Movable camera system
 - Toggle through different shaders w/numkeys
+
+
 
 ## Renderer examples
 
