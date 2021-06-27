@@ -66,6 +66,10 @@ source:
 
 
 ## OBJ files and texture credit:
+* [Chest, Fire Hydrant and Normal Tangent Test: @emackey PBR test models](https://emackey.github.io/testing-pbr/)
+* [Cerberus Gun: Andrew Maximov](http://artisaverb.info/Cerberus.html) 
+
+(Please contact me to correct any references if I have accidentally miscredited the original creator of any textre/mesh used)
 
 ##### **Todo list:(OLD CHECKLIST)**
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
