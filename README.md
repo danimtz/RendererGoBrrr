@@ -1,16 +1,14 @@
 # SoftwareRendererGoBrrr
 Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
 
-Most of the renderer including the main features such as flat/gourad/phong shading and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and also added a physically based rendering shader.
+Most of the renderer including the main features such as flat/gourad/phong shading(flat and gourad have since been deprecated) and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and added a physically based rendering shader.
 
--Cmake build system will be added soon.
+CMake can be used to build the project
 
 (The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time.)
 
-## **Renderer Controls**
--**Arrow keys:** Load next/preivious scene (takes a couple of seconds since objects are loaded/unloaded each time)
 
-## **Renderer features**
+## **Main features**
 
 - Vertex data loaded into vertex and index buffers processed in parallel using OMP
 - Programmable vertex and fragment shaders
@@ -27,7 +25,7 @@ Most of the renderer including the main features such as flat/gourad/phong shadi
 - View/Camera space lighting
 
 
-## **Other features**
+### **Other features**
 - SDL2 backend for window display
 - Templated vector math and matrix library
 - .obj file loader
@@ -46,10 +44,30 @@ source:
 
 source:
 
+## **Renderer Controls**
 
-##### **Todo list:**
+- **Scene selection:** Use the **left** and **right** **arrow keys** to load next/preivious scene (takes a couple of seconds since objects are loaded/unloaded each time).
+- **Shader selection:** Use **numkeys** to swap current shader  
+    **1:**  Phong shading  
+    **2:**  Blinn-Phong shading (with normal mapping when availible)  
+    **3:**  Physically based rendering shader  
+    **4:**  Albedo texture only  
+    **5:**  Normal map only  
+    **6:**  Metallic map only  
+    **7:**  Roughness map only  
+    **8:**  Ambient Occlusion map only  
+- **Camera:** 
+  - Hold left mouse button and drag around to move camera. Mouse wheel for zoom.
+  - Press **R** to reset camera.
+  - Press **T** to change from orbital to free moving camera.
+  - Use **Spacebar** and **LShift** to move camera up and down respectively.
+  - Use **A** and **D** to pan camera laterally.
+  - Use **W** and **S** to move camera about the camera's forward vector.
 
 
+## OBJ files and texture credit:
+
+##### **Todo list:(OLD CHECKLIST)**
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
 - [x]  Write emplated buffer class for z-buffer(float) and pixel buffer(uint32_t).
 - [x]  Write templated vector math library.
@@ -84,6 +102,6 @@ source:
 - [x]  Fix normals for flat shader being wrong way around buildFaceNormals()
 - [ ]  Texture bilinear interpolation
 - [x]  Fix specular light reflections not being correctly interpolated(It was the view vectors being normalized before interpolating them. F)
-- [ ]  Split model into mesh and model and make obj file parser for the mesh create a vertex buffer with interleaved position, normal and texture data and an index buffer to avoid repeated vertices.
--[ ] Add a loadScene() function to Scene class that can read JSON file with scene data to load a scene's models, lights etc...
--[ ] Add a scene swapper/manager class that handles swapping between scenes
+- [x]  Split model into mesh and model and make obj file parser for the mesh create a vertex buffer with interleaved position, normal and texture data and an index buffer to avoid repeated vertices.
+- [x] Added scene swapping functionality but not from a file, hard coded in a switch statement for now
+
