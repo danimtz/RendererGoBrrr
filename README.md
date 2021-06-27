@@ -36,13 +36,21 @@ CMake can be used to build the project
 
 
 ## Renderer examples
+**Chest render:**     
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest1.PNG" alt="Chest render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest2.PNG" alt="Chest render 2" width="450" height=100%> 
 
+**Fire hydrant render (The small triangles on the hydrant "handle" are like that in the textures provided):**     
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render 2" width="450" height=100%> 
 
-source:
+**Chest PBR textures mapped onto mesh:**    
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestNormalMap.PNG" alt="Chest Normal" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestMetallic.PNG" alt="Chest Metallic" width="300" height=100%>      
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
 
-source:
-
-source:
+*Top row: albedo, normal map, metallic map   
+Bottom row: roughness map, ambient occlusion map*
 
 ## **Renderer Controls**
 
