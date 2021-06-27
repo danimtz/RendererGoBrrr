@@ -93,6 +93,7 @@ void Scene::changeScene() //THIS SHOULD READ NEW SCENE FROM FILE. (and the funct
 			lightpos2 = Vec3f(0, 1, 0);
 			m_lights_in_scene.dirLights.push_back(DirLight(lightpos1, Vec3f(1.0f, 0.82f, 0.71f), Vec3f(0, 0, 0)));//sun
 			m_lights_in_scene.dirLights.push_back(DirLight(lightpos2, Vec3f(0.5f, 0.8f, 0.6f), Vec3f(0, 0, 0)));//sky
+			m_lights_in_scene.dirLights.push_back(DirLight(Vec3f(1, 0, 0), Vec3f(1.0f, 1.0f, 1.0f), Vec3f(0, 0, 0)));
 
 			//light objects
 
