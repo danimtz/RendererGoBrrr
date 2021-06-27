@@ -1,17 +1,38 @@
 # SoftwareRendererGoBrrr
-Writing a software renderer to get an understanding of how 3D computer graphics and low level graphic API such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.
+I am writing a software renderer to get an understanding of how a 3D computer graphics pipeline and low level graphic APIs such as OpenGL, DirectX and Vulkan work at a very basic level. The renderer uses SDL2 for hardware abstraction and stbimage for image loading, the rest of the engine has been written from scratch for learning purposes.   
 
-Most of the renderer including the main features such as flat/gourad/phong shading(flat and gourad have since been deprecated) and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and added a physically based rendering shader.
+Most of the renderer including the main features such as flat/gourad/phong shading(flat and gourad have since been deprecated) and the main "engine" was written as a summer project in July 2020. After a break from the project I decided to come back to it with more knowledge and rework the renderer to more closely match the vertex/index buffer pipeline that modern graphics APIs use and added physically based rendering shader.
 
 CMake can be used to build the project
 
 (The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time.)
 
 
+
+
+## Renderer examples
+**Chest render(3 directional lights):**     
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest1.PNG" alt="Chest render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest2.PNG" alt="Chest render 2" width="450" height=100%>       
+**Cerberus gun (3 directional lights):**       
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/3869458ee9792f3df46441cbd7445f0eddffea02/SRGB/assets/RenderImages/Gun/Gun1.PNG" alt="Cerberus gun render" width="900" height=100%>      
+**Fire hydrant render(2 directional lights) (The small triangles on the hydrant "handle" are like that in the textures provided):**     
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render 2" width="450" height=100%> 
+
+**Chest PBR textures mapped onto mesh:**    
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestNormalMap.PNG" alt="Chest Normal" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestMetallic.PNG" alt="Chest Metallic" width="300" height=100%> 
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
+<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
+
+*In order: albedo, normal map, metallic map, roughness map, ambient occlusion map*
+
+
+
 ## **Main features**
 
+- Parallellized forward renderer and rasterizer using OpenMP
 - Vertex data loaded into vertex and index buffers
-- Parallellized rasterizer using OpenMP
 - Programmable vertex and fragment shaders
 - Phong/Blinn-Phong shaders
 - Perspective correct texture interpolation
@@ -33,24 +54,10 @@ CMake can be used to build the project
 - Texture loading through stb image
 - Free and orbital camera system
 
-
-
-## Renderer examples
-**Chest render(3 directional lights):**     
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest1.PNG" alt="Chest render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/Chest2.PNG" alt="Chest render 2" width="450" height=100%>       
-**Cerberus gun (3 directional lights):**       
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/3869458ee9792f3df46441cbd7445f0eddffea02/SRGB/assets/RenderImages/Gun/Gun1.PNG" alt="Cerberus gun render" width="900" height=100%>      
-**Fire hydrant render(2 directional lights) (The small triangles on the hydrant "handle" are like that in the textures provided):**     
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render 2" width="450" height=100%> 
-
-**Chest PBR textures mapped onto mesh:**    
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestNormalMap.PNG" alt="Chest Normal" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestMetallic.PNG" alt="Chest Metallic" width="300" height=100%>      
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
-
-*In order: albedo, normal map, metallic map, roughness map, ambient occlusion map*
+### **Missing features and issues**
+- No shadow rendering implementation
+- No anti-aliasing implementation
+- No texture mipmaps can lead to moire patterns
 
 ## **Renderer Controls**
 
@@ -121,3 +128,25 @@ CMake can be used to build the project
 - [x]  Split model into mesh and model and make obj file parser for the mesh create a vertex buffer with interleaved position, normal and texture data and an index buffer to avoid repeated vertices.
 - [x] Added scene swapping functionality but not from a file, hard coded in a switch statement for now
 
+## License     
+MIT License
+
+Copyright (c) 2020 Daniel Martinez Amigo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
