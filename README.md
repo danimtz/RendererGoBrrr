@@ -10,19 +10,20 @@ CMake can be used to build the project
 
 ## **Main features**
 
-- Vertex data loaded into vertex and index buffers processed in parallel using OMP
+- Vertex data loaded into vertex and index buffers
+- Parallellized rasterizer using OpenMP
 - Programmable vertex and fragment shaders
 - Phong/Blinn-Phong shaders
 - Perspective correct texture interpolation
 - Tangent space normal mapping
 - Metallic-Roughness workflow
 - Multiple directional lights
-- Physically Based Rendering shader using Cook Torrance BRDF shader
-- Swap between shaders at runtime using the numkeys
+- Physically Based Rendering using Cook Torrance BRDF shader
+- Swap between shaders and scenes at runtime using the numkeys/arrowkeys
 - Fustrum culling
 - Winding order backface culling
 - Reverse depth buffer
-- View/Camera space lighting
+- View/Camera-space lighting
 
 
 ### **Other features**
@@ -30,8 +31,7 @@ CMake can be used to build the project
 - Templated vector math and matrix library
 - .obj file loader
 - Texture loading through stb image
-- Movable camera system
-- Toggle through different shaders w/numkeys
+- Free and orbital camera system
 
 
 
@@ -49,8 +49,7 @@ CMake can be used to build the project
 <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
 <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
 
-*Top row: albedo, normal map, metallic map   
-Bottom row: roughness map, ambient occlusion map*
+*In order: albedo, normal map, metallic map, roughness map, ambient occlusion map*
 
 ## **Renderer Controls**
 
@@ -79,7 +78,11 @@ Bottom row: roughness map, ambient occlusion map*
 
 (Please contact me to correct any references if I have accidentally miscredited the original creator of any textre/mesh used)
 
-##### **Todo list:(OLD CHECKLIST)**
+
+
+
+
+## **Todo list:(OLD CHECKLIST)**
 - [x]  Window class to initialize SDL2 and provide buffer swapping to draw frame.
 - [x]  Write emplated buffer class for z-buffer(float) and pixel buffer(uint32_t).
 - [x]  Write templated vector math library.
