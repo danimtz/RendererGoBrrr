@@ -126,42 +126,42 @@ void InputHandler::handleSDLevent(bool &running, float delta_t, SDL_Event &event
 
 
 		//Change shader in renderer
-		if (event.key.keysym.sym == SDLK_3)
+		if (event.key.keysym.sym == SDLK_1)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<PhongShader>(new PhongShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_4)
+		if (event.key.keysym.sym == SDLK_2)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<BlinnPhongShader>(new BlinnPhongShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_5)
+		if (event.key.keysym.sym == SDLK_3)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<PBRShader>(new PBRShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_6)
+		if (event.key.keysym.sym == SDLK_4)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<AlbedoShader>(new AlbedoShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_7)
+		if (event.key.keysym.sym == SDLK_5)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<NormalMapShader>(new NormalMapShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_8)
+		if (event.key.keysym.sym == SDLK_6)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<MetallicShader>(new MetallicShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_9)
+		if (event.key.keysym.sym == SDLK_7)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<RoughnessShader>(new RoughnessShader());
 			m_renderer->loadShader(shader);
 		}
-		if (event.key.keysym.sym == SDLK_0)
+		if (event.key.keysym.sym == SDLK_8)
 		{
 			std::unique_ptr<IShader> shader = std::unique_ptr<AOShader>(new AOShader());
 			m_renderer->loadShader(shader);
