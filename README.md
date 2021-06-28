@@ -5,7 +5,7 @@ Most of the renderer including the main features such as flat/gourad/phong shadi
 
 CMake can be used to build the project
 
-(The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time.)
+(The project name is an old meme that happend to have the same acronym as the sRGB colour space and I found that funny at the time(i still do))
 
 
 
