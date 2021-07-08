@@ -16,7 +16,7 @@ CMake can be used to build the project
 **Cerberus gun (3 directional lights):**       
 <img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Gun/Gun1.PNG" alt="Cerberus gun render" width="900" height=100%>      
 **Fire hydrant render(2 directional lights) (The small triangles on the hydrant "handle" are like that in the textures provided):**     
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render 2" width="450" height=100%> 
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render 2" width="450" height=100%> 
 
 **Chest PBR textures mapped onto mesh:**    
 <img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
