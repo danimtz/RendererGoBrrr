@@ -19,11 +19,11 @@ CMake can be used to build the project
 <img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Hydrant/Hydrant.PNG" alt="Hydrant render" width="450" height=100%>  <img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Hydrant/Hydrant2.PNG" alt="Hydrant render 2" width="450" height=100%> 
 
 **Chest PBR textures mapped onto mesh:**    
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestNormalMap.PNG" alt="Chest Normal" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestMetallic.PNG" alt="Chest Metallic" width="300" height=100%> 
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
-<img src="https://github.com/danimtz/SoftwareRendererGoBrrr/blob/07cf90ae1329c613683526e77bd61a327cad11eb/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Chest/ChestAlbedo.PNG" alt="Chest Albedo" width="300" height=100%>
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Chest/ChestNormalMap.PNG" alt="Chest Normal" width="300" height=100%>
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Chest/ChestMetallic.PNG" alt="Chest Metallic" width="300" height=100%> 
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Chest/ChestRoughness.PNG" alt="Chest Roughness" width="300" height=100%>
+<img src="https://raw.githubusercontent.com/danimtz/SoftwareRendererGoBrrr/master/SRGB/assets/RenderImages/Chest/ChestAO.PNG" alt="Chest AO" width="300" height=100%>
 
 *In order: albedo, normal map, metallic map, roughness map, ambient occlusion map*
 
